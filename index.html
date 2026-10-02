@@ -570,7 +570,7 @@ header.top{border-bottom:3px solid var(--azul);padding-bottom:10px;margin-bottom
   <div id="print-footer" aria-hidden="true">
     <div class="pf-rule"></div>
     <p><b>Fuentes y créditos:</b> Datos: VIIRS S-NPP (NASA FIRMS) · OroraTech WildFire Solution (WFS) · MapBiomas Fuego · CHIRPS · Matriz Nacional de Capacidades SNGRD · Límites DIVIPOLA–DANE. Mapas base: Esri · OpenStreetMap · CARTO.</p>
-    <p><b>Realizado por:</b> Jorge Alpala (jorge.alpala@gestiondelriesgo.gov.co) · UNGRD – Subdirección para el Conocimiento del Riesgo.</p>
+    <p><b>Realizado por:</b> UNGRD.</p>
     <p>Herramienta de apoyo al conocimiento del riesgo en el marco de la Ley 1523 de 2012. No reemplaza las alertas oficiales del IDEAM, el SGC ni la UNGRD.</p>
   </div>
 </div>
@@ -2439,7 +2439,7 @@ async function descargarPDF() {
     const pie = () => {
       doc.setDrawColor(217, 222, 233); doc.line(MG, PH - 12, PW - MG, PH - 12);
       doc.setFont("helvetica", "normal"); doc.setFontSize(6.3); doc.setTextColor(120, 130, 150);
-      doc.text(`Generado: ${fecha} · ${hora} · No. ${id}    |    Realizado por: Jorge Alpala (jorge.alpala@gestiondelriesgo.gov.co) · UNGRD – SCR.`, MG, PH - 8.5);
+      doc.text(`Generado: ${fecha} · ${hora} · No. ${id}    |    Realizado por: UNGRD.`, MG, PH - 8.5);
       doc.text("Fuentes: VIIRS/FIRMS · OroraTech WFS · MapBiomas · CHIRPS · Capacidades SNGRD · DIVIPOLA–DANE · Mapas base Esri/OSM/CARTO. Ley 1523 de 2012; no reemplaza las alertas oficiales del IDEAM, el SGC ni la UNGRD.", MG, PH - 5.5);
     };
 
