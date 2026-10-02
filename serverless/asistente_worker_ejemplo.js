@@ -29,14 +29,16 @@
 // Orígenes autorizados a usar el asistente (su sitio de GitHub Pages).
 // Use "*" solo para pruebas; en producción liste su dominio exacto.
 const ORIGENES_PERMITIDOS = [
-  "https://USUARIO.github.io",
+  "https://jorgealpala.github.io",
   "http://localhost:8000",
   "http://127.0.0.1:8000",
 ];
 
 // Proveedor compatible con OpenAI (ejemplo: Groq, gratuito).
 const API_URL = "https://api.groq.com/openai/v1/chat/completions";
-const MODELO  = "llama-3.3-70b-versatile";
+// Se prueban en orden; usa el primero que responda (robusto ante cambios de modelos de Groq).
+// 8b-instant está disponible en el plan gratuito; los otros son respaldo/mejor calidad si su cuenta los tiene.
+const MODELOS = ["openai/gpt-oss-20b", "llama-3.1-8b-instant", "llama-3.3-70b-versatile"];
 
 const SISTEMA = `Eres el asistente de lectura de un tablero público sobre incendios forestales en Colombia (2014–2026) de la UNGRD. Ayudas a personas sin formación técnica a entender lo que ven en pantalla.
 - Español claro, tratando de usted, sin jerga; si usas un término técnico, explícalo en una frase.
@@ -97,18 +99,24 @@ export default {
           `PREGUNTA DEL USUARIO:\n${pregunta}`,
       });
 
+      const llave = String(env.GROQ_API_KEY).trim();
+      const errores = [];
       try {
-        const r = await fetch(API_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", Authorization: `Bearer ${env.GROQ_API_KEY}` },
-          body: JSON.stringify({ model: MODELO, messages: mensajes, temperature: 0.3, max_tokens: 800 }),
-        });
-        const data = await r.json();
-        const respuesta = data?.choices?.[0]?.message?.content?.trim();
-        if (!respuesta) return json({ error: "El proveedor no devolvió respuesta." }, 502, origin);
-        return json({ respuesta, proveedor: "groq" }, 200, origin);
+        for (const modelo of MODELOS) {
+          const r = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${llave}` },
+            body: JSON.stringify({ model: modelo, messages: mensajes, temperature: 0.3, max_tokens: 800 }),
+          });
+          const data = await r.json().catch(() => ({}));
+          const respuesta = data?.choices?.[0]?.message?.content?.trim();
+          if (respuesta) return json({ respuesta, proveedor: "groq:" + modelo }, 200, origin);
+          errores.push({ modelo, status: r.status, detalle: (data && data.error && data.error.message) ? data.error.message : ("HTTP " + r.status) });
+        }
+        // Ningún modelo respondió; se reportan todos los intentos (sin exponer la llave).
+        return json({ error: "Ningún modelo respondió.", errores }, 502, origin);
       } catch (e) {
-        return json({ error: "No se pudo contactar al proveedor de IA." }, 502, origin);
+        return json({ error: "No se pudo contactar al proveedor de IA.", detalle: String(e) }, 502, origin);
       }
     }
 
