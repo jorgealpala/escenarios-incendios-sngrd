@@ -6,7 +6,8 @@ servidores: todo corre en el navegador leyendo archivos por `fetch()`.
 
 > **Punto de entrada:** [`index.html`](index.html)
 > **En producción:** https://jorgealpala.github.io/escenarios-incendios-sngrd/ — con el
-> **asistente de IA activo** (Cloudflare Worker + Groq; ver sección **L**).
+> **asistente de IA activo** (Cloudflare Worker + Groq; ver sección **L**). Durante la vista
+> previa el portal puede pedir **contraseña** (candado temporal; ver sección **N**).
 
 ---
 
@@ -233,6 +234,31 @@ El portal lee rutas y nombres **convencionales** (ver tabla **E–G**). Para cre
 - **Series actualizadas** → reemplace el archivo correspondiente en `data/…`.
 - Mantenga `data/index.json` al día como inventario (opcional pero recomendado).
 - El código HTML/JS **no** cambia salvo que agregue una pestaña o cambie una estructura de datos.
+
+## N. Acceso temporal con contraseña (vista previa)
+
+Para presentar el portal a la mesa directiva **antes** del lanzamiento público, hay un candado
+opcional que pide una contraseña al entrar. Se controla con **una sola línea** en
+[`config.js`](config.js):
+
+```js
+window.PORTAL_PASSWORD = "ungrdscr";   // pide contraseña
+// window.PORTAL_PASSWORD = "";        // portal LIBRE y público (sin candado)
+```
+
+- **Activar / cambiar la contraseña:** edite ese valor y `git push`.
+- **Liberar al público** (tras la aprobación): deje `window.PORTAL_PASSWORD = "";` y `git push`.
+  El candado desaparece y el portal queda abierto. **No hay que tocar nada más** (ni el QR,
+  que sigue apuntando a la misma URL).
+- **Comportamiento:** cubre la entrada principal (`index.html`, a donde apunta el QR). Quien
+  entra una vez queda recordado en ese dispositivo (no vuelve a pedirla). Los sub-visores
+  (`wfs.html`, `capacidades`) se cargan dentro del portal ya desbloqueado.
+
+> ⚠️ **No es seguridad real.** Es un candado del lado del navegador: la contraseña queda
+> visible en el código fuente del repo público y los datos siguen siendo accesibles por URL
+> directa. Es suficiente para una **vista previa** de datos que de todos modos serán públicos.
+> Si se necesitara acceso realmente restringido, la vía correcta sería **Cloudflare Access**
+> con un dominio propio (no GitHub Pages).
 
 ---
 
