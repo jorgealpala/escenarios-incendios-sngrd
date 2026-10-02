@@ -21,4 +21,4 @@
 // Ejemplo:
 //   window.ASISTENTE_URL = "https://asistente-ungrd.mi-cuenta.workers.dev/api/asistente";
 //
-window.ASISTENTE_URL = "";
+window.ASISTENTE_URL = "https://asistente-ungrd.jorge-alpala-1987.workers.dev/api/asistente";
