@@ -1,0 +1,58 @@
+{
+  "portal": "Escenarios Incendios Forestales y Capacidades del SNGRD",
+  "descripcion": "Inventario (manifiesto) de los conjuntos de datos que alimentan el portal. Este archivo documenta QUÉ datos existen y DÓNDE van. Es la referencia para agregar nuevos datos; vea README.md, sección '¿Dónde debo colocar nuevos datos?'.",
+  "version_datos": "2026-10-02",
+  "datasets": {
+    "viirs": {
+      "descripcion": "Frecuencia de incendios VIIRS (agregados por país, departamento y municipio) + límites geográficos.",
+      "ruta": "data/viirs/",
+      "archivos": ["datos_app.json", "deptos.geojson", "municipios.geojson"],
+      "formato": "JSON / GeoJSON",
+      "lo_usa": "index.html (pestañas 'Frecuencia de incendios VIIRS' y 'Área quemada')",
+      "cobertura": "2014 – 2026",
+      "como_actualizar": "Regenerar con el pipeline (moises/app_incendios) en el entorno de desarrollo y reemplazar los 3 archivos. La metadata de datos_app.json (fecha_max, anio_fin) define el rango que el portal ofrece; al actualizarla, el portal muestra automáticamente los periodos nuevos."
+    },
+    "puntos_mes": {
+      "descripcion": "Puntos de calor VIIRS georreferenciados, agregados por mes a nivel NACIONAL. El portal pide el archivo del mes según el rango de fechas elegido.",
+      "ruta": "data/puntos_mes/",
+      "patron_archivo": "AAAA-MM.json  (p. ej. 2026-09.json)",
+      "formato": "JSON (arreglos compactos n,d,m,la,lo,f,g,c,k,mp)",
+      "lo_usa": "index.html (mapa VIIRS: vistas de calor / puntos / clúster a escala nacional)",
+      "cobertura": "2014-01 … 2026-09",
+      "como_actualizar": "Agregar el nuevo archivo del mes (p. ej. data/puntos_mes/2026-10.json). No hay que tocar código: el portal lo solicita cuando el rango de fechas incluye ese mes."
+    },
+    "puntos": {
+      "descripcion": "Puntos de calor VIIRS georreferenciados por MUNICIPIO (código DIVIPOLA). Se cargan al hacer clic en un municipio.",
+      "ruta": "data/puntos/",
+      "patron_archivo": "<divipola>.json  (p. ej. 99773.json)",
+      "formato": "JSON (misma estructura que puntos_mes)",
+      "lo_usa": "index.html (detalle de puntos por municipio)",
+      "como_actualizar": "Agregar/reemplazar el archivo del municipio correspondiente. No requiere cambios de código."
+    },
+    "lluvia": {
+      "descripcion": "Lluvia antecedente (CHIRPS, 90 días previos a cada evento de incendio). Metadatos + índice + binario compacto de eventos.",
+      "ruta": "data/lluvia/",
+      "archivos": ["lluvia_app.json", "indice.json", "eventos.bin"],
+      "formato": "JSON + binario uint16 (eventos.bin)",
+      "lo_usa": "index.html (pestaña 'Lluvia antecedente')",
+      "cobertura": "2014-04-01 … 2026-09-21",
+      "como_actualizar": "Regenerar con p09_lluvia_antecedente.py (entorno de desarrollo) y reemplazar los 3 archivos."
+    },
+    "wfs": {
+      "descripcion": "Detecciones diarias OroraTech WildFire Solution (WFS) + límites simplificados. El visor WFS (wfs.html) lee el parquet en el navegador con hyparquet.",
+      "ruta": "data/wfs/",
+      "archivos": ["incendios.parquet", "departamentos_simplificado.geojson", "municipios_simplificado.geojson"],
+      "formato": "Parquet + GeoJSON",
+      "lo_usa": "wfs.html (iframe 'Frecuencia de incendios WFS')",
+      "cobertura": "octubre–mayo, varias temporadas",
+      "como_actualizar": "Regenerar incendios.parquet con el pipeline de OroraTech y reemplazarlo. GitHub Pages soporta range-requests, así que la lectura parcial del parquet funciona correctamente."
+    },
+    "capacidades": {
+      "descripcion": "Matriz Nacional de Capacidades para la Atención de Incendios (SNGRD). NOTA: estos datos están EMBEBIDOS dentro de capacidades_sngrd.html; no hay archivo de datos separado.",
+      "ruta": "capacidades_sngrd.html (datos embebidos)",
+      "formato": "JavaScript embebido",
+      "lo_usa": "capacidades_sngrd.html (iframe 'Capacidades de respuesta')",
+      "como_actualizar": "En el entorno de desarrollo, correr actualizar_capacidades.py con los nuevos .xlsx (ver LEEME_capacidades) y copiar el capacidades_sngrd.html regenerado a esta carpeta."
+    }
+  }
+}

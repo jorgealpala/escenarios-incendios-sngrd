@@ -1,0 +1,37 @@
+# ============================================================================
+#  wrangler.toml — configuración del proxy serverless del Asistente de IA
+#  (Cloudflare Workers). Despliega asistente_worker_ejemplo.js.
+# ============================================================================
+#
+#  Uso:
+#    1. npm i -g wrangler
+#    2. wrangler login
+#    3. Guarde la llave como SECRETO (NO la escriba en este archivo):
+#         wrangler secret put GROQ_API_KEY
+#       (llave gratuita en https://console.groq.com)
+#    4. Edite ORIGENES_PERMITIDOS dentro de asistente_worker_ejemplo.js con la
+#       URL de su GitHub Pages.
+#    5. Desde esta carpeta (serverless/):  wrangler deploy
+#    6. Copie la URL publicada y póngala en ../config.js:
+#         window.ASISTENTE_URL = "https://<su-worker>.workers.dev/api/asistente";
+#
+#  La llave NUNCA va en este archivo ni en el repositorio: vive como secreto
+#  cifrado en Cloudflare.
+# ----------------------------------------------------------------------------
+
+name = "asistente-ungrd"
+main = "asistente_worker_ejemplo.js"
+compatibility_date = "2025-01-01"
+
+# El Worker responde en https://<name>.<su-subdominio>.workers.dev
+# El portal llama a esa URL + "/api/asistente" (y "/estado" para el sondeo).
+# Si usa un dominio propio en Cloudflare, puede añadir una ruta:
+#
+# [[routes]]
+# pattern = "asistente.midominio.gov.co/api/*"
+# zone_name = "midominio.gov.co"
+
+# Variables NO secretas (opcional). La llave GROQ_API_KEY se define con
+# `wrangler secret put`, NO aquí.
+[vars]
+# MODELO = "llama-3.3-70b-versatile"

@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>try{if(new URLSearchParams(location.search).has('embed'))document.documentElement.classList.add('embed');}catch(e){}</script>
+<title>App escenarios fenómeno de El Niño - Colombia</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔥</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+<style>
+  :root{
+    --azul:#0E3A66; --azul-2:#1F5A94; --brasa:#C2410C;
+    --fondo:#F2F4F7; --panel:#FFFFFF; --linea:#D9DEE5;
+    --texto:#1B2430; --tenue:#5B6878;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0}
+  body{font-family:"Public Sans",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:var(--texto);background:var(--fondo);display:flex;flex-direction:column;font-size:14px}
+
+  header{display:flex;align-items:center;gap:20px;padding:10px 22px;background:var(--panel);border-bottom:3px solid var(--azul)}
+  header img{height:46px;width:auto}
+  header .sep{width:1px;align-self:stretch;background:var(--linea)}
+  header h1{margin:0;font-size:1.35rem;font-weight:700;color:var(--azul);letter-spacing:-.01em}
+  header p{margin:2px 0 0;color:var(--tenue);font-size:.85rem}
+  html.embed header{display:none}   /* oculto cuando va embebido en la app macro (?embed=1) */
+
+  main{flex:1;display:grid;grid-template-columns:minmax(360px,44%) 1fr;min-height:0}
+  #mapa-wrap{position:relative;border-right:1px solid var(--linea);min-height:0}
+  #mapa{position:absolute;inset:0;background:#E6EBF0}
+  .leaflet-interactive:focus{outline:none}
+
+  /* Panel de representación sobre el mapa */
+  .vista{background:#fff;border:1px solid var(--linea);border-radius:6px;padding:8px 10px;font-size:12px;display:flex;flex-direction:column;gap:6px;min-width:210px}
+  .vista label{color:var(--tenue)}
+  .vista select{font:inherit;padding:3px 6px;border:1px solid var(--linea);border-radius:4px;background:#fff;color:var(--texto)}
+  .vista .fila{display:flex;flex-direction:column;gap:3px}
+  .vista .seg button{font-size:12px;padding:3px 8px}
+
+  .leyenda{background:#fff;padding:8px 10px;border:1px solid var(--linea);border-radius:4px;font-size:12px;line-height:1.5;min-width:150px}
+  .leyenda b{display:block;margin-bottom:4px;font-weight:600}
+  .leyenda i{display:inline-block;width:14px;height:10px;margin-right:6px;border:1px solid rgba(0,0,0,.15);vertical-align:middle}
+  .leyenda i.pt{width:10px;height:10px;border-radius:50%}
+  .leyenda .grad{height:10px;width:160px;border-radius:2px;background:linear-gradient(90deg,#2B6CB0,#38A169,#ECC94B,#DD6B20,#C53030)}
+  .leyenda .extremos{display:flex;justify-content:space-between;color:var(--tenue)}
+  .leyenda .nota{color:var(--tenue);margin-top:4px}
+
+  #panel{display:flex;flex-direction:column;min-height:0;overflow:auto;padding:12px 18px 14px}
+  .barra{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+  #miga{font-size:1.1rem;font-weight:600;display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+  #miga button{all:unset;cursor:pointer;color:var(--azul-2);border-bottom:1px solid transparent}
+  #miga button:hover,#miga button:focus-visible{border-bottom-color:var(--azul-2)}
+  #miga .actual{color:var(--texto)}
+  #miga .div{color:var(--tenue);font-weight:400}
+  #total{color:var(--tenue);font-size:.88rem}
+
+  .controles{display:flex;flex-direction:column;gap:8px;padding:8px 12px;background:var(--panel);border:1px solid var(--linea);border-radius:6px;margin-bottom:12px}
+  .fila-ctl{display:flex;flex-wrap:wrap;gap:8px 22px;align-items:center;justify-content:space-between}
+  .fila-ctl .izq{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center}
+  .grupo{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+  .grupo > span{color:var(--tenue);font-size:.82rem;margin-right:2px}
+  .chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border:1px solid var(--linea);border-radius:999px;background:#fff;cursor:pointer;font:inherit;font-size:.85rem;color:var(--texto)}
+  .chip .sw{width:10px;height:10px;border-radius:50%}
+  .chip[aria-pressed="false"]{color:#9AA4B1;background:#F6F7F9}
+  .chip[aria-pressed="false"] .sw{background:#C9CFD7 !important}
+  .chip.conf{padding:4px 8px;font-variant-numeric:tabular-nums}
+  .chip:focus-visible,.seg button:focus-visible,.link:focus-visible,.vista select:focus-visible{outline:2px solid var(--azul-2);outline-offset:2px}
+  .link{all:unset;cursor:pointer;color:var(--azul-2);font-size:.82rem;text-decoration:underline;text-underline-offset:2px}
+  .seg{display:inline-flex;border:1px solid var(--linea);border-radius:5px;overflow:hidden}
+  .seg button{font:inherit;font-size:.82rem;padding:4px 10px;border:0;background:#fff;cursor:pointer;color:var(--texto)}
+  .seg button+button{border-left:1px solid var(--linea)}
+  .seg button[aria-pressed="true"]{background:var(--azul);color:#fff}
+
+  #graficas{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(4,minmax(160px,1fr));gap:10px;flex:1}
+  #g-consolidada{margin-top:12px;flex:none}
+  #g-consolidada .lienzo{flex:none;height:320px;min-height:320px}
+  .graf{background:var(--panel);border:1px solid var(--linea);border-radius:6px;padding:8px 12px 4px;display:flex;flex-direction:column;min-height:0}
+  .graf h3{margin:0;font-size:.98rem;font-weight:600;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+  .graf h3 small{font-weight:400;color:var(--tenue);font-size:.8rem}
+  .graf .lienzo{position:relative;flex:1;min-height:150px;margin-top:2px}
+
+  #cargando{position:fixed;inset:0;background:rgba(242,244,247,.94);display:flex;align-items:center;justify-content:center;z-index:2000}
+  #cargando div{max-width:520px;padding:24px 28px;background:#fff;border:1px solid var(--linea);border-radius:8px;border-top:4px solid var(--brasa)}
+  #cargando h2{margin:0 0 6px;font-size:1.05rem}
+  #cargando p{margin:0;color:var(--tenue);line-height:1.5}
+  #cargando code{background:#F1F3F6;padding:1px 5px;border-radius:3px;color:var(--texto)}
+
+  /* Análisis complementario */
+  #complementarias{margin-top:18px;display:flex;flex-direction:column;gap:10px}
+  #complementarias > h2{margin:0;font-size:1.05rem;font-weight:700;color:var(--azul)}
+  #complementarias > p{margin:-4px 0 0;color:var(--tenue);font-size:.84rem}
+  .fila2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .fila2.solo > #g-top{display:none}
+  .fila2.solo{grid-template-columns:1fr}
+  .graf .desc{margin:2px 0 6px;color:var(--tenue);font-size:.8rem;line-height:1.4}
+  #g-top .lienzo,#g-mes .lienzo{min-height:280px}
+  #estac{display:grid;gap:2px;font-size:.78rem;overflow-x:auto;padding-bottom:4px}
+  #estac .rot{color:var(--tenue);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:8px;align-self:center}
+  #estac .rot.clic{cursor:pointer;color:var(--azul-2)}
+  #estac .rot.clic:hover{text-decoration:underline}
+  #estac .mes{color:var(--tenue);text-align:center;padding-bottom:2px}
+  #estac .celda{height:24px;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-variant-numeric:tabular-nums;min-width:34px}
+  #estac-ley{display:flex;align-items:center;gap:8px;font-size:.75rem;color:var(--tenue);margin-top:6px}
+  #estac-ley .barra-c{width:180px;height:10px;border-radius:2px;background:linear-gradient(90deg,#FDE7CF,#F7B97E,#EE8547,#D2512A,#9A2617)}
+  .vacio{color:var(--tenue);padding:16px 0;font-size:.85rem}
+
+  footer{padding:6px 22px;font-size:.75rem;color:var(--tenue);background:var(--panel);border-top:1px solid var(--linea)}
+
+  @media (max-width:980px){
+    main{grid-template-columns:1fr;grid-auto-rows:min-content}
+    #mapa-wrap{height:60vh;border-right:0;border-bottom:1px solid var(--linea)}
+    #panel{overflow:visible}
+  }
+  @media (max-width:640px){
+    #graficas{grid-template-columns:1fr}
+    .fila2{grid-template-columns:1fr}
+    header{flex-wrap:wrap;gap:10px}
+    header .sep{display:none}
+  }
+</style>
+</head>
+<body>
+<header>
+  <img src="assets/logo/ungrd-horizontal.png" alt="Unidad Nacional para la Gestión del Riesgo de Desastres">
+  <span class="sep"></span>
+  <div>
+    <h1>App escenarios fenómeno de El Niño - Colombia</h1>
+    <p>Detecciones satelitales diarias de incendios, octubre a mayo. Fuente: OroraTech WFS</p>
+  </div>
+</header>
+
+<main>
+  <section id="mapa-wrap" aria-label="Mapa"><div id="mapa"></div></section>
+
+  <section id="panel" aria-label="Gráficas">
+    <div class="barra">
+      <nav id="miga" aria-label="Nivel de consulta"></nav>
+      <span id="total"></span>
+    </div>
+
+    <div class="controles">
+      <div class="fila-ctl">
+        <div class="izq">
+          <div class="grupo" id="anios" role="group" aria-label="Series"></div>
+          <div class="grupo">
+            <button class="link" id="todos">Todos</button>
+            <button class="link" id="ninguno">Ninguno</button>
+          </div>
+        </div>
+        <div class="grupo" role="group" aria-label="Nivel de confianza">
+          <span>Confianza</span>
+          <span id="confs" class="grupo"></span>
+        </div>
+      </div>
+      <div class="fila-ctl">
+        <div class="izq">
+          <div class="grupo">
+            <span>Vista</span>
+            <div class="seg" id="registro">
+              <button data-v="diario" aria-pressed="false">Registro diario</button>
+              <button data-v="acumulado" aria-pressed="true">Registro acumulado</button>
+            </div>
+          </div>
+          <div class="grupo">
+            <span>Agrupar por</span>
+            <div class="seg" id="modo">
+              <button data-v="cal" aria-pressed="true">Año calendario</button>
+              <button data-v="tem" aria-pressed="false">Temporada oct–may</button>
+            </div>
+          </div>
+          <div class="grupo">
+            <span>Eje vertical</span>
+            <div class="seg" id="escala">
+              <button data-v="ind" aria-pressed="true">Por gráfica</button>
+              <button data-v="com" aria-pressed="false">Común</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="graficas"></div>
+
+    <article class="graf" id="g-consolidada">
+      <h3><span>Consolidado de la temporada · octubre a mayo</span><small></small></h3>
+      <p class="desc">Una línea por <b>temporada</b> (octubre de un año a mayo del siguiente), en un eje continuo. Cambie entre registro diario y acumulado con el filtro <b>Vista</b>. Haga clic en la leyenda para mostrar u ocultar temporadas. La línea punteada es el promedio de las temporadas. La temporada en curso aparece a medida que llegan datos.</p>
+      <div class="grupo" style="margin-bottom:6px">
+        <button class="link" id="tempTodos">Ver todas</button>
+        <button class="link" id="tempNinguno">Ver ninguna</button>
+      </div>
+      <div class="lienzo"><canvas aria-label="Incendios consolidados de octubre a mayo"></canvas></div>
+      <div id="consol-leg" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px"></div>
+    </article>
+
+    <section id="complementarias" aria-label="Análisis complementario">
+      <h2>Distribución espacial y estacional</h2>
+      <p id="comp-nota"></p>
+      <div class="fila2" id="fila2">
+        <article class="graf" id="g-top">
+          <h3><span id="top-tit"></span></h3>
+          <p class="desc" id="top-desc"></p>
+          <div class="lienzo"><canvas aria-label="Ranking por detecciones"></canvas></div>
+        </article>
+        <article class="graf" id="g-mes">
+          <h3><span>Distribución histórica por mes</span><small id="mes-sub"></small></h3>
+          <p class="desc">Señala las ventanas en que conviene concentrar recursos de prevención y respuesta. El mes con más detecciones se resalta.</p>
+          <div class="lienzo"><canvas aria-label="Detecciones por mes del año"></canvas></div>
+        </article>
+      </div>
+      <article class="graf" id="g-estac">
+        <h3><span id="estac-tit"></span></h3>
+        <p class="desc" id="estac-desc"></p>
+        <div id="estac"></div>
+        <div id="estac-ley"><span>0</span><span class="barra-c"></span><span id="estac-max"></span><span>detecciones</span></div>
+      </article>
+    </section>
+  </section>
+</main>
+
+<footer>
+  <div>Conteo por fecha de primera adquisición (<code>oldest_acquisition</code>) en hora de Colombia (UTC−5). Confianza según el campo <code>confidence</code> (0,0 a 1,0). UNGRD – Subdirección para el Conocimiento del Riesgo.</div>
+  <div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--linea)">
+    <b>Fuentes y créditos:</b> Datos: OroraTech WildFire Solution (WFS) · Límites: DIVIPOLA - DANE.
+    Desarrollado con Python, Streamlit, Folium/Leaflet, GeoPandas, Shapely, Pandas, Altair, Matplotlib y ReportLab. Mapas base: OpenStreetMap · CARTO.
+  </div>
+</footer>
+
+<div id="cargando" role="status"><div><h2>Cargando datos</h2><p id="msg">Leyendo incendios.parquet…</p></div></div>
+
+<script type="module">
+import { parquetRead } from 'https://cdn.jsdelivr.net/npm/hyparquet@1.31.2/+esm';
+
+/* ---------- Configuración ---------- */
+const RUTA = {
+  parquet: 'data/wfs/incendios.parquet',
+  deptos:  'data/wfs/departamentos_simplificado.geojson',
+  munis:   'data/wfs/municipios_simplificado.geojson'
+};
+const DESFASE_H = -5;   // hora de Colombia; poner 0 para usar UTC
+const MESES = [[10,'Octubre',31],[11,'Noviembre',30],[12,'Diciembre',31],[1,'Enero',31],[2,'Febrero',29],[3,'Marzo',31],[4,'Abril',30],[5,'Mayo',31]];
+const PRIMER_MES = 10, ULTIMO_MES = 5;   // temporada oct–may (los meses de MESES en orden)
+// Eje continuo día a día de toda la temporada (para la gráfica consolidada)
+const EJE_CONS = [];
+MESES.forEach(([m, nombre, nd], mi) => { for(let d=0; d<nd; d++) EJE_CONS.push({mi, m, nombre, d}); });
+// 29 de febrero: solo existe en años bisiestos. Se omite del PROMEDIO para que
+// el denominador no cambie de golpe (evita un pico/valle artificial ese día).
+const IDX_FEB29 = EJE_CONS.findIndex(e => e.m === 2 && e.d === 28);
+const PALETA = ['#1F5A94','#D9711C','#2A9D8F','#B8336A','#6A5ACD','#7A8B2F','#4B4B4B','#E0A100'];
+const RAMPA  = ['#FDE7CF','#F7B97E','#EE8547','#D2512A','#9A2617'];          // Jenks y cuantiles
+const TECNICO = [                                                            // rangos técnicos fijos
+  {max:100,  nombre:'Bajo',     color:'#FFF3B0'},
+  {max:500,  nombre:'Moderado', color:'#FFD166'},
+  {max:1500, nombre:'Alto',     color:'#F4A259'},
+  {max:4000, nombre:'Muy alto', color:'#E4572E'},
+  {max:8000, nombre:'Crítico',  color:'#B3001B'},
+  {max:Infinity, nombre:'Extremo', color:'#5C0010'}
+];
+const CERO   = '#F4F6F8';
+const NIVELES_CONF = [0, .2, .4, .6, .8, 1];
+const COLOR_CONF = ['#9AA4B1','#F6C343','#F29E38','#E4572E','#B3001B','#5C0010'];
+const CONF_VISIBLES = [3, 4, 5];   // solo se ofrecen confianzas 0,6 · 0,8 · 1,0
+const GRADIENTE_CALOR = {0.2:'#2B6CB0', 0.4:'#38A169', 0.6:'#ECC94B', 0.8:'#DD6B20', 1:'#C53030'};
+const BOGOTA = '11001';
+
+const $ = s => document.querySelector(s);
+const msg = t => $('#msg').innerHTML = t;
+const fmt = n => n.toLocaleString('es-CO');
+
+/* ---------- Estado ---------- */
+const E = {
+  modo:'cal', escala:'ind', registro:'acumulado',
+  depto:null, muni:null,
+  activos:{cal:new Set(), tem:new Set()},
+  confs:new Set(CONF_VISIBLES),
+  temporadas:null,   // temporadas visibles en la consolidada (null = todas)
+  vistaArea:'coro',     // nacional/departamental: 'coro' | 'calor'
+  vistaMuni:'cluster',  // municipal: 'cluster' | 'puntos' | 'calor'
+  clasif:'jenks'        // 'jenks' | 'cuantil' | 'tecnico'
+};
+let D, nomDep = {}, nomMun = {}, gjMun;
+let ok;     // serie activa + confianza + mes oct–mar (mapa y gráficas diarias)
+let okAnual; // serie activa + confianza, los 12 meses (gráficas complementarias)
+
+/* ---------- Carga ---------- */
+async function bajar(url, tipo){
+  // 'no-cache' obliga a revalidar con el servidor: si el archivo cambió, se descarga la versión nueva
+  const r = await fetch(url, {cache:'no-cache'});
+  if(!r.ok) throw new Error(`No se encontró ${url} (HTTP ${r.status})`);
+  return tipo === 'json' ? r.json() : r.arrayBuffer();
+}
+async function iniciar(){
+  if(location.protocol === 'file:'){
+    msg(`El navegador bloquea la lectura de archivos locales al abrir el HTML con doble clic.<br><br>
+      Abra una terminal en la carpeta <code>app_enso_wfs</code> y ejecute <code>python -m http.server 8000</code>;
+      luego ingrese a <code>http://localhost:8000</code>.`);
+    return;
+  }
+  try{
+    msg('Descargando capas y datos…');
+    const [gjDep, gjM, buf] = await Promise.all([
+      bajar(RUTA.deptos,'json'), bajar(RUTA.munis,'json'), bajar(RUTA.parquet,'bin')
+    ]);
+    gjMun = gjM;
+    gjDep.features.forEach(f => nomDep[f.properties.DeCodigo] = f.properties.DeNombre);
+    gjMun.features.forEach(f => {
+      f.properties._dep = f.properties.MpCodigo === BOGOTA ? BOGOTA : f.properties.MpCodigo.slice(0,2);
+      nomMun[f.properties.MpCodigo] = f.properties.MpNombre;
+    });
+    msg('Procesando detecciones…');
+    await new Promise(res => parquetRead({
+      file: buf,
+      columns: ['oldest_acquisition','cod_depto','cod_muni','lon','lat','confidence'],
+      onComplete: filas => { D = compactar(filas); res(); }
+    }));
+    construirControles();
+    construirGraficas();
+    construirMapa(gjDep);
+    actualizar();
+    $('#cargando').remove();
+  }catch(err){
+    console.error(err);
+    msg(`No fue posible cargar los datos: ${err.message}.<br>Verifique que los archivos estén en <code>data/wfs/</code>.`);
+  }
+}
+
+/* Arreglos tipados; solo se conservan octubre–marzo */
+function compactar(filas){
+  const n = filas.length;
+  const mes = new Uint8Array(n), dia = new Uint8Array(n), cal = new Uint16Array(n), tem = new Uint16Array(n);
+  const dep = new Int32Array(n), mun = new Int32Array(n), conf = new Uint8Array(n);
+  const lat = new Float32Array(n), lon = new Float32Array(n), t = new Float64Array(n);
+  let k = 0, tMin = Infinity, tMax = -Infinity;
+  for(const [fecha, cd, cm, x, y, c] of filas){
+    const ms = Date.parse(fecha);
+    if(Number.isNaN(ms)) continue;
+    if(ms < tMin) tMin = ms; if(ms > tMax) tMax = ms;
+    const d = new Date(ms + DESFASE_H*3600e3);
+    const m = d.getUTCMonth()+1;
+    const yy = d.getUTCFullYear();
+    mes[k]=m; dia[k]=d.getUTCDate(); cal[k]=yy; tem[k]= m>=10 ? yy : yy-1;
+    dep[k] = cd ? +cd : -1; mun[k] = cm ? +cm : -1;
+    conf[k] = Math.max(0, Math.min(5, Math.round((c ?? 0)*5)));
+    lat[k]=y; lon[k]=x; t[k]=ms;
+    k++;
+  }
+  const aDia = ms => { const d = new Date(ms + DESFASE_H*3600e3); return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()); };
+  const sub = a => a.subarray(0,k);
+  const out = {ini:aDia(tMin), fin:aDia(tMax), n:k, mes:sub(mes), dia:sub(dia), cal:sub(cal), tem:sub(tem),
+               dep:sub(dep), mun:sub(mun), conf:sub(conf), lat:sub(lat), lon:sub(lon), t:sub(t)};
+  out.series = { cal:[...new Set(out.cal)].sort(), tem:[...new Set(out.tem)].sort() };
+  out.series.cal.forEach(y => E.activos.cal.add(y));
+  out.series.tem.forEach(y => E.activos.tem.add(y));
+  return out;
+}
+
+const etiqueta = y => E.modo === 'cal' ? String(y) : `${y}–${y+1}`;
+const colorSerie = y => PALETA[D.series[E.modo].indexOf(y) % PALETA.length];
+
+/* ---------- Máscara de filtros ---------- */
+function calcularMascara(){
+  ok = new Uint8Array(D.n); okAnual = new Uint8Array(D.n);
+  const serie = E.modo==='cal' ? D.cal : D.tem, act = E.activos[E.modo], cf = E.confs;
+  for(let i=0;i<D.n;i++){
+    if(!(act.has(serie[i]) && cf.has(D.conf[i]))) continue;
+    okAnual[i] = 1;
+    const m = D.mes[i];
+    if(m >= PRIMER_MES || m <= ULTIMO_MES) ok[i] = 1;
+  }
+}
+function filtroNivel(){
+  if(E.muni) { const m = +E.muni; return i => D.mun[i] === m; }
+  if(E.depto){ const d = +E.depto; return i => D.dep[i] === d; }
+  return null;
+}
+
+/* ---------- Controles ---------- */
+function construirControles(){
+  pintarChips();
+  const cc = $('#confs');
+  CONF_VISIBLES.forEach(idx => {
+    const v = NIVELES_CONF[idx];
+    const b = document.createElement('button');
+    b.className = 'chip conf'; b.setAttribute('aria-pressed','true');
+    b.title = `Confianza ${v.toFixed(1)}`;
+    b.innerHTML = `<span class="sw" style="background:${COLOR_CONF[idx]}"></span>${v.toFixed(1).replace('.',',')}`;
+    b.onclick = () => {
+      E.confs.has(idx) ? E.confs.delete(idx) : E.confs.add(idx);
+      b.setAttribute('aria-pressed', E.confs.has(idx));
+      actualizar();
+    };
+    cc.appendChild(b);
+  });
+  $('#todos').onclick = () => { D.series[E.modo].forEach(y => E.activos[E.modo].add(y)); pintarChips(); actualizar(); };
+  $('#ninguno').onclick = () => { E.activos[E.modo].clear(); pintarChips(); actualizar(); };
+  $('#tempTodos').onclick = () => { E.temporadas = new Set(seasonsDisp); actualizarGraficas(); };
+  $('#tempNinguno').onclick = () => { E.temporadas = new Set(); actualizarGraficas(); };
+  segmento('#modo', v => { E.modo = v; pintarChips(); actualizar(); });
+  segmento('#escala', v => { E.escala = v; actualizarGraficas(); });
+  segmento('#registro', v => { E.registro = v; actualizarGraficas(); });
+}
+function segmento(sel, fn){
+  const cont = typeof sel === 'string' ? $(sel) : sel;
+  cont.querySelectorAll('button').forEach(b => b.onclick = () => {
+    cont.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x===b));
+    fn(b.dataset.v);
+  });
+}
+function pintarChips(){
+  const cont = $('#anios'); cont.innerHTML = '';
+  D.series[E.modo].forEach(y => {
+    const b = document.createElement('button');
+    b.className = 'chip';
+    b.setAttribute('aria-pressed', E.activos[E.modo].has(y));
+    b.innerHTML = `<span class="sw" style="background:${colorSerie(y)}"></span>${etiqueta(y)}`;
+    b.onclick = () => {
+      const s = E.activos[E.modo];
+      s.has(y) ? s.delete(y) : s.add(y);
+      b.setAttribute('aria-pressed', s.has(y));
+      actualizar();
+    };
+    cont.appendChild(b);
+  });
+}
+
+/* ---------- Gráficas ---------- */
+const graficas = [];
+let chCons;   // gráfica consolidada oct–may
+let seasonsDisp = [];   // temporadas disponibles (caché para Ver todas / Ver ninguna)
+// Estilo de la línea de promedio (negro punteado, común a todas las gráficas)
+const ESTILO_PROM = {borderColor:'#1B2430', backgroundColor:'#1B2430', borderWidth:2, borderDash:[6,4],
+                     pointRadius:0, pointHoverRadius:3, tension:.2, cubicInterpolationMode:'monotone', spanGaps:true};
+function construirGraficas(){
+  Chart.defaults.font.family = '"Public Sans",system-ui,sans-serif';
+  Chart.defaults.font.size = 11;
+  Chart.defaults.locale = 'es-CO';
+  Chart.defaults.color = '#5B6878';
+  MESES.forEach(([m,nombre,nd]) => {
+    const art = document.createElement('article');
+    art.className = 'graf';
+    art.innerHTML = `<h3>${nombre}<small></small></h3><div class="lienzo"><canvas aria-label="Incendios en ${nombre}"></canvas></div>`;
+    $('#graficas').appendChild(art);
+    const ch = new Chart(art.querySelector('canvas'), {
+      type:'line',
+      data:{labels:Array.from({length:nd},(_,i)=>i+1), datasets:[]},
+      options:{
+        responsive:true, maintainAspectRatio:false, animation:{duration:250},
+        interaction:{mode:'index', intersect:false},
+        plugins:{ legend:{display:false},
+          tooltip:{callbacks:{title:it=>`${it[0].label} de ${nombre.toLowerCase()}`, label:it=>` ${it.dataset.label}: ${fmt(it.parsed.y)}`}} },
+        scales:{
+          x:{grid:{display:false}, ticks:{autoSkip:true, maxRotation:0}, title:{display:true,text:'Día'}},
+          y:{beginAtZero:true, grid:{color:'#EDF0F3'}, ticks:{precision:0}, title:{display:true,text:'Incendios'}}
+        }
+      }
+    });
+    graficas.push({ch, art, nd});
+  });
+
+  // Gráfica consolidada: toda la temporada oct–may en un eje continuo
+  chCons = new Chart($('#g-consolidada canvas'), {
+    type:'line',
+    data:{labels:EJE_CONS.map(e => e.d===0 ? MES_CORTO[e.m-1] : ''), datasets:[]},
+    options:{
+      responsive:true, maintainAspectRatio:false, animation:{duration:250},
+      interaction:{mode:'nearest', intersect:false, axis:'xy'},
+      plugins:{ legend:{display:false},
+        tooltip:{callbacks:{
+          title:it => it[0].dataset.label,   // leyenda de la serie bajo el cursor (ej. Oct 2025–May 2026)
+          label:it => { const e = EJE_CONS[it.dataIndex]; return ` ${e.d+1} de ${e.nombre.toLowerCase()}: ${fmt(it.parsed.y)}`; } }} },
+      scales:{
+        x:{grid:{display:false}, ticks:{autoSkip:false, maxRotation:0, font:{weight:'600'}}},
+        y:{beginAtZero:true, grid:{color:'#EDF0F3'}, ticks:{precision:0}, title:{display:true,text:'Incendios'}}
+      }
+    }
+  });
+}
+function actualizarGraficas(){
+  const ys = D.series[E.modo], idx = new Map(ys.map((y,i)=>[y,i]));
+  const serie = E.modo==='cal' ? D.cal : D.tem;
+  const NM = MESES.length;
+  const pos = {}; MESES.forEach(([m],i) => pos[m] = i);
+  const c = new Uint32Array(ys.length*NM*31);
+  const f = filtroNivel();
+  for(let i=0;i<D.n;i++){
+    if(!ok[i] || (f && !f(i))) continue;
+    c[(idx.get(serie[i])*NM + pos[D.mes[i]])*31 + D.dia[i]-1]++;
+  }
+  const act = ys.filter(y => E.activos[E.modo].has(y));
+  const acum = E.registro === 'acumulado';
+  // Año calendario real de un mes de la serie (en temporada, ene–may caen en y+1)
+  const anioReal = (y, mi) => E.modo==='cal' ? y : (mi < 3 ? y : y+1);
+  const valido = (y, mi, d) => {
+    const fe = Date.UTC(anioReal(y,mi), MESES[mi][0]-1, d+1);
+    return new Date(fe).getUTCDate() === d+1 && fe >= D.ini && fe <= D.fin;
+  };
+  const estiloSerie = y => ({label:etiqueta(y), borderColor:colorSerie(y), backgroundColor:colorSerie(y),
+      borderWidth:1.6, pointRadius:0, pointHoverRadius:3, tension:.2, cubicInterpolationMode:'monotone', spanGaps:acum});
+  // Promedio punto a punto sobre las series activas (ignora días sin dato)
+  const promedio = dss => dss[0].data.map((_,d) => {
+    let s=0, n=0; dss.forEach(ds => { const v = ds.data[d]; if(v!=null){ s+=v; n++; } });
+    return n ? Math.round(s/n*10)/10 : null;
+  });
+
+  let maxG = 0, totalG = 0;
+  // --- gráficas mensuales individuales (acumulado reinicia en cada mes) ---
+  graficas.forEach(({ch, art, nd}, mi) => {
+    let tot = 0;
+    const dss = act.map(y => {
+      let run = 0;
+      const data = Array.from({length:nd}, (_,d) => {
+        if(!valido(y, mi, d)) return null;
+        const x = c[(idx.get(y)*NM+mi)*31 + d]; tot += x; run += x;
+        const val = acum ? run : x; if(val > maxG) maxG = val; return val;
+      });
+      return {data, ...estiloSerie(y)};
+    });
+    if(dss.length >= 2){
+      const p = promedio(dss);
+      if(MESES[mi][0] === 2) p[28] = null;   // omite el 29-feb del promedio mensual
+      p.forEach(v => { if(v!=null && v > maxG) maxG = v; });
+      dss.push({label:'Promedio', data:p, ...ESTILO_PROM});
+    }
+    ch.data.datasets = dss;
+    totalG += tot;
+    art.querySelector('small').textContent = `${fmt(tot)} detecciones`;
+  });
+  graficas.forEach(({ch}) => { ch.options.scales.y.max = E.escala==='com' && maxG>0 ? Math.ceil(maxG*1.05) : undefined; ch.update(); });
+
+  // --- gráfica consolidada: SIEMPRE por temporada (oct Y – may Y+1),
+  //     independiente del toggle «Agrupar por». Una línea por temporada. ---
+  if(chCons){
+    const seasons = D.series.tem, idxT = new Map(seasons.map((s,i) => [s,i]));
+    // conteo propio por temporada (confianza + meses oct–may + filtro geográfico)
+    const cT = new Uint32Array(seasons.length*NM*31);
+    for(let i=0;i<D.n;i++){
+      if(!E.confs.has(D.conf[i])) continue;
+      const m = D.mes[i];
+      if(!(m >= 10 || m <= 5)) continue;
+      if(f && !f(i)) continue;
+      const ti = idxT.get(D.tem[i]); if(ti === undefined) continue;
+      cT[(ti*NM + pos[m])*31 + D.dia[i]-1]++;
+    }
+    const validoT = (s, mi, d) => {
+      const yy = mi < 3 ? s : s + 1;   // oct–dic en s; ene–may en s+1
+      const fe = Date.UTC(yy, MESES[mi][0]-1, d+1);
+      return new Date(fe).getUTCDate() === d+1 && fe >= D.ini && fe <= D.fin;
+    };
+    const colorTemp = s => PALETA[seasons.indexOf(s) % PALETA.length];
+    const estiloTemp = s => ({label:`Oct ${s}–May ${s+1}`, borderColor:colorTemp(s), backgroundColor:colorTemp(s),
+        borderWidth:1.6, pointRadius:0, pointHoverRadius:3, tension:.2, cubicInterpolationMode:'monotone', spanGaps:acum});
+    seasonsDisp = seasons;
+    if(E.temporadas === null) E.temporadas = new Set(seasons);      // por defecto, todas visibles
+    const actT = seasons.filter(s => E.temporadas.has(s));          // temporadas elegidas en la leyenda
+    let totC = 0;
+    const dssC = actT.map(s => {
+      let run = 0;
+      const data = EJE_CONS.map(({mi,d}) => {
+        if(!validoT(s, mi, d)) return null;
+        const x = cT[(idxT.get(s)*NM+mi)*31 + d]; totC += x; run += x;
+        return acum ? run : x;
+      });
+      return {data, ...estiloTemp(s)};
+    });
+    if(dssC.length >= 2){
+      const p = promedio(dssC);
+      if(IDX_FEB29 >= 0) p[IDX_FEB29] = null;   // omite el 29-feb del promedio consolidado
+      dssC.push({label:'Promedio', data:p, ...ESTILO_PROM});
+    }
+    chCons.data.datasets = dssC;
+    chCons.update();
+    $('#g-consolidada small').textContent = `${fmt(totC)} detecciones · ${acum ? 'acumulado' : 'registro diario'} · por temporada`;
+    // leyenda interactiva de temporadas (click = mostrar/ocultar)
+    const leg = $('#consol-leg'); leg.innerHTML = '';
+    seasons.forEach(s => {
+      const on = E.temporadas.has(s);
+      const b = document.createElement('button');
+      b.className = 'chip'; b.setAttribute('aria-pressed', on);
+      b.title = (on ? 'Ocultar ' : 'Mostrar ') + `Oct ${s}–May ${s+1}`;
+      b.innerHTML = `<span class="sw" style="background:${colorTemp(s)}"></span>Oct ${s}–May ${s+1}`;
+      b.onclick = () => { E.temporadas.has(s) ? E.temporadas.delete(s) : E.temporadas.add(s); actualizarGraficas(); };
+      leg.appendChild(b);
+    });
+    if(dssC.some(d => d.label === 'Promedio')){
+      const p = document.createElement('span'); p.className = 'chip'; p.style.cursor = 'default';
+      p.innerHTML = `<span class="sw" style="background:#1B2430;border-radius:1px;height:3px"></span>Promedio`;
+      leg.appendChild(p);
+    }
+  }
+
+  const vacio = !act.length ? 'Seleccione al menos una serie' : !E.confs.size ? 'Seleccione al menos un nivel de confianza' : null;
+  $('#total').textContent = vacio || `${fmt(totalG)} detecciones oct–may con los filtros activos`;
+}
+
+/* ---------- Clasificación ---------- */
+// Los rangos técnicos solo aplican a la vista nacional; en la departamental se usa Jenks
+const clasifEfectiva = () => (E.depto && E.clasif === 'tecnico') ? 'jenks' : E.clasif;
+function clasificar(vals){
+  const tipo = clasifEfectiva();
+  const pos = vals.filter(v=>v>0).sort((a,b)=>a-b);
+  if(tipo === 'tecnico'){
+    const max = pos.length ? pos[pos.length-1] : 0;
+    return TECNICO.map((c,i) => {
+      const ini = i ? TECNICO[i-1].max : 0;
+      const fin = c.max === Infinity ? (max > 8000 ? fmt(max) : 'más') : fmt(c.max);
+      return {hasta:c.max, color:c.color, texto:`${c.nombre} (${fmt(ini)} – ${fin})`};
+    });
+  }
+  if(!pos.length) return [];
+  let cortes;
+  if(tipo === 'cuantil'){
+    cortes = [...new Set([.2,.4,.6,.8,1].map(q => pos[Math.min(pos.length-1, Math.ceil(q*pos.length)-1)]))];
+  } else cortes = jenks(pos, RAMPA.length);
+  const n = cortes.length;
+  let ini = 1;
+  return cortes.map((h,i) => {
+    const col = RAMPA[n===1 ? RAMPA.length-1 : Math.round(i*(RAMPA.length-1)/(n-1))];
+    const r = {hasta:h, color:col, texto:`${fmt(ini)} – ${fmt(h)}`}; ini = h+1; return r;
+  });
+}
+let clases = [];
+function colorDe(x){
+  if(!x) return CERO;
+  for(const c of clases) if(x <= c.hasta) return c.color;
+  return clases.length ? clases[clases.length-1].color : CERO;
+}
+
+/* ---------- Mapa ---------- */
+let mapa, capaDep, capaMun = null, capaPuntos = null, leyenda, panelVista, rendCanvas;
+let conteos = {porDep:new Map(), porMun:new Map()};
+
+function construirMapa(gjDep){
+  mapa = L.map('mapa', {zoomSnap:.25}).setView([4.3,-73.5], 5.5);
+  rendCanvas = L.canvas({padding:.3});
+  const ESRI = 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/';
+  const esriBase = L.tileLayer(ESRI + 'World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+    attribution:'Tiles &copy; Esri &mdash; Esri, HERE, Garmin, &copy; OpenStreetMap', maxZoom:16 });
+  mapa.createPane('etiquetas').style.zIndex = 650;
+  mapa.getPane('etiquetas').style.pointerEvents = 'none';
+  const esriEtiq = L.tileLayer(ESRI + 'World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}', { pane:'etiquetas', maxZoom:16 });
+  const osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution:'&copy; OpenStreetMap', maxZoom:19 });
+  const gris = L.layerGroup([esriBase, esriEtiq]).addTo(mapa);
+  L.control.layers({'Gris claro (Esri)':gris, 'OpenStreetMap':osm}, null, {position:'topright'}).addTo(mapa);
+
+  capaDep = L.geoJSON(gjDep, {
+    onEachFeature:(f, l) => {
+      l.bindTooltip('', {sticky:true});
+      l.on('click', () => seleccionarDepto(f.properties.DeCodigo));
+      l.on('mouseover', () => { if(E.depto !== f.properties.DeCodigo) l.setStyle({weight:2.2, color:'#0E3A66'}); });
+      l.on('mouseout',  () => estiloDep(l));
+    }
+  }).addTo(mapa);
+  mapa.fitBounds(capaDep.getBounds(), {padding:[10,10]});
+
+  panelVista = L.control({position:'topleft'});
+  panelVista.onAdd = () => {
+    const div = L.DomUtil.create('div','vista');
+    L.DomEvent.disableClickPropagation(div); L.DomEvent.disableScrollPropagation(div);
+    return div;
+  };
+  panelVista.addTo(mapa);
+
+  leyenda = L.control({position:'bottomright'});
+  leyenda.onAdd = () => L.DomUtil.create('div','leyenda');
+  leyenda.addTo(mapa);
+}
+
+function pintarPanelVista(){
+  const div = panelVista.getContainer();
+  const muni = !!E.muni;
+  const opciones = muni
+    ? [['cluster','Puntos agrupados'],['puntos','Puntos'],['calor','Mapa de calor']]
+    : [['coro','Coropleta'],['calor','Mapa de calor']];
+  const actual = muni ? E.vistaMuni : E.vistaArea;
+  let h = `<div class="fila"><label>Representación</label><div class="seg">` +
+    opciones.map(([v,t]) => `<button data-v="${v}" aria-pressed="${v===actual}">${t}</button>`).join('') + `</div></div>`;
+  if(!muni && E.vistaArea === 'coro'){
+    h += `<div class="fila"><label for="sel-clasif">Clasificación</label><select id="sel-clasif">
+      <option value="jenks">Cortes naturales (Jenks)</option>
+      <option value="cuantil">Cuantiles</option>
+      <option value="tecnico"${E.depto ? ' disabled' : ''}>Rangos técnicos${E.depto ? ' (solo nacional)' : ''}</option></select></div>`;
+  }
+  div.innerHTML = h;
+  segmento(div.querySelector('.seg'), v => { if(muni) E.vistaMuni = v; else E.vistaArea = v; actualizarMapa(); });
+  const sel = div.querySelector('#sel-clasif');
+  if(sel){ sel.value = clasifEfectiva(); sel.onchange = () => { E.clasif = sel.value; actualizarMapa(); }; }
+}
+
+function estiloDep(l){
+  const c = l.feature.properties.DeCodigo, x = conteos.porDep.get(+c)||0;
+  if(!E.depto){
+    if(E.vistaArea === 'calor') return l.setStyle({color:'#46525F', weight:.9, fillOpacity:0});
+    return l.setStyle({color:'#5B6878', weight:.8, fillColor:colorDe(x), fillOpacity:.85});
+  }
+  if(c === E.depto) return l.setStyle({color:'#0E3A66', weight:2.5, fillOpacity:0});
+  l.setStyle({color:'#9AA4B1', weight:.6, fillColor:'#DDE2E8', fillOpacity:.45});
+}
+function estiloMun(l){
+  const c = l.feature.properties.MpCodigo, x = conteos.porMun.get(+c)||0, sel = c === E.muni;
+  if(E.muni){
+    l.setStyle({color: sel ? '#0E3A66' : '#8A95A3', weight: sel ? 3 : .7, fillColor:'#FFFFFF', fillOpacity: sel ? 0 : .35});
+    if(sel) l.bringToFront();
+    return;
+  }
+  if(E.vistaArea === 'calor') return l.setStyle({color:'#46525F', weight:.7, fillOpacity:0});
+  l.setStyle({color:'#6B7684', weight:.7, fillColor:colorDe(x), fillOpacity:.88});
+}
+
+function conteoEspacial(){
+  const porDep = new Map(), porMun = new Map();
+  for(let i=0;i<D.n;i++){
+    if(!ok[i]) continue;
+    porDep.set(D.dep[i], (porDep.get(D.dep[i])||0)+1);
+    porMun.set(D.mun[i], (porMun.get(D.mun[i])||0)+1);
+  }
+  return {porDep, porMun};
+}
+
+function indicesNivel(){
+  const f = filtroNivel(), idx = [];
+  for(let i=0;i<D.n;i++) if(ok[i] && (!f || f(i))) idx.push(i);
+  return idx;
+}
+function limitesNivel(){
+  let b = null;
+  if(E.muni && capaMun) capaMun.eachLayer(l => { if(l.feature.properties.MpCodigo===E.muni) b = l.getBounds(); });
+  else if(E.depto && capaMun) b = capaMun.getBounds();
+  return b || capaDep.getBounds();
+}
+function maxCalor(idx, z, celdaPx){
+  if(!idx.length) return 1;
+  const escala = 256 * Math.pow(2, z) / 360, celdas = new Map();   // px por grado (aprox. Mercator cerca al ecuador)
+  for(const i of idx){
+    const k = Math.floor(D.lon[i]*escala/celdaPx) + ',' + Math.floor(D.lat[i]*escala/celdaPx);
+    celdas.set(k, (celdas.get(k)||0) + 1);
+  }
+  const v = [...celdas.values()].sort((a,b)=>a-b);
+  return Math.max(1, v[Math.floor(.99*(v.length-1))]);
+}
+const fechaLocal = ms => new Date(ms + DESFASE_H*3600e3).toISOString().slice(0,16).replace('T',' ');
+
+function actualizarCapaPuntos(){
+  if(capaPuntos){ mapa.removeLayer(capaPuntos); capaPuntos = null; }
+  const vista = E.muni ? E.vistaMuni : E.vistaArea;
+  if(vista === 'coro') return 0;
+  const idx = indicesNivel();
+  if(vista === 'calor'){
+    const pts = idx.map(i => [D.lat[i], D.lon[i], 1]);
+    const radio = E.muni ? 18 : E.depto ? 14 : 10, blur = Math.round(radio*.9);
+    // intensidad máxima = percentil 99 de detecciones por celda a la escala de la vista,
+    // para que el color no se sature cuando hay miles de puntos
+    const z = Math.round(mapa.getBoundsZoom(limitesNivel(), false, L.point(20,20)));
+    capaPuntos = L.heatLayer(pts, {radius:radio, blur, minOpacity:.3, maxZoom:z,
+                                   max:maxCalor(idx, z, (radio+blur)/2), gradient:GRADIENTE_CALOR}).addTo(mapa);
+    return idx.length;
+  }
+  const marcador = i => L.circleMarker([D.lat[i], D.lon[i]], {
+      renderer:rendCanvas, radius:4.5, weight:.8, color:'#FFFFFF',
+      fillColor:COLOR_CONF[D.conf[i]], fillOpacity:.9
+    }).bindPopup(`<b>${fechaLocal(D.t[i])}</b> (hora Colombia)<br>Confianza: ${(D.conf[i]/5).toFixed(1).replace('.',',')}<br>${D.lat[i].toFixed(4)}, ${D.lon[i].toFixed(4)}`);
+  if(vista === 'cluster'){
+    capaPuntos = L.markerClusterGroup({chunkedLoading:true, showCoverageOnHover:false, maxClusterRadius:50});
+    capaPuntos.addLayers(idx.map(marcador));
+  } else {
+    capaPuntos = L.layerGroup(idx.map(marcador));
+  }
+  capaPuntos.addTo(mapa);
+  return idx.length;
+}
+
+function actualizarMapa(){
+  conteos = conteoEspacial();
+  const vals = E.depto
+    ? gjMun.features.filter(f=>f.properties._dep===E.depto).map(f=>conteos.porMun.get(+f.properties.MpCodigo)||0)
+    : Object.keys(nomDep).map(c=>conteos.porDep.get(+c)||0);
+  clases = clasificar(vals);
+
+  capaDep.eachLayer(l => {
+    const c = l.feature.properties.DeCodigo;
+    estiloDep(l);
+    l.setTooltipContent(`<b>${nomDep[c]}</b><br>${fmt(conteos.porDep.get(+c)||0)} detecciones`);
+  });
+  if(capaMun) capaMun.eachLayer(l => {
+    const c = l.feature.properties.MpCodigo;
+    estiloMun(l);
+    l.setTooltipContent(`<b>${nomMun[c]}</b><br>${fmt(conteos.porMun.get(+c)||0)} detecciones`);
+  });
+
+  const n = actualizarCapaPuntos();
+  pintarPanelVista();
+  pintarLeyenda(n);
+}
+
+function pintarLeyenda(n){
+  const vista = E.muni ? E.vistaMuni : E.vistaArea;
+  let h;
+  if(vista === 'coro'){
+    h = `<b>Detecciones oct–may</b>`;
+    if(!clases.length) h += `<div><i style="background:${CERO}"></i>Sin registros</div>`;
+    else {
+      clases.forEach(c => h += `<div><i style="background:${c.color}"></i>${c.texto}</div>`);
+      if(clasifEfectiva() !== 'tecnico') h += `<div><i style="background:${CERO}"></i>0</div>`;
+    }
+    const nom = {jenks:'Cortes naturales (Jenks)', cuantil:'Cuantiles', tecnico:'Rangos técnicos'}[clasifEfectiva()];
+    h += `<div class="nota">${nom} · ${E.depto ? 'por municipio' : 'por departamento'}</div>`;
+  } else if(vista === 'calor'){
+    h = `<b>Densidad de detecciones</b><div class="grad"></div><div class="extremos"><span>Baja</span><span>Alta</span></div>
+         <div class="nota">${fmt(n)} detecciones</div>`;
+  } else {
+    h = `<b>Confianza</b>`;
+    NIVELES_CONF.forEach((v,i) => { if(E.confs.has(i)) h += `<div><i class="pt" style="background:${COLOR_CONF[i]}"></i>${v.toFixed(1).replace('.',',')}</div>`; });
+    h += `<div class="nota">${fmt(n)} detecciones</div>`;
+  }
+  leyenda.getContainer().innerHTML = h;
+}
+
+function seleccionarDepto(cod){
+  E.depto = cod; E.muni = null;
+  if(capaMun){ mapa.removeLayer(capaMun); capaMun = null; }
+  const feats = gjMun.features.filter(f => f.properties._dep === cod);
+  capaMun = L.geoJSON({type:'FeatureCollection', features:feats}, {
+    onEachFeature:(f, l) => {
+      l.bindTooltip('', {sticky:true});
+      l.on('click', e => { L.DomEvent.stopPropagation(e); seleccionarMuni(f.properties.MpCodigo, l); });
+      l.on('mouseover', () => { if(f.properties.MpCodigo!==E.muni) l.setStyle({weight:2, color:'#0E3A66'}); });
+      l.on('mouseout',  () => estiloMun(l));
+    }
+  }).addTo(mapa);
+  let b = null;
+  capaDep.eachLayer(l => { if(l.feature.properties.DeCodigo===cod) b = l.getBounds(); });
+  if(feats.length) b = capaMun.getBounds();
+  if(b) mapa.flyToBounds(b, {padding:[20,20], duration:.6});
+  actualizar();
+}
+function seleccionarMuni(cod, capa){
+  E.muni = cod;
+  if(!capa && capaMun) capaMun.eachLayer(l => { if(l.feature.properties.MpCodigo===cod) capa = l; });
+  if(capa) mapa.flyToBounds(capa.getBounds(), {padding:[30,30], duration:.6});
+  actualizar();
+}
+function volverDepto(){
+  E.muni = null;
+  if(capaMun) mapa.flyToBounds(capaMun.getBounds(), {padding:[20,20], duration:.6});
+  actualizar();
+}
+function volverNacional(){
+  E.depto = null; E.muni = null;
+  if(capaMun){ mapa.removeLayer(capaMun); capaMun = null; }
+  mapa.flyToBounds(capaDep.getBounds(), {padding:[10,10], duration:.6});
+  actualizar();
+}
+
+/* ---------- Migas ---------- */
+function pintarMiga(){
+  const nav = $('#miga'); nav.innerHTML = '';
+  const add = (txt, fn) => {
+    if(nav.children.length){ const s = document.createElement('span'); s.className='div'; s.textContent='/'; nav.appendChild(s); }
+    const el = document.createElement(fn ? 'button' : 'span');
+    el.textContent = txt;
+    if(fn) el.onclick = fn; else el.className = 'actual';
+    nav.appendChild(el);
+  };
+  add('Colombia', E.depto ? volverNacional : null);
+  if(E.depto) add(nomDep[E.depto], E.muni ? volverDepto : null);
+  if(E.muni) add(nomMun[E.muni], null);
+}
+
+function actualizar(){ calcularMascara(); pintarMiga(); actualizarGraficas(); actualizarMapa(); actualizarComplementarias(); }
+
+/* ---------- Gráficas complementarias ---------- */
+const MES_CORTO = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const ESCALA_ESTAC = ['#FDE7CF','#F7B97E','#EE8547','#D2512A','#9A2617'];
+let chTop, chMes, codigosTop = [];
+
+function interpColor(t){
+  const n = ESCALA_ESTAC.length - 1, x = Math.min(Math.max(t,0),1)*n, i = Math.min(Math.floor(x), n-1), f = x - i;
+  const a = ESCALA_ESTAC[i], b = ESCALA_ESTAC[i+1];
+  const c = k => Math.round(parseInt(a.slice(k,k+2),16)*(1-f) + parseInt(b.slice(k,k+2),16)*f);
+  return `rgb(${c(1)},${c(3)},${c(5)})`;
+}
+const nomMunDep = c => { const f = gjMun.features.find(x => x.properties.MpCodigo === c); return f ? nomDep[f.properties._dep] : ''; };
+
+function construirComplementarias(){
+  chTop = new Chart($('#g-top canvas'), {
+    type:'bar',
+    data:{labels:[], datasets:[{data:[], backgroundColor:'#E4572E', borderRadius:2, barPercentage:.8, maxBarThickness:22}]},
+    options:{
+      indexAxis:'y', responsive:true, maintainAspectRatio:false, animation:{duration:250},
+      plugins:{legend:{display:false}, tooltip:{callbacks:{label:it=>` ${fmt(it.parsed.x)} detecciones`}}},
+      scales:{ x:{beginAtZero:true, grid:{color:'#EDF0F3'}, ticks:{precision:0}, title:{display:true,text:'Detecciones'}},
+               y:{grid:{display:false}} },
+      onClick:(e, els) => {
+        if(!els.length) return;
+        const cod = codigosTop[els[0].index];
+        E.depto ? seleccionarMuni(cod) : seleccionarDepto(cod);
+      },
+      onHover:(e, els) => { e.native.target.style.cursor = els.length ? 'pointer' : 'default'; }
+    }
+  });
+  chMes = new Chart($('#g-mes canvas'), {
+    type:'bar',
+    data:{labels:MES_CORTO, datasets:[{data:[], backgroundColor:[], borderRadius:2}]},
+    options:{
+      responsive:true, maintainAspectRatio:false, animation:{duration:250},
+      plugins:{legend:{display:false}, tooltip:{callbacks:{label:it=>` ${fmt(it.parsed.y)} detecciones`}}},
+      scales:{ x:{grid:{display:false}, title:{display:true,text:'Mes'}},
+               y:{beginAtZero:true, grid:{color:'#EDF0F3'}, ticks:{precision:0}, title:{display:true,text:'Detecciones (histórico)'}} }
+    }
+  });
+}
+
+function actualizarComplementarias(){
+  if(!chTop) construirComplementarias();
+  const f = filtroNivel();
+  const nivel = E.muni ? nomMun[E.muni] : E.depto ? nomDep[E.depto] : 'Colombia';
+  const serieTxt = E.modo==='cal' ? 'años' : 'temporadas';
+  $('#comp-nota').textContent = `${nivel}. Se aplican los filtros de ${serieTxt} y confianza. El ranking considera octubre a mayo; la distribución por mes y la estacionalidad consideran el año completo.`;
+
+  // 1. Ranking (nacional: departamentos; departamental: municipios). No aplica a nivel municipal.
+  $('#fila2').classList.toggle('solo', !!E.muni);
+  if(!E.muni){
+    const cuenta = new Map();
+    const d = E.depto ? +E.depto : null;
+    for(let i=0;i<D.n;i++){
+      if(!ok[i] || (d !== null && D.dep[i] !== d)) continue;
+      const k = d !== null ? D.mun[i] : D.dep[i];
+      if(k < 0) continue;
+      cuenta.set(k, (cuenta.get(k)||0) + 1);
+    }
+    const top = [...cuenta].sort((a,b)=>b[1]-a[1]).slice(0,10);
+    const cod = k => d !== null ? String(k).padStart(5,'0') : (k === 11001 ? BOGOTA : String(k).padStart(2,'0'));
+    codigosTop = top.map(([k]) => cod(k));
+    chTop.data.labels = codigosTop.map(c => d !== null ? nomMun[c] : nomDep[c]);
+    chTop.data.datasets[0].data = top.map(([,v]) => v);
+    chTop.update();
+    $('#top-tit').textContent = d !== null ? `Top 10 municipios de ${nomDep[E.depto]}` : 'Top 10 departamentos por detecciones';
+    $('#top-desc').textContent = `Detecciones de octubre a mayo. Haga clic en una barra para consultar ${d !== null ? 'el municipio' : 'el departamento'}.`;
+  }
+
+  // 2. Distribución por mes del año
+  const porMes = new Array(12).fill(0);
+  for(let i=0;i<D.n;i++) if(okAnual[i] && (!f || f(i))) porMes[D.mes[i]-1]++;
+  const mx = Math.max(...porMes);
+  chMes.data.datasets[0].data = porMes;
+  chMes.data.datasets[0].backgroundColor = porMes.map(v => v === mx && mx > 0 ? '#B3001B' : '#EE8547');
+  chMes.update();
+  $('#mes-sub').textContent = `${fmt(porMes.reduce((a,b)=>a+b,0))} detecciones`;
+
+  // 3. Estacionalidad: filas × mes
+  let filas = [];   // {etq, clic, vals[12]}
+  if(E.muni){
+    const m = +E.muni, porAnio = new Map();
+    for(let i=0;i<D.n;i++){
+      if(!okAnual[i] || D.mun[i] !== m) continue;
+      if(!porAnio.has(D.cal[i])) porAnio.set(D.cal[i], new Array(12).fill(0));
+      porAnio.get(D.cal[i])[D.mes[i]-1]++;
+    }
+    filas = [...porAnio].sort((a,b)=>a[0]-b[0]).map(([y,v]) => ({etq:String(y), vals:v}));
+    $('#estac-tit').textContent = `Estacionalidad de ${nomMun[E.muni]} (año × mes)`;
+    $('#estac-desc').textContent = 'Detecciones por mes en cada año calendario. Permite ver si la temporada seca se adelanta, se prolonga o se intensifica.';
+  } else {
+    const d = E.depto ? +E.depto : null, porMun = new Map();
+    for(let i=0;i<D.n;i++){
+      if(!okAnual[i] || D.mun[i] < 0 || (d !== null && D.dep[i] !== d)) continue;
+      if(!porMun.has(D.mun[i])) porMun.set(D.mun[i], new Array(13).fill(0));
+      const v = porMun.get(D.mun[i]); v[D.mes[i]-1]++; v[12]++;
+    }
+    filas = [...porMun].sort((a,b)=>b[1][12]-a[1][12]).slice(0,15).map(([k,v]) => {
+      const c = String(k).padStart(5,'0');
+      return {etq: (d !== null || c === BOGOTA) ? nomMun[c] : `${nomMun[c]} (${nomMunDep(c)})`, cod:c, vals:v.slice(0,12)};
+    });
+    $('#estac-tit').textContent = d !== null ? `Estacionalidad: municipios de ${nomDep[E.depto]} con más detecciones` : 'Estacionalidad: municipios con más detecciones del país';
+    $('#estac-desc').textContent = 'Meses en que cada municipio concentra su actividad; revela las ventanas de riesgo de cada territorio. Haga clic en un nombre para consultarlo.';
+  }
+  pintarEstacionalidad(filas);
+}
+
+function pintarEstacionalidad(filas){
+  const cont = $('#estac');
+  if(!filas.length){ cont.style.display='block'; cont.innerHTML = '<div class="vacio">Sin detecciones con los filtros activos.</div>'; $('#estac-ley').style.visibility='hidden'; return; }
+  cont.style.display = 'grid';
+  cont.style.gridTemplateColumns = `minmax(120px,210px) repeat(12, minmax(34px,1fr))`;
+  const mx = Math.max(1, ...filas.flatMap(f => f.vals));
+  let h = '<div></div>' + MES_CORTO.map(m => `<div class="mes">${m}</div>`).join('');
+  filas.forEach((f, r) => {
+    h += `<div class="rot${f.cod ? ' clic' : ''}" data-r="${r}" title="${f.etq}">${f.etq}</div>`;
+    f.vals.forEach((v, m) => {
+      const t = v / mx, bg = v ? interpColor(t) : '#F7F8FA', fg = t > .55 ? '#FFFFFF' : '#1B2430';
+      h += `<div class="celda" style="background:${bg};color:${fg}" title="${f.etq}, ${MES_CORTO[m]}: ${fmt(v)} detecciones">${v ? fmt(v) : ''}</div>`;
+    });
+  });
+  cont.innerHTML = h;
+  cont.querySelectorAll('.rot.clic').forEach(el => el.onclick = () => {
+    const c = filas[+el.dataset.r].cod;
+    if(!E.depto){
+      const dep = c === BOGOTA ? BOGOTA : c.slice(0,2);
+      seleccionarDepto(dep);
+    }
+    seleccionarMuni(c);
+  });
+  $('#estac-ley').style.visibility = 'visible';
+  $('#estac-max').textContent = fmt(mx);
+}
+
+/* ---------- Cortes naturales de Jenks ---------- */
+function jenks(v, k){
+  const n = v.length;
+  k = Math.min(k, new Set(v).size);
+  if(!n) return [];
+  if(k <= 1) return [v[n-1]];
+  const L1 = Array.from({length:n+1},()=>new Array(k+1).fill(0));
+  const V  = Array.from({length:n+1},()=>new Array(k+1).fill(Infinity));
+  for(let j=1;j<=k;j++){ L1[1][j]=1; V[1][j]=0; }
+  for(let l=2;l<=n;l++){
+    let s1=0,s2=0,w=0,va=0;
+    for(let m=1;m<=l;m++){
+      const i3=l-m+1, val=v[i3-1];
+      s2+=val*val; s1+=val; w++; va=s2-(s1*s1)/w;
+      const i4=i3-1;
+      if(i4!==0) for(let j=2;j<=k;j++) if(V[l][j] >= va+V[i4][j-1]){ L1[l][j]=i3; V[l][j]=va+V[i4][j-1]; }
+    }
+    L1[l][1]=1; V[l][1]=va;
+  }
+  const br = new Array(k); br[k-1]=v[n-1];
+  let kk=n;
+  for(let j=k;j>=2;j--){ const id=L1[kk][j]-2; br[j-2]=v[id]; kk=L1[kk][j]-1; }
+  return [...new Set(br)];
+}
+
+iniciar();
+</script>
+</body>
+</html>

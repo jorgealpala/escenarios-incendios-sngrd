@@ -1,0 +1,2709 @@
+<meta charset="utf-8">
+<script src="config.js"></script>
+<title>Escenarios Incendios Forestales y Capacidades del SNGRD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+<style>
+:root{
+  --bg:#f5f6f4; --surface:#ffffff; --surface-2:#eceeea; --line:#d9dcd6; --grid:#e7e9e4;
+  --ink:#16191a; --ink-2:#4a5150; --ink-3:#7c8483;
+  --accent:#d4471f; --accent-soft:#fbe3d6;
+  --yr-a:#9fc0e6; --yr-b:#0f3a6e;
+  --map-0:#e3e6e1; --map-stroke:#ffffff;
+  --h1:#fde7cf; --h2:#f7b47c; --h3:#e5743f; --h4:#b8401b; --h5:#6d1f0b;
+  --warn-bg:#fff4dc; --warn-ink:#6b4a00;
+  --nino1:#b3141c; --nino2:#f08a80;
+  --c-bosque:#2f7d4a; --c-sabana:#c29425; --c-agro:#d9722e;
+  --o1:#1f6fb2; --o2:#7b3fa0; --o3:#2f7d3a; --o4:#8a6d1a;
+  --shadow:0 1px 2px rgba(20,25,25,.06),0 4px 16px rgba(20,25,25,.05);
+  --f-display:"Archivo","Arial Narrow",Arial,sans-serif;
+  --f-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#121515; --surface:#1a1e1e; --surface-2:#232828; --line:#303737; --grid:#262c2c;
+    --ink:#eef1f0; --ink-2:#b4bcbb; --ink-3:#848d8c;
+    --accent:#ff7a4d; --accent-soft:#3a2219;
+    --yr-a:#2c4f78; --yr-b:#a9cdf5;
+    --map-0:#262c2c; --map-stroke:#121515;
+    --h1:#4a2512; --h2:#7d3515; --h3:#b8501f; --h4:#ea7a44; --h5:#ffc39a;
+    --warn-bg:#3a2f12; --warn-ink:#f3d58c;
+    --nino1:#e5383b; --nino2:#f7b0a8;
+    --c-bosque:#5cbf84; --c-sabana:#e2bf5a; --c-agro:#f29a5e;
+    --o1:#6aaef0; --o2:#c690e6; --o3:#7cc47a; --o4:#e0c060;
+    --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#121515; --surface:#1a1e1e; --surface-2:#232828; --line:#303737; --grid:#262c2c;
+  --ink:#eef1f0; --ink-2:#b4bcbb; --ink-3:#848d8c;
+  --accent:#ff7a4d; --accent-soft:#3a2219;
+  --yr-a:#2c4f78; --yr-b:#a9cdf5;
+  --map-0:#262c2c; --map-stroke:#121515;
+  --h1:#4a2512; --h2:#7d3515; --h3:#b8501f; --h4:#ea7a44; --h5:#ffc39a;
+  --warn-bg:#3a2f12; --warn-ink:#f3d58c;
+  --nino1:#e5383b; --nino2:#f7b0a8;
+  --c-bosque:#5cbf84; --c-sabana:#e2bf5a; --c-agro:#f29a5e;
+  --o1:#6aaef0; --o2:#c690e6; --o3:#7cc47a; --o4:#e0c060;
+  --shadow:none;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.45}
+.wrap{max-width:1440px;margin:0 auto;padding-inline:20px;padding-block:18px 40px}
+header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 24px;padding-bottom:6px}
+.brand h1{font-family:var(--f-display);font-stretch:78%;font-weight:800;font-size:clamp(24px,3.2vw,34px);letter-spacing:-.01em;margin:0;line-height:1.05;text-wrap:balance}
+.brand p{margin:4px 0 0;color:var(--ink-2);font-size:14px}
+.filtro{display:flex;align-items:center;gap:8px;flex-wrap:wrap;max-width:100%}
+.flab{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);font-weight:600}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;max-width:100%;min-width:0}
+@media (max-width:640px){.controls{width:100%}.controls .seg,#selDepto{width:100%}}
+.seg{max-width:100%;display:inline-flex;background:var(--surface-2);border-radius:8px;padding:3px;gap:2px;flex-wrap:wrap}
+.seg button{font:600 13px var(--f-body);border:0;background:transparent;color:var(--ink-2);padding:6px 11px;border-radius:6px;cursor:pointer;flex:1 1 auto}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+.seg button:focus-visible, select:focus-visible, .chip:focus-visible, path.dep:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+select{font:600 14px var(--f-body);background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:7px 10px;max-width:100%}
+.aviso{margin-top:14px;background:var(--warn-bg);color:var(--warn-ink);border-radius:8px;padding:9px 12px;font-size:14px;display:flex;gap:8px;align-items:flex-start}
+.aviso b{font-weight:600}
+.layout{display:grid;grid-template-columns:minmax(300px,420px) minmax(0,1fr);gap:24px;margin-top:18px;align-items:start}
+@media (max-width:980px){.layout{grid-template-columns:minmax(0,1fr)}}
+.mapcol{display:flex;flex-direction:column;gap:16px;min-width:0}
+.card{background:var(--surface);border-radius:12px;box-shadow:var(--shadow);border:1px solid var(--line)}
+.mapcard{padding:12px}
+.maphead{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:4px}
+.maphead span{font-family:var(--f-display);font-stretch:85%;font-weight:700;font-size:14px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-2)}
+.linkbtn{font:600 13px var(--f-body);color:var(--accent);background:none;border:0;cursor:pointer;padding:4px 2px}
+#mapa{width:100%;height:auto;display:block;touch-action:manipulation}
+path.dep{stroke:var(--map-stroke);stroke-width:.8;cursor:pointer;transition:opacity .15s}
+path.dep:hover{stroke:var(--ink);stroke-width:1.4}
+path.dep.sel{stroke:var(--ink);stroke-width:2}
+path.dep.fade{opacity:.28}
+path.mun{stroke:var(--map-stroke);stroke-width:.35;cursor:pointer}
+path.mun:hover{stroke:var(--ink);stroke-width:1}
+path.mun.sel{stroke:var(--ink);stroke-width:2}
+.ninocard .sub{color:var(--ink-2);font-size:13px;margin:0 0 8px}
+.ninocard svg{width:100%;height:auto;display:block}
+.ninocard .tot{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;color:var(--ink-2);margin-top:8px;font-variant-numeric:tabular-nums}
+.ninocard .tot b{color:var(--ink);font-weight:600}
+.ninocard .hint{font-size:12.5px;color:var(--ink-3);margin-top:6px}
+.nleg{display:flex;gap:14px;font-size:12.5px;color:var(--ink-2);margin:2px 0 4px;flex-wrap:wrap}
+.nleg i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.nbar1{fill:var(--nino1)} .nbar2{fill:var(--nino2)}
+.mbsec h3 span{font-family:var(--f-body);font-stretch:100%;font-weight:400;font-size:13px;color:var(--ink-3);margin-left:6px}
+.mbk{margin:4px 0 16px}
+.mbk .kpi{background:var(--surface-2);border:0;box-shadow:none}
+.mbgrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px 28px;margin-top:6px}
+@media (max-width:1100px){.mbgrid{grid-template-columns:minmax(0,1fr)}}
+.mbgrid h4{font-size:14px;font-weight:600;margin:0 0 4px}
+.mbgrid .nota{font-size:12.5px;color:var(--ink-3);margin:4px 0 0}
+.mbgrid svg{width:100%;height:auto;display:block}
+.dot{fill:var(--ink-2);stroke:var(--surface);stroke-width:1.5}
+tr.clic{cursor:pointer} tr.clic:hover td{background:var(--surface-2)} tr.clic.sel td{background:var(--accent-soft)}
+.leyenda{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:12px;color:var(--ink-2);margin-top:6px;font-variant-numeric:tabular-nums}
+.leyenda i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px;margin-right:4px}
+.leyenda .tit{width:100%;font-weight:600;color:var(--ink-2)}
+.detail{display:flex;flex-direction:column;gap:18px;min-width:0}
+.dhead{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:8px}
+.dhead h2{font-family:var(--f-display);font-stretch:80%;font-weight:800;font-size:clamp(26px,3.6vw,40px);margin:0;line-height:1;letter-spacing:-.01em}
+.dhead .sub{color:var(--ink-2);font-size:14px}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+@media (max-width:640px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.kpi{padding:12px 14px}
+.kpi .l{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);font-weight:600}
+.kpi .v{font-family:var(--f-display);font-stretch:85%;font-weight:700;font-size:26px;line-height:1.1;margin-top:4px;font-variant-numeric:tabular-nums}
+.kpi .n{font-size:12.5px;color:var(--ink-2);margin-top:2px}
+.sec{padding:14px 16px}
+.sec h3{font-family:var(--f-display);font-stretch:85%;font-weight:700;font-size:17px;margin:0 0 2px}
+.sec .desc{color:var(--ink-2);font-size:13.5px;margin:0 0 10px;max-width:75ch}
+.legyr{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 12px}
+.chip{display:inline-flex;align-items:center;gap:6px;font:500 12.5px var(--f-mono);background:var(--surface-2);color:var(--ink-2);border:1px solid transparent;border-radius:999px;padding:3px 9px;cursor:pointer}
+.chip i{width:14px;height:3px;border-radius:2px;display:inline-block}
+.chip.on{border-color:var(--ink);color:var(--ink)}
+.chip.prom i{height:4px}
+.panels{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px 14px}
+@media (max-width:1280px){.panels{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:720px){.panels{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:440px){.panels{grid-template-columns:minmax(0,1fr)}}
+.panel{position:relative;min-width:0}
+.panel .ph{display:flex;justify-content:space-between;align-items:baseline;gap:6px}
+.panel .ph b{font-family:var(--f-display);font-stretch:85%;font-weight:700;font-size:15px}
+.panel .ph span{font:12px var(--f-mono);color:var(--ink-3)}
+.panel svg{width:100%;height:auto;display:block;overflow:visible}
+.ax text{font:10px var(--f-mono);fill:var(--ink-3)}
+.gridl{stroke:var(--grid);stroke-width:1}
+.base{stroke:var(--line);stroke-width:1}
+.yr{fill:none;stroke-width:1.2;stroke-linejoin:round;stroke-linecap:round;transition:opacity .12s}
+.yr.dim{opacity:.13}
+.yr.incompleto{stroke-dasharray:3 3}
+.yr.hi{stroke-width:2.6}
+.prom{fill:none;stroke:var(--ink);stroke-width:2.4;stroke-linejoin:round}
+.halo{fill:none;stroke:var(--surface);stroke-width:5;stroke-linejoin:round}
+.y26{fill:none;stroke:var(--accent);stroke-width:2.4;stroke-linejoin:round}
+.cross{stroke:var(--ink-3);stroke-width:1;stroke-dasharray:2 3}
+.tip{position:absolute;pointer-events:none;background:var(--surface);color:var(--ink);border:1px solid var(--line);box-shadow:0 6px 20px rgba(0,0,0,.14);border-radius:8px;padding:8px 10px;font-size:12.5px;z-index:5;min-width:170px;font-variant-numeric:tabular-nums}
+.tip .t{font-weight:600;margin-bottom:4px}
+.tip .r{display:flex;justify-content:space-between;gap:14px}
+.tip .r span:first-child{color:var(--ink-2)}
+.twocol{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:1100px){.twocol{grid-template-columns:minmax(0,1fr)}}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:13.5px}
+th{font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);text-align:left;font-weight:600;padding:6px 6px;border-bottom:1px solid var(--line)}
+td{padding:6px;border-bottom:1px solid var(--grid)}
+td.num,th.num{text-align:right}
+.barcell{position:relative}
+.barcell i{position:absolute;left:4px;max-width:55%;top:50%;height:8px;transform:translateY(-50%);background:var(--h3);border-radius:0 4px 4px 0;opacity:.85}
+.barcell span{position:relative}
+.tscroll{overflow-x:auto}
+#anual svg{width:100%;height:auto;display:block}
+.bar{fill:var(--h3)}
+.bar.parcial{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1;stroke-dasharray:3 2}
+.notas{font-size:13px;color:var(--ink-2)}
+.notas ul{margin:6px 0 0;padding-left:18px;display:grid;gap:4px;grid-template-columns:minmax(0,1fr)}
+.notas li{overflow-wrap:anywhere}
+.notas code{font-family:var(--f-mono);font-size:12px}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-top:8px;overflow-x:auto;scrollbar-width:none}
+.tabs button{font:600 15px var(--f-body);background:none;border:0;border-bottom:3px solid transparent;color:var(--ink-2);padding:10px 14px 9px;cursor:pointer;white-space:nowrap;margin-bottom:-1px;border-radius:6px 6px 0 0}
+.tabs button:hover{color:var(--ink);background:var(--surface-2)}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.tabs button small{font-weight:400;font-size:13px;color:var(--ink-3)}
+.tabs button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+@media (max-width:640px){.tabs{flex-wrap:wrap}.tabs button{padding:8px 10px 7px;font-size:14px}}
+.pane{display:flex;flex-direction:column;gap:18px;min-width:0}
+.dos{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px 26px;margin-top:8px}
+@media (max-width:760px){.dos{grid-template-columns:minmax(0,1fr)}}
+.dos h4{font-size:14px;font-weight:600;margin:0 0 3px;display:flex;align-items:center;gap:7px}
+.dos h4 i{width:10px;height:10px;border-radius:50%;display:inline-block}
+.dos p{margin:0;font-size:13.5px;color:var(--ink-2)}
+.explica .conclu{margin:12px 0 0;padding-top:10px;border-top:1px solid var(--grid);font-size:13.5px;color:var(--ink-2)}
+.explica .conclu b{color:var(--ink);font-weight:600}
+.badge{display:inline-block;font:600 11.5px var(--f-body);padding:2px 8px;border-radius:999px;white-space:nowrap}
+.badge.b1{background:var(--accent-soft);color:var(--accent)}
+.badge.b2{background:var(--warn-bg);color:var(--warn-ink)}
+.capdot{stroke:var(--surface);stroke-width:1.2;cursor:pointer;fill-opacity:.9}
+.capdot:hover{stroke:var(--ink);stroke-width:1.6}
+g.suave path.dep, g.suave path.mun{fill-opacity:.62}
+.orgleg{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:var(--ink-2);margin-top:6px}
+.orgleg .tit{width:100%;font-weight:600}
+.orgleg i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:4px;vertical-align:-1px}
+.oi{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:0}
+td.muted,span.muted{color:var(--ink-3)}
+td.rec{min-width:130px}
+table.inv td,table.inv th{padding-inline:5px}
+table.inv td{vertical-align:top}
+table.inv td.num,table.inv td.nw{white-space:nowrap}
+th.wbar{min-width:150px}
+.mas{margin-top:10px}
+.aviso.cap{margin-top:0}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<!-- ============ Identidad institucional UNGRD (tomada de index.html) ============ -->
+<style>
+:root{
+  --bg:#F2F4F7; --surface:#FFFFFF; --surface-2:#EAEEF3; --line:#D9DEE5; --grid:#E7EAEF;
+  --ink:#1B2430; --ink-2:#5B6878; --ink-3:#8A95A3;
+  --accent:#C2410C; --accent-soft:#F6E0D3;
+  --yr-a:#9fc0e6; --yr-b:#0E3A66;
+  --map-0:#E3E6E1; --map-stroke:#FFFFFF;
+  --h1:#FDE7CF; --h2:#F7B97E; --h3:#EE8547; --h4:#D2512A; --h5:#9A2617;
+  --azul:#0E3A66; --azul-2:#1F5A94; --naranja:#F7941D;
+  --r1:#a6521a; --r2:#e0a26a; --r3:#f3ecc3; --r4:#8fb8dc; --r5:#2a6aa8;   /* lluvia: seco→húmedo */
+  --f-display:"Public Sans",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  --f-body:"Public Sans",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  --f-mono:"Public Sans",ui-monospace,Consolas,monospace;
+  --shadow:0 1px 2px rgba(20,25,25,.06),0 4px 16px rgba(20,25,25,.05);
+}
+body{font-size:14px}
+.brand h1{color:var(--azul);font-weight:700;font-stretch:100%}
+.brand p{color:var(--ink-2)}
+header.top{border-bottom:3px solid var(--azul);padding-bottom:10px;margin-bottom:6px;align-items:center}
+.brand{display:flex;align-items:center;gap:16px;min-width:0}
+.brand .logo{height:46px;width:auto;flex:none}
+.brand .sep{width:1px;align-self:stretch;background:var(--line);flex:none}
+.dhead h2{color:var(--azul);font-stretch:100%}
+.maphead span,.kpi .v{font-stretch:100%}
+.tabs button[aria-selected="true"]{border-bottom-color:var(--naranja);color:var(--azul)}
+.seg button[aria-pressed="true"]{color:var(--azul)}
+/* Encabezado institucional */
+.brand .entidad{font-size:13px;font-weight:600;color:var(--azul);margin-top:3px;line-height:1.25}
+.brand .dependencia{font-size:12.5px;color:var(--ink-2);line-height:1.25}
+.brand #subtitulo{margin-top:3px;font-size:12.5px;color:var(--ink-3)}
+/* Mapa más ancho + paneles VIIRS a 2 por fila (como el portal WFS) */
+.layout{grid-template-columns:minmax(340px,520px) minmax(0,1fr)}
+#panels{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (max-width:980px){.layout{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:560px){#panels{grid-template-columns:1fr}}
+/* Mapa Leaflet de la pestaña VIIRS (paridad WFS) */
+#mapaL{width:100%;height:560px;border-radius:8px;z-index:0;background:#e9edf1}
+#mapaL .leaflet-interactive:focus{outline:none}
+.selModo{margin-top:10px;flex-wrap:wrap}
+#ptCtl{margin-top:8px}
+.pnota{font-size:11.5px;color:var(--ink-3)}
+/* Reporte PDF (impresión) */
+#print-header,#print-footer,#print-resumen{display:none}
+@media print{
+  /* Imprime los colores de fondo (coropletas, barras, reglas) sin que el usuario active "Gráficos de fondo" */
+  *{-webkit-print-color-adjust:exact !important;print-color-adjust:exact !important}
+  html,body{background:#fff !important}
+  header.top,#tabs,.controls,.aviso,#btnPDF,#selModoL,#ptCtl,#puntosCtl,#selRepr,#selEscalaMapa,#btnPais,.vista,.leaflet-control-container,#asi-btn,#asi-panel,#asi-hola,.legyr .link,.guia{display:none !important}
+  #print-header,#print-footer,#print-resumen{display:block !important}
+  .wrap{max-width:none !important;padding:0 !important}
+  .layout{grid-template-columns:1fr !important;gap:10px !important}
+  .pane[hidden]{display:none !important}
+  .card,.graf,section,.panel,#consolidada,.lluvia-svg{break-inside:avoid;box-shadow:none !important}
+  #mapaL{height:440px !important}
+  #pane-wfs iframe,#pane-capdash iframe{height:1150px !important;min-height:0 !important;box-shadow:none !important}
+  a{color:inherit !important;text-decoration:none !important}
+  @page{size:A4;margin:1.2cm 1.2cm 1.4cm}
+  #print-header .ph-top{display:flex;align-items:center;gap:14px}
+  #print-header .ph-logo{height:42px;width:auto}
+  #print-header .ph-tit b{font-size:14px;color:#0E3A66;display:block;line-height:1.1}
+  #print-header .ph-tit span{font-size:9px;color:#555}
+  #print-header .ph-meta{font-size:9.5px;color:#333;margin-top:6px}
+  #print-header .ph-rule{height:3px;background:linear-gradient(to right,#0E3A66,#F7941D);margin:6px 0 10px}
+  #print-footer{margin-top:16px;font-size:8px;color:#444}
+  #print-footer .pf-rule{height:2px;background:linear-gradient(to right,#0E3A66,#F7941D);margin:10px 0 6px}
+  #print-footer p{margin:2px 0}
+  /* --- Resumen ejecutivo nacional (se arma al imprimir) --- */
+  #print-resumen:not(:empty){break-after:page}
+  #print-resumen .re-tit{font-size:13px;color:#0E3A66;font-weight:700;margin:2px 0 2px}
+  #print-resumen .re-intro{font-size:9px;color:#555;margin:0 0 8px}
+  #print-resumen .re-sec{break-inside:avoid;border:1px solid #d8dee6;border-left:4px solid #0E3A66;border-radius:6px;padding:7px 10px;margin:0 0 7px;background:#fafbfc}
+  #print-resumen .re-sec.s2{border-left-color:#C0392B}
+  #print-resumen .re-sec.s3{border-left-color:#1C7A68}
+  #print-resumen .re-sec.s4{border-left-color:#F7941D}
+  #print-resumen .re-sec.s5{border-left-color:#8E44AD}
+  #print-resumen .re-h{font-size:11px;color:#0E3A66;font-weight:700;margin:0}
+  #print-resumen .re-sub{font-size:8px;color:#777;margin:1px 0 4px}
+  #print-resumen .re-li{font-size:9.5px;color:#222;margin:2px 0;padding-left:11px;position:relative;line-height:1.35}
+  #print-resumen .re-li::before{content:"–";position:absolute;left:0;color:#888}
+  #print-resumen .re-li b{color:#0E3A66}
+  #print-detalle-tit{display:block !important;font-size:11px;color:#0E3A66;font-weight:700;margin:0 0 6px;padding-bottom:3px;border-bottom:2px solid #0E3A66}
+}
+#print-detalle-tit{display:none}
+/* Overlay de puntos de calor D3 (lluvia) */
+.puntosctl{margin-top:10px;font-size:12.5px;color:var(--ink-2);display:flex;flex-direction:column;gap:6px}
+.puntosctl .fila{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.puntosctl input[type=date]{font:600 12.5px var(--f-body);background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:3px 6px;max-width:132px}
+.puntosctl label{display:inline-flex;gap:5px;align-items:center;font-size:12px}
+.pinfo{font-variant-numeric:tabular-nums}
+.pramp{height:6px;border-radius:3px;background:linear-gradient(90deg,var(--yr-a),var(--yr-b))}
+.pramp-l{display:flex;justify-content:space-between;font:11px var(--f-mono);color:var(--ink-3);margin-top:-3px}
+.ptip{position:absolute;pointer-events:none;background:var(--surface);color:var(--ink);border:1px solid var(--line);box-shadow:0 6px 20px rgba(0,0,0,.18);border-radius:8px;padding:6px 9px;font-size:12px;line-height:1.35;z-index:6;white-space:nowrap}
+/* Lluvia antecedente (portado de plantilla_app_v2.html) */
+.pbtn{font:600 12.5px var(--f-body);border:1px solid var(--line);background:var(--surface-2);color:var(--ink);border-radius:8px;padding:5px 10px;cursor:pointer}
+.pbtn:hover{border-color:var(--ink-3)}
+.pbtn.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.pbtn:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.pbtn.peq{font-weight:500;padding:3px 8px;font-size:12px}
+.lluvia-svg svg{width:100%;height:auto;display:block;overflow:visible}
+.lluvia-svg .barE{fill:var(--accent)}
+.lluvia-svg .barN{fill:var(--ink-3);opacity:.55}
+.lluvia-svg .hseco{fill:var(--r1)}
+.lluvia-svg .hnorm{fill:var(--r4)}
+.lluvia-svg .ref{stroke:var(--ink);stroke-width:1.2;stroke-dasharray:4 3}
+.lluvia-svg .ref2{stroke:var(--r1);stroke-width:1;stroke-dasharray:2 3}
+.lluvia-svg .lab{font:10.5px var(--f-mono);fill:var(--ink-2)}
+.lluvia-svg .pt{fill-opacity:.55;stroke:none}
+.lluvia-svg .pt.seco{fill:var(--r1)}
+.lluvia-svg .pt.ok{fill:var(--r5)}
+.lluvia-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:22px 28px}
+@media (max-width:1100px){.lluvia-grid{grid-template-columns:minmax(0,1fr)}}
+.lluvia-grid h4{font-size:14px;font-weight:600;margin:0 0 4px}
+.lluvia-grid .nota{font-size:12.5px;color:var(--ink-3);margin:4px 0 0}
+.lluf .fila{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+.lluf label{font-size:13px;color:var(--ink-2);display:inline-flex;gap:6px;align-items:center}
+.lluf input[type=date]{font:600 13.5px var(--f-body);background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:5px 8px;color-scheme:inherit}
+.lluf .flab{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);font-weight:600}
+.lluvia-vacio{color:var(--ink-3);font-size:13.5px;padding:18px 4px}
+.guia{font-size:13px;color:var(--ink-2);margin:-6px 0 -6px}
+.guia summary{cursor:pointer;color:var(--ink-3);width:fit-content;list-style:none;padding:2px 0;border-radius:4px}
+.guia summary::-webkit-details-marker{display:none}
+.guia summary::before{content:"ⓘ ";}
+/* Gráfica consolidada oct–may */
+#consolidada{position:relative}
+#consolidada svg{width:100%;height:auto;display:block;overflow:visible}
+/* Módulos embebidos (WFS y Capacidades) */
+#pane-wfs,#pane-capdash{min-width:0;margin-top:10px}
+#pane-wfs .wfsbar,#pane-capdash .wfsbar{font-size:13px;color:var(--ink-2);margin:0 0 8px}
+#pane-wfs iframe,#pane-capdash iframe{width:100%;height:84vh;min-height:780px;border:0;border-radius:12px;background:var(--surface);box-shadow:var(--shadow);display:block}
+</style>
+<script>document.documentElement.setAttribute("data-theme","light");</script>
+
+<div class="wrap">
+  <!-- Encabezado institucional solo para impresión / PDF -->
+  <div id="print-header" aria-hidden="true">
+    <div class="ph-top">
+      <img src="assets/logo/ungrd-horizontal.png" alt="UNGRD" class="ph-logo">
+      <div class="ph-tit">
+        <b>Escenarios Incendios Forestales y Capacidades del SNGRD</b>
+        <span>Fenómeno El Niño 2026 - 2027 · Unidad Nacional para la Gestión del Riesgo de Desastres — Subdirección para el Conocimiento del Riesgo</span>
+      </div>
+    </div>
+    <div class="ph-meta" id="print-meta"></div>
+    <div class="ph-rule"></div>
+  </div>
+  <!-- Resumen ejecutivo nacional (se arma automáticamente al generar el PDF) -->
+  <div id="print-resumen" aria-hidden="true"></div>
+  <!-- Título de la sección que se ve en pantalla (solo impresión) -->
+  <div id="print-detalle-tit">Detalle de la sección en pantalla</div>
+  <header class="top">
+    <div class="brand">
+      <img class="logo" src="assets/logo/ungrd-horizontal.png" alt="Unidad Nacional para la Gestión del Riesgo de Desastres">
+      <span class="sep"></span>
+      <div>
+        <h1>Escenarios Incendios Forestales y Capacidades del SNGRD</h1>
+        <div class="entidad">Fenómeno El Niño 2026 - 2027</div>
+        <div class="dependencia">Unidad Nacional para la Gestión del Riesgo de Desastres</div>
+        <p id="subtitulo">Monitoreo de incendios · frecuencia satelital, área quemada y capacidades de respuesta</p>
+      </div>
+    </div>
+    <div class="controls">
+      <div class="filtro" id="filtroCob"><span class="flab">Cobertura</span><div class="seg" id="selMetrica" role="group" aria-label="Cobertura"></div></div>
+      <label for="selDepto" class="sr" hidden>Departamento</label>
+      <select id="selDepto" aria-label="Departamento"></select>
+      <button class="pbtn" id="btnPDF" title="Descargar en PDF lo que está viendo en pantalla, con formato institucional (automático, sin configurar la impresión)">⤓ Reporte PDF</button>
+    </div>
+  </header>
+  <nav class="tabs" id="tabs" role="tablist" aria-label="Secciones"></nav>
+  <div class="aviso" id="aviso" hidden></div>
+
+  <div class="layout">
+    <aside class="mapcol">
+      <div class="card mapcard">
+        <div class="maphead"><span id="mapTitulo">Promedio anual por departamento</span>
+          <button class="linkbtn" id="btnPais" hidden>← Ver Colombia</button></div>
+        <svg id="mapa" viewBox="0 0 400 480" role="img" aria-label="Mapa de Colombia por departamento"></svg>
+        <div id="mapaL" style="display:none"></div>
+        <div class="leyenda" id="leyenda"></div>
+        <div class="seg selModo" id="selModoL" role="group" aria-label="Representación del mapa VIIRS" hidden></div>
+        <div class="lluf" id="ptCtl" hidden></div>
+        <div class="puntosctl lluf" id="puntosCtl" hidden></div>
+        <div class="orgleg" id="orgleg" hidden></div>
+        <div class="seg" id="selRepr" role="group" aria-label="Representación del mapa" style="margin-top:10px">
+          <button data-v="coro" aria-pressed="true">Coropleta</button>
+          <button data-v="simbolos" aria-pressed="false">Símbolos</button>
+        </div>
+        <div class="seg" id="selEscalaMapa" role="group" aria-label="Valor del mapa" style="margin-top:10px">
+          <button data-v="prom" aria-pressed="true">Promedio anual</button>
+          <button data-v="dens" aria-pressed="false">Por 1.000 km²</button>
+        </div>
+      </div>
+      <div class="card sec ninocard" id="ninoCard">
+        <h3 id="ninoTit">El Niño: octubre a abril</h3>
+        <p class="sub" id="ninoSub"></p>
+        <div class="nleg" id="ninoLeg"></div>
+        <div id="ninoGraf"></div>
+        <div class="tot" id="ninoTot"></div>
+        <div class="hint" id="ninoHint"></div>
+      </div>
+    </aside>
+
+    <main class="detail">
+      <div class="dhead">
+        <div><h2 id="nombre">Colombia</h2><div class="sub" id="dsub"></div></div>
+      </div>
+      <div class="pane" id="pane-frec" role="tabpanel" aria-labelledby="tab-frec">
+      <div class="kpis" id="kpis"></div>
+
+      <section class="card sec">
+        <h3 id="titPaneles">Acumulado diario por mes · octubre a mayo</h3>
+        <p class="desc" id="descPaneles">Cada línea es un año: el acumulado desde el día 1 del mes. La línea negra es el promedio de los años completos y la naranja, 2026 hasta la última fecha con datos. Toque un año para resaltarlo.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;flex:1;min-width:0">
+            <span style="display:flex;gap:8px;flex:none">
+              <button class="linkbtn" id="aniosTodos" style="padding:3px 2px">Ver todos</button>
+              <button class="linkbtn" id="aniosNinguno" style="padding:3px 2px">Ver ninguno</button>
+            </span>
+            <div class="legyr" id="legyr" style="margin:0"></div>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <div class="seg" id="selRegistro" role="group" aria-label="Tipo de registro">
+              <button data-v="acumulado" aria-pressed="true">Acumulado</button>
+              <button data-v="diario" aria-pressed="false">Registro diario</button>
+            </div>
+            <div class="seg" id="selEscala" role="group" aria-label="Escala vertical">
+              <button data-v="propia" aria-pressed="true">Escala por mes</button>
+              <button data-v="comun" aria-pressed="false">Escala común</button>
+            </div>
+          </div>
+        </div>
+        <div class="panels" id="panels"></div>
+      </section>
+
+      <section class="card sec">
+        <h3>Temporada completa · octubre a mayo</h3>
+        <p class="desc" id="descConsol">Una línea por <b>temporada</b> (octubre de un año a mayo del siguiente), en un eje continuo. La línea negra es el promedio de las temporadas completas. Use «Acumulado / Registro diario» para alternar la vista; haga clic en la leyenda para mostrar u ocultar temporadas. La temporada en curso aparece a medida que llegan datos.</p>
+        <div style="display:flex;gap:8px;margin:0 0 4px">
+          <button class="linkbtn" id="tempTodas" style="padding:3px 2px">Ver todas</button>
+          <button class="linkbtn" id="tempNinguna" style="padding:3px 2px">Ver ninguna</button>
+        </div>
+        <div id="consolidada"></div>
+      </section>
+
+      <div class="twocol">
+        <section class="card sec">
+          <h3>Total por año</h3>
+          <p class="desc" id="descAnual"></p>
+          <div id="anual"></div>
+        </section>
+        <section class="card sec">
+          <h3 id="titMun">Municipios con mayor frecuencia</h3>
+          <p class="desc" id="descMun">Promedio anual de los años completos. La densidad compara municipios de distinto tamaño.</p>
+          <div class="tscroll"><table id="tablaMun"></table></div>
+        </section>
+      </div>
+
+      <section class="card sec notas" id="notas"></section>
+      </div>
+
+      <div class="pane" id="pane-area" role="tabpanel" aria-labelledby="tab-area" hidden>
+      <section class="card sec explica">
+        <h3>Dos fuentes que responden preguntas distintas</h3>
+        <div class="dos">
+          <div><h4><i style="background:var(--h3)"></i>Puntos de calor · VIIRS 375 m</h4>
+            <p>Registran el fuego <b>activo</b> en el instante en que pasa el satélite (dos veces al día). Responden <i>cuándo</i> y <i>con qué frecuencia</i> hay fuego. Son la base de la pestaña Frecuencia.</p></div>
+          <div><h4><i style="background:var(--c-sabana)"></i>Área quemada · MapBiomas Fuego 30 m</h4>
+            <p>Cartografía la <b>cicatriz</b> que queda después del fuego con imágenes Landsat (cada 16 días). Responde <i>cuánto</i> se quemó y <i>qué cobertura</i> se afectó.</p></div>
+        </div>
+        <p class="conclu"><b>Ninguna sobreestima ni subestima a la otra: miden cosas distintas.</b> Un incendio que arde varios días deja muchos puntos y muchas hectáreas; una quema rápida entre dos pasadas deja hectáreas sin punto; un fuego pequeño o bajo nubes deja un punto sin cicatriz visible. Por eso las hectáreas por punto cambian entre regiones (sabanas de la Orinoquia frente a quemas pequeñas del Caribe) y no deben usarse como factor de conversión. Use los puntos para comparar frecuencia y temporadas, y las hectáreas para extensión y cobertura afectada.</p>
+      </section>
+      <section class="card sec mbsec" id="mbSec">
+        <h3>Área quemada y cobertura afectada<span>MapBiomas Fuego · 30 m · 2014–2025</span></h3>
+        <p class="desc" id="mbDesc"></p>
+        <div class="kpis mbk" id="mbKpis"></div>
+        <div class="mbgrid">
+          <div><h4>Hectáreas quemadas por año, según la cobertura que se quemó</h4><div class="nleg" id="mbLeg"></div><div id="mbAnual"></div></div>
+          <div><h4>Puntos de calor frente a hectáreas quemadas</h4><div id="mbRel"></div><p class="nota" id="mbRelTxt"></p></div>
+          <div><h4>Bosque quemado que al año siguiente era pasto o cultivo</h4><div id="mbPerdida"></div><p class="nota" id="mbPerdTxt"></p></div>
+          <div><h4 id="mbMesTit">Temporada de quemas: hectáreas promedio por mes</h4><div id="mbMes"></div></div>
+        </div>
+      </section>
+
+      <section class="card sec">
+        <h3 id="titMb">Municipios con más área quemada</h3>
+        <p class="desc">Promedio anual 2014–2025 según MapBiomas Fuego. La última columna es el bosque quemado que al año siguiente ya era pasto o cultivo (2014–2023).</p>
+        <div class="tscroll"><table id="tablaMb"></table></div>
+      </section>
+      <section class="card sec notas" id="notasArea"></section>
+      </div>
+
+      <div class="pane" id="pane-lluvia" role="tabpanel" aria-labelledby="tab-lluvia" hidden>
+      <details class="guia" id="guia-lluvia"><summary>Cómo leer esta pestaña</summary><ul><li>Cada <b>evento</b> es un día con puntos de calor en un municipio. Para cada uno se mira cuánta lluvia cayó en los 90 días <b>anteriores a esa fecha</b>.</li><li><b>Elija el período</b> arriba (últimos 12 meses, un año, o fechas propias): los indicadores y gráficos resumen los eventos de ese período. «Un evento en detalle» muestra uno solo, por defecto el más reciente.</li><li><b>% de lo normal:</b> 100 % es la lluvia habitual para esa fecha; menos de 80 % es déficit (más seco de lo normal).</li><li>En las barras, de izquierda a derecha el tiempo se acerca al evento: naranja es lo ocurrido antes de los eventos y gris, lo esperado.</li><li>En el mapa, los cafés son más seco y los azules más húmedo; el gris tiene pocos eventos. Con «Ver puntos de calor» (país, departamento o municipio) puede ver los puntos con su fecha. Que haya incendios tras poca lluvia es una asociación, no prueba la causa.</li></ul></details>
+      <section class="card sec lluf" id="lluFiltro" aria-label="Filtro de fechas"></section>
+      <div class="kpis" id="lluKpis"></div>
+      <section class="card sec">
+        <h3>Lluvia en los 90 días antes de los eventos del período</h3>
+        <p class="desc" id="lluDesc"></p>
+        <div class="lluvia-grid">
+          <div class="lluvia-svg"><h4>Lluvia por bloques de 10 días</h4><div class="nleg" id="lluLeg"></div><div id="lluDec"></div><p class="nota" id="lluDecTxt"></p></div>
+          <div class="lluvia-svg"><h4>¿Qué tan lluvioso era el trimestre previo?</h4><div id="lluHist"></div><p class="nota" id="lluHistTxt"></p></div>
+        </div>
+      </section>
+      <section class="card sec" id="lluEvSec" hidden>
+        <h3 id="lluEvTit">Un evento en detalle</h3>
+        <p class="desc" id="lluEvDesc"></p>
+        <div class="lluvia-svg"><div class="nleg" id="lluEvLeg"></div><div id="lluEvBar"></div><p class="nota" id="lluEvTxt"></p></div>
+      </section>
+      <section class="card sec lluvia-svg" id="lluSerieSec">
+        <h3>Cada evento en el tiempo</h3>
+        <p class="desc" id="lluSerieDesc"></p>
+        <div id="lluSerie"></div>
+      </section>
+      <section class="card sec">
+        <h3 id="lluTitMun">Municipios con más eventos</h3>
+        <p class="desc">Se listan los municipios con al menos <span id="lluMinEv"></span> eventos-día. Toque una fila para ver su detalle.</p>
+        <div class="tscroll"><table id="tablaLluvia"></table></div>
+      </section>
+      <section class="card sec notas" id="lluNotas"></section>
+      </div>
+
+      <div class="pane" id="pane-cap" role="tabpanel" aria-labelledby="tab-cap" hidden>
+      <div class="aviso cap" id="capAviso"></div>
+      <div class="kpis" id="capKpis"></div>
+      <section class="card sec" id="capBrecha">
+        <h3>Frecuencia de incendios frente a capacidades registradas</h3>
+        <p class="desc" id="capBrechaDesc"></p>
+        <div class="tscroll"><table id="tablaBrecha"></table></div>
+      </section>
+      <section class="card sec" id="capInv">
+        <h3 id="capInvTit">Inventario reportado</h3>
+        <p class="desc" id="capInvDesc"></p>
+        <div class="tscroll"><table class="inv" id="tablaInv"></table></div>
+        <button class="linkbtn mas" id="capInvMas" hidden></button>
+      </section>
+      <div class="twocol">
+        <section class="card sec">
+          <h3>Recursos por categoría</h3>
+          <p class="desc">Las cantidades solo se suman cuando tienen la misma unidad de medida.</p>
+          <div class="tscroll"><table id="tablaCat"></table></div>
+        </section>
+        <section class="card sec">
+          <h3 id="capUniTit">Unidades que reportan</h3>
+          <p class="desc" id="capUniDesc"></p>
+          <div class="tscroll"><table id="tablaUni"></table></div>
+        </section>
+      </div>
+      <section class="card sec notas" id="capNotas"></section>
+      </div>
+    </main>
+  </div>
+
+  <section class="pane" id="pane-wfs" hidden>
+    <p class="wfsbar">Desarrollo satelital <b>OroraTech WFS</b> embebido: detecciones diarias de incendios (octubre a mayo), con mapa nacional/departamental/municipal y gráficas por mes. Interactúe dentro del recuadro.</p>
+    <iframe id="wfsFrame" title="Frecuencia de incendios WFS" data-src="wfs.html?embed=1" loading="lazy"></iframe>
+  </section>
+
+  <section class="pane" id="pane-capdash" hidden>
+    <p class="wfsbar"><b>Matriz Nacional de Capacidades para la Atención de Incendios · SNGRD</b>. Capacidades reportadas por las entidades (DCC, Ejército Nacional, Policía Nacional - PONALSAR); filtre por departamento, municipio y categoría. Interactúe dentro del recuadro.</p>
+    <iframe id="capFrame" title="Capacidades de respuesta · SNGRD" data-src="capacidades_sngrd.html?embed=1" loading="lazy"></iframe>
+  </section>
+
+  <!-- Pie institucional solo para impresión / PDF -->
+  <div id="print-footer" aria-hidden="true">
+    <div class="pf-rule"></div>
+    <p><b>Fuentes y créditos:</b> Datos: VIIRS S-NPP (NASA FIRMS) · OroraTech WildFire Solution (WFS) · MapBiomas Fuego · CHIRPS · Matriz Nacional de Capacidades SNGRD · Límites DIVIPOLA–DANE. Mapas base: Esri · OpenStreetMap · CARTO.</p>
+    <p><b>Realizado por:</b> Jorge Alpala (jorge.alpala@gestiondelriesgo.gov.co) · UNGRD – Subdirección para el Conocimiento del Riesgo.</p>
+    <p>Herramienta de apoyo al conocimiento del riesgo en el marco de la Ley 1523 de 2012. No reemplaza las alertas oficiales del IDEAM, el SGC ni la UNGRD.</p>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script type="module">
+let DATOS = /*__DATOS__*/null;
+let GEO_DEP = /*__DEPTOS__*/null;
+let GEO_MUN = /*__MUNICIPIOS__*/null;
+// Si la plantilla se abre sin datos inyectados por el builder, se leen de salidas/app/.
+// (El builder reemplaza los marcadores de arriba y esta carga queda inactiva.)
+if (!DATOS) {
+  const base = "data/viirs/";
+  try {
+    [DATOS, GEO_DEP, GEO_MUN] = await Promise.all([
+      fetch(base + "datos_app.json").then(r => r.json()),
+      fetch(base + "deptos.geojson").then(r => r.json()),
+      fetch(base + "municipios.geojson").then(r => r.json())
+    ]);
+  } catch (e) {
+    document.body.insertAdjacentHTML("afterbegin",
+      `<div style="margin:20px;padding:14px;border:1px solid #d33;border-radius:8px;color:#900;background:#fee">
+      No se pudieron cargar los datos desde <code>${base}</code>. Sirva la carpeta por HTTP
+      (<code>python -m http.server 8000</code>) y abra <code>http://localhost:8000/plantilla_app_v1.html</code>.<br>Detalle: ${e}</div>`);
+    throw e;
+  }
+}
+
+// Metadatos de lluvia antecedente (si existen, aparece la pestaña). Los eventos (lluvia/*.bin) se cargan luego.
+let LLUVIA = null;
+try { LLUVIA = await fetch("data/lluvia/lluvia_app.json", { cache: "no-cache" }).then(r => r.ok ? r.json() : null); } catch (e) { LLUVIA = null; }
+
+const MESES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+const MES_C = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+const MESES_ENSO = [10,11,12,1,2,3,4,5];   // temporada oct–may (orden del eje)
+const NAL = "00";
+const M = DATOS.meta;
+const METS = Object.keys(M.metricas);
+const ORDEN_METS = ["firms_puntos","firms_bosque","firms_sabana","firms_agro"].filter(k => METS.includes(k));
+const FUENTE = "Puntos de calor VIIRS S-NPP";
+const st = { tab: "frec", met: ORDEN_METS[0], dpto: NAL, mpio: null, hi: null, anios: null, temp: null, escala: "propia", mapa: "prom", registro: "acumulado", repr: "coro",
+  lluPre: "12m", lluDesde: null, lluHasta: null, lluEv: null,
+  modoL: "coro", ptDias: null, ptTodo: false,     // mapa Leaflet VIIRS: modo y período de puntos
+  puntos: false, ptDesde: null, ptHasta: null, ptNivel: null, ptAjuste: false };   // overlay de puntos D3 (lluvia)
+const TABS = [["frec", "Frecuencia de incendios VIIRS"], ["wfs", "Frecuencia de incendios WFS"], ["area", "Área quemada", "consulta"], ["lluvia", "Lluvia antecedente"], ["cap", "Capacidades de respuesta"]]
+  .filter(t => t[0] !== "lluvia" || LLUVIA);   // la pestaña Lluvia solo aparece si hay datos
+try { const s = JSON.parse(localStorage.getItem("incendios_v1_estado") || "{}");
+  if (s.met && METS.includes(s.met)) st.met = s.met; if (s.mapa) st.mapa = s.mapa;
+  if (TABS.some(t => t[0] === s.tab)) st.tab = s.tab; } catch(e) {}
+
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const nf = (v, met) => {
+  const u = M.metricas[met].unidad;
+  const dec = (u === "ha" || v >= 100 || Number.isInteger(v)) ? 0 : 1;
+  return v.toLocaleString("es-CO", { maximumFractionDigits: dec, minimumFractionDigits: 0 });
+};
+const unidad = met => M.metricas[met].unidad;
+const diasMes = (y, m) => new Date(y, m, 0).getDate();
+const parse = s => { const [y,m,d] = s.split("-").map(Number); return new Date(y, m-1, d); };
+
+// ---------- cubo de datos: valores diarios por año/mes ----------
+function cubo(dpto, met) {
+  const info = M.metricas[met];
+  const ini = parse(info.cobertura_ini || info.fecha_min), fin = parse(info.fecha_max);
+  const raw = (DATOS.deptos[dpto] && DATOS.deptos[dpto].diario[met]) || {};
+  const huecos = new Set(info.dias_sin_datos || []);
+  const anios = [];
+  for (let y = M.anio_ini; y <= M.anio_fin; y++) anios.push(y);
+  const out = {};
+  for (const y of anios) {
+    out[y] = {};
+    for (let m = 1; m <= 12; m++) {
+      const nd = diasMes(y, m);
+      const d0 = new Date(y, m-1, 1), dN = new Date(y, m-1, nd);
+      if (d0 < ini || d0 > fin) continue;              // mes no cubierto por la fuente
+      const ult = dN <= fin ? nd : fin.getDate();      // mes en curso: hasta la última fecha
+      // días sin datos del satélite (rachas nacionales en cero): no son "cero incendios"
+      let hueco = 0;
+      for (let d = 1; d <= ult; d++) if (huecos.has(`${y}-${String(m).padStart(2,"0")}-${String(d).padStart(2,"0")}`)) hueco++;
+      if (hueco >= ult * 0.5) continue;                // mes casi sin datos: no se dibuja
+      out[y][m] = { v: new Float64Array(nd), nd, ult, hueco, completo: ult === nd && hueco === 0 };
+    }
+    for (const [m, d, v] of (raw[y] || [])) if (out[y][m]) out[y][m].v[d-1] += v;
+  }
+  for (const y of anios) for (const m in out[y]) {
+    const o = out[y][m]; const a = new Float64Array(o.ult); let s = 0;
+    for (let i = 0; i < o.ult; i++) { s += o.v[i]; a[i] = s; }
+    o.acc = a;
+  }
+  return { anios, out, fin };
+}
+
+function promedioMes(C, m, diario) {
+  const ys = M.anios_promedio.filter(y => C.out[y] && C.out[y][m] && C.out[y][m].completo);
+  const nd = m === 2 ? 29 : diasMes(2015, m);
+  const serie = [];
+  if (!ys.length) return { ys, serie };
+  for (let d = 1; d <= nd; d++) {
+    let s = 0;
+    for (const y of ys) {
+      const o = C.out[y][m];
+      if (diario) { const v = o.v; s += (d <= v.length ? v[d-1] : 0); }   // día 29 en feb no bisiesto = 0
+      else { const a = o.acc; s += a[Math.min(d, a.length) - 1]; }        // acumulado: 29 = 28 (plano)
+    }
+    serie.push([d, s / ys.length]);
+  }
+  return { ys, serie };
+}
+
+// ---------- colores de años (categóricos, un color por año, estilo WFS) ----------
+const PALETA_ANIOS = ["#1F5A94","#D9711C","#2A9D8F","#B8336A","#6A5ACD","#7A8B2F",
+                      "#4B4B4B","#E0A100","#3C8DAD","#C1521C","#5B8C5A","#9B3B8F","#1D7874"];
+const ANIOS_ALL = () => { const a = []; for (let y = M.anio_ini; y <= M.anio_fin; y++) a.push(y); return a; };
+function colorAnio(y) {
+  const i = ANIOS_ALL().indexOf(y);
+  return PALETA_ANIOS[(i < 0 ? 0 : i) % PALETA_ANIOS.length];
+}
+// Años con datos en la ventana oct–may (seleccionables en la leyenda)
+const aniosDisponibles = C => C.anios.filter(y => MESES_ENSO.some(m => C.out[y][m]));
+let aniosDisp = [];   // caché para los botones Ver todos / Ver ninguno (años)
+let tempDisp = [];    // caché para los botones Ver todas / Ver ninguna (temporadas)
+
+// ---------- controles ----------
+function guardar(){ try{ localStorage.setItem("incendios_v1_estado", JSON.stringify({met:st.met,mapa:st.mapa,tab:st.tab})); }catch(e){} }
+const SUBT = {
+  frec: "Puntos de calor VIIRS 2014–2026 · acumulados diarios oct–may, por departamento y municipio",
+  wfs: "Detecciones diarias de incendios OroraTech WFS · octubre a mayo (desarrollo satelital WFS)",
+  area: "Consulta complementaria · área quemada y cobertura afectada según MapBiomas Fuego (30 m, 2014–2025)",
+  lluvia: "Lluvia CHIRPS en los 90 días antes de cada evento de incendio · por departamento y municipio",
+  cap: "Matriz Nacional de Capacidades para la Atención de Incendios · SNGRD (DCC, Ejército Nacional, Policía Nacional - PONALSAR)",
+};
+function pestanas() {
+  const nav = document.getElementById("tabs"); nav.innerHTML = "";
+  TABS.forEach(([k, l, extra], i) => {
+    const b = document.createElement("button");
+    b.id = "tab-" + k; b.setAttribute("role", "tab"); b.setAttribute("aria-controls", "pane-" + k);
+    b.setAttribute("aria-selected", st.tab === k); b.tabIndex = st.tab === k ? 0 : -1;
+    b.innerHTML = l + (extra ? ` <small>(${extra})</small>` : "");
+    b.onclick = () => { if (st.tab !== k) { st.tab = k; guardar(); todo(); } };
+    b.onkeydown = e => {
+      const d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0; if (!d) return;
+      e.preventDefault(); st.tab = TABS[(i + d + TABS.length) % TABS.length][0]; guardar(); todo();
+      document.getElementById("tab-" + st.tab).focus();
+    };
+    nav.appendChild(b);
+  });
+  for (const [k] of TABS) document.getElementById("pane-" + k).hidden = st.tab !== k;
+  const fullFrame = st.tab === "wfs" || st.tab === "cap";   // pestañas embebidas (iframe a ancho completo)
+  document.querySelector(".layout").hidden = fullFrame;     // oculta mapa + panel D3
+  document.getElementById("selDepto").hidden = fullFrame;
+  document.getElementById("pane-capdash").hidden = st.tab !== "cap";
+  document.getElementById("filtroCob").hidden = st.tab !== "frec" && st.tab !== "lluvia";
+  document.getElementById("selEscalaMapa").hidden = st.tab !== "frec";
+  document.getElementById("selRepr").hidden = st.tab !== "area";   // VIIRS usa el control de modos del mapa Leaflet
+  document.getElementById("selModoL").hidden = st.tab !== "frec";
+  if (st.tab !== "frec") document.getElementById("ptCtl").hidden = true;
+  document.getElementById("ninoCard").hidden = st.tab !== "frec";
+  document.getElementById("subtitulo").textContent = SUBT[st.tab];
+  // Carga diferida con cache-busting: cada recarga de la página trae la versión fresca del iframe
+  if (st.tab === "wfs") { const fr = document.getElementById("wfsFrame"); if (fr && !fr.src) fr.src = fr.dataset.src + "&_=" + Date.now(); }
+  if (st.tab === "cap") { const fr = document.getElementById("capFrame"); if (fr && !fr.src) fr.src = fr.dataset.src + "&_=" + Date.now(); }
+}
+const nomDepto = c => { const f = GEO_DEP.features.find(x => x.properties.DPTO_CCDGO === c);
+  return titulo(DATOS.deptos[c]?.nombre || (f ? f.properties.DPTO_CNMBR : c)); };
+const MUN_NOM = {};   // se llena más abajo, después de definir titulo()
+function cabecera() {
+  document.getElementById("nombre").textContent = st.dpto === NAL ? "Colombia" : nomDepto(st.dpto);
+}
+function segmentos() {
+  const box = document.getElementById("selMetrica"); box.innerHTML = "";
+  for (const k of ORDEN_METS) {
+    const b = document.createElement("button"); b.textContent = M.metricas[k].nombre;
+    b.setAttribute("aria-pressed", k === st.met); b.onclick = () => { st.met = k; guardar(); todo(); };
+    box.appendChild(b);
+  }
+  document.querySelectorAll("#selRegistro button").forEach(b => {
+    b.setAttribute("aria-pressed", b.dataset.v === st.registro);
+    b.onclick = () => { st.registro = b.dataset.v; paneles(); segmentos(); };
+  });
+  document.querySelectorAll("#selEscala button").forEach(b => {
+    b.setAttribute("aria-pressed", b.dataset.v === st.escala);
+    b.onclick = () => { st.escala = b.dataset.v; paneles(); segmentos(); };
+  });
+  document.querySelectorAll("#selEscalaMapa button").forEach(b => {
+    b.setAttribute("aria-pressed", b.dataset.v === st.mapa);
+    b.onclick = () => { st.mapa = b.dataset.v; guardar(); mapa(); segmentos(); };
+  });
+  document.querySelectorAll("#selRepr button").forEach(b => {
+    b.setAttribute("aria-pressed", b.dataset.v === st.repr);
+    b.onclick = () => { st.repr = b.dataset.v; mapa(); segmentos(); };
+  });
+  const bTodos = document.getElementById("aniosTodos"), bNinguno = document.getElementById("aniosNinguno");
+  if (bTodos) bTodos.onclick = () => { st.anios = new Set(aniosDisp); paneles(); };
+  if (bNinguno) bNinguno.onclick = () => { st.anios = new Set(); paneles(); };
+  const bTT = document.getElementById("tempTodas"), bTN = document.getElementById("tempNinguna");
+  if (bTT) bTT.onclick = () => { st.temp = new Set(tempDisp); paneles(); };
+  if (bTN) bTN.onclick = () => { st.temp = new Set(); paneles(); };
+}
+function selectorDeptos() {
+  const sel = document.getElementById("selDepto");
+  const cods = Object.keys(DATOS.deptos).filter(c => c !== NAL)
+    .sort((a,b) => DATOS.deptos[a].nombre.localeCompare(DATOS.deptos[b].nombre, "es"));
+  sel.innerHTML = `<option value="${NAL}">Colombia (nacional)</option>` +
+    GEO_DEP.features.map(f => f.properties).sort((a,b)=>a.DPTO_CNMBR.localeCompare(b.DPTO_CNMBR,"es"))
+      .map(p => `<option value="${p.DPTO_CCDGO}">${titulo(p.DPTO_CNMBR)}</option>`).join("");
+  sel.value = st.dpto;
+  sel.onchange = () => elegir(sel.value);
+}
+const titulo = s => s.toLowerCase().replace(/(^|[\s,.(-])(\p{L})/gu, (m,a,b)=>a+b.toUpperCase())
+  .replace(/\b(De|Del|La|Y|D\.c\.)\b/g, w => ({"De":"de","Del":"del","La":"la","Y":"y","D.c.":"D.C."})[w]||w)
+  .replace(/^la /,"La ");
+
+function elegirMpio(cod) {
+  st.mpio = st.mpio === cod ? null : cod;
+  mapa();
+  if (st.tab === "frec") { nino(); municipios(); }
+  else if (st.tab === "area") { mapbiomas(); rankingHa(); }
+  else if (st.tab === "lluvia") lluvia();
+  else capacidades();
+}
+function elegir(cod) {
+  st.dpto = cod; st.hi = null; st.mpio = null; st.invTodo = false;
+  document.getElementById("selDepto").value = cod;
+  todo();
+}
+
+// ---------- mapa ----------
+let proj, pathGen;
+// La pestaña VIIRS usa un mapa Leaflet (coropleta + puntos); Área y Lluvia siguen con el SVG D3.
+let LMap = null, LChoro = null, LBorde = null;
+function mapa() {
+  const esFrec = st.tab === "frec";
+  document.getElementById("mapaL").style.display = esFrec ? "" : "none";
+  document.getElementById("mapa").style.display = esFrec ? "none" : "";
+  if (esFrec) { mapaFrecL(); return; }
+  const svg = d3.select("#mapa"); svg.selectAll("*").remove();
+  const W = 400, H = 480;
+  const modoPuntos = puntosActivo();   // overlay de puntos de calor sobre el mapa D3 (lluvia)
+  const foco = (modoPuntos && st.mpio) ? { type:"FeatureCollection", features: GEO_MUN.features.filter(f => f.properties.MPIO_CCNCT === st.mpio) }
+    : st.dpto === NAL ? GEO_DEP : { type:"FeatureCollection",
+    features: GEO_DEP.features.filter(f => f.properties.DPTO_CCDGO === st.dpto) };
+  proj = d3.geoMercator().fitExtent([[8,8],[W-8,H-8]], foco);
+  pathGen = d3.geoPath(proj);
+  const clases = [css("--h1"),css("--h2"),css("--h3"),css("--h4"),css("--h5")];
+  const g = svg.append("g").attr("class", st.tab === "cap" ? "suave" : null);
+  const simbolos = st.repr === "simbolos" && (st.tab === "frec" || st.tab === "area");   // vista de símbolos proporcionales
+  const leg = document.getElementById("leyenda");
+  const capa = capaMapa(), unidadMapa = capa.unidad, fv = capa.f;
+  document.getElementById("btnPais").hidden = st.dpto === NAL;
+  document.getElementById("btnPais").onclick = () => elegir(NAL);
+
+  let valores = {}, escala;
+  if (st.dpto === NAL) {
+    document.getElementById("mapTitulo").textContent = capa.titulo + " · departamentos";
+    for (const f of GEO_DEP.features) valores[f.properties.DPTO_CCDGO] = capa.dep(f.properties.DPTO_CCDGO);
+  } else {
+    document.getElementById("mapTitulo").textContent = capa.titulo + " · " + nomDepto(st.dpto);
+    for (const f of GEO_MUN.features) if (f.properties.DPTO_CCDGO === st.dpto) valores[f.properties.MPIO_CCNCT] = capa.mun(f.properties.MPIO_CCNCT);
+  }
+  const pos = Object.values(valores).filter(v => v > 0);
+  if (!capa.fill) escala = pos.length >= 5 ? d3.scaleQuantile().domain(pos).range(clases) :
+           d3.scaleQuantize().domain([0, d3.max(pos) || 1]).range(clases);
+  const fill = modoPuntos ? (() => css("--map-0")) : (capa.fill || (v => v > 0 ? escala(v) : css("--map-0")));   // capa.fill: paleta propia (lluvia)
+
+  if (st.dpto === NAL) {
+    g.selectAll("path").data(GEO_DEP.features).join("path")
+      .attr("class","dep").attr("d", pathGen).attr("fill", d => simbolos ? css("--surface-2") : fill(valores[d.properties.DPTO_CCDGO]))
+      .attr("tabindex", 0).attr("role","button")
+      .attr("aria-label", d => `${titulo(d.properties.DPTO_CNMBR)}: ${fv(valores[d.properties.DPTO_CCDGO]||0)} ${unidadMapa}`)
+      .on("click", (e,d) => elegir(d.properties.DPTO_CCDGO))
+      .on("keydown", (e,d) => { if (e.key==="Enter"||e.key===" ") { e.preventDefault(); elegir(d.properties.DPTO_CCDGO);} })
+      .append("title").text(d => `${titulo(d.properties.DPTO_CNMBR)}\n${fv(valores[d.properties.DPTO_CCDGO]||0)} ${unidadMapa}`);
+  } else {
+    g.selectAll("path.dep").data(GEO_DEP.features.filter(f => f.properties.DPTO_CCDGO !== st.dpto)).join("path")
+      .attr("class","dep fade").attr("d", pathGen).attr("fill", css("--map-0"))
+      .attr("tabindex", 0).on("click", (e,d) => elegir(d.properties.DPTO_CCDGO))
+      .append("title").text(d => titulo(d.properties.DPTO_CNMBR));
+    const muns = GEO_MUN.features.filter(f => f.properties.DPTO_CCDGO === st.dpto);
+    const munsOrd = muns.slice().sort((a,b) => (a.properties.MPIO_CCNCT===st.mpio) - (b.properties.MPIO_CCNCT===st.mpio));
+    g.selectAll("path.mun").data(munsOrd).join("path")
+      .attr("class", d => "mun" + (d.properties.MPIO_CCNCT === st.mpio ? " sel" : "")).attr("d", pathGen)
+      .attr("fill", d => simbolos ? css("--surface-2") : fill(valores[d.properties.MPIO_CCNCT]))
+      .attr("tabindex", 0).attr("role", "button")
+      .on("click", (e,d) => elegirMpio(d.properties.MPIO_CCNCT))
+      .on("keydown", (e,d) => { if (e.key==="Enter"||e.key===" ") { e.preventDefault(); elegirMpio(d.properties.MPIO_CCNCT);} })
+      .append("title").text(d => `${titulo(d.properties.MPIO_CNMBR)}\n${fv(valores[d.properties.MPIO_CCNCT]||0)} ${unidadMapa}`);
+    g.append("path").datum(GEO_DEP.features.find(f => f.properties.DPTO_CCDGO === st.dpto))
+      .attr("d", pathGen).attr("fill","none").attr("stroke", css("--ink")).attr("stroke-width", 1.5);
+  }
+  if (st.tab === "cap") puntosCapacidad(svg);
+  if (simbolos) {
+    const feats = st.dpto === NAL ? GEO_DEP.features : GEO_MUN.features.filter(f => f.properties.DPTO_CCDGO === st.dpto);
+    const codOf = f => st.dpto === NAL ? f.properties.DPTO_CCDGO : f.properties.MPIO_CCNCT;
+    const nomOf = f => titulo(st.dpto === NAL ? f.properties.DPTO_CNMBR : f.properties.MPIO_CNMBR);
+    const vmax = d3.max(pos) || 1, rmax = st.dpto === NAL ? 24 : 18;
+    const rscale = d3.scaleSqrt().domain([0, vmax]).range([0, rmax]);
+    const gp = svg.append("g");
+    feats.slice().sort((a,b) => (valores[codOf(b)]||0) - (valores[codOf(a)]||0)).forEach(f => {
+      const v = valores[codOf(f)] || 0; if (v <= 0) return;
+      const c = proj(d3.geoCentroid(f)); if (!c || Number.isNaN(c[0])) return;
+      gp.append("circle").attr("cx", c[0]).attr("cy", c[1]).attr("r", rscale(v))
+        .attr("fill", escala(v)).attr("fill-opacity", .82).attr("stroke", css("--map-stroke")).attr("stroke-width", 1)
+        .style("cursor","pointer")
+        .on("click", () => st.dpto === NAL ? elegir(codOf(f)) : elegirMpio(codOf(f)))
+        .append("title").text(`${nomOf(f)}\n${fv(v)} ${unidadMapa}`);
+    });
+  }
+  svg.on("mousemove.pt", null).on("mouseleave.pt", null);
+  if (modoPuntos) dibujarPuntos(svg); else puntosCtl();
+  document.getElementById("orgleg").hidden = st.tab !== "cap" || !DATOS.capacidades;
+  if (modoPuntos) { leg.innerHTML = ""; return; }   // con puntos: fondo neutro, la leyenda la pone puntosCtl
+  if (capa.leyenda) { leg.innerHTML = capa.leyenda(); return; }   // leyenda propia (lluvia: café→azul)
+  // leyenda por clases
+  let cortes;
+  if (escala.quantiles) { const q = escala.quantiles(); cortes = [d3.min(pos), ...q, d3.max(pos)]; }
+  else { const th = escala.thresholds(); cortes = [0, ...th, d3.max(pos)||1]; }
+  leg.innerHTML = `<span class="tit">${st.tab === "cap" ? "Fondo: " : ""}${unidadMapa}</span>` +
+    `<span><i style="background:${css("--map-0")}"></i>0</span>` +
+    clases.map((c,i) => `<span><i style="background:${c}${st.tab === "cap" ? ";opacity:.62" : ""}"></i>${fv(cortes[i]||0)}–${fv(cortes[i+1]||0)}</span>`).join("");
+  if (simbolos) leg.innerHTML += `<span class="tit" style="font-weight:400;color:var(--ink-3)">Círculos en ${st.dpto===NAL?"cada departamento":"cada municipio"}: color por clase y tamaño proporcional al valor.</span>`;
+}
+
+// ---------- Mapa Leaflet de la pestaña VIIRS: coropleta + puntos (calor/clúster/individuales) ----------
+const PT_COB = { firms_puntos: [0,1,2], firms_bosque: [0], firms_sabana: [1], firms_agro: [2] };
+const PT_COB_NOM = ["Bosque", "Sabana o herbazal", "Pasto o cultivo"];
+const PT_COB_COL = ["#2e8b3d", "#c29425", "#d9722e"];
+const PT_MAX_DIAS = 92, PT_CACHE = {};
+let ptTokenL = 0, LPtLayer = null, rendCanvasL = null;
+const ptMaxFecha = () => M.metricas.firms_puntos.fecha_max;
+const ptJson = url => (PT_CACHE[url] ||= fetch(url).then(r => r.ok ? r.json() : {n:0,d:[],m:[],la:[],lo:[],f:[],g:[],c:[],k:[],mp:[]}));
+const ptHora = m => `${String(Math.floor(m/60)).padStart(2,"0")}:${String(m%60).padStart(2,"0")}`;
+function ptRango() {
+  const h = diaDe(ptMaxFecha());
+  if (st.mpio) return st.ptTodo ? [0, h] : [Math.max(0, h - (st.ptDias || 365) + 1), h];
+  return [Math.max(0, h - (st.ptDias || PT_MAX_DIAS) + 1), h];
+}
+async function ptFuentesL(d0, d1) {
+  if (st.mpio) return [await ptJson(`data/puntos/${st.mpio}.json`)];
+  const meses = []; for (let d = d0; d <= d1; d++) { const ym = diaStr(d).slice(0,7); if (meses[meses.length-1] !== ym) meses.push(ym); }
+  return Promise.all(meses.map(ym => ptJson(`data/puntos_mes/${ym}.json`)));
+}
+function decodPuntos(fuentes, d0, d1) {
+  const cob = new Set(PT_COB[st.met] || PT_COB.firms_puntos), dp = (!st.mpio && st.dpto !== NAL) ? +st.dpto : null, pts = [];
+  for (const j of fuentes) for (let i = 0; i < j.n; i++) {
+    const d = j.d[i]; if (d < d0 || d > d1 || !cob.has(j.g[i])) continue;
+    if (dp != null && Math.floor((j.mp[i] || 0) / 1000) !== dp) continue;
+    pts.push({ la: j.la[i]/1e4, lo: j.lo[i]/1e4, d, m: j.m[i], g: j.g[i], c: j.c[i], f: j.f[i], mp: (j.mp && j.mp.length) ? j.mp[i] : +st.mpio });
+  }
+  return pts;
+}
+function marcadorPt(p) {
+  const mun = String(p.mp).padStart(5, "0");
+  return L.circleMarker([p.la, p.lo], { renderer: rendCanvasL, radius: 3.8, weight: .6, color: "#fff", fillColor: PT_COB_COL[p.g], fillOpacity: .9 })
+    .bindPopup(`<b>${fechaTxt(diaStr(p.d))} · ${ptHora(p.m)}</b><br>${MUN_NOM[mun] || mun} · ${nomDepto(mun.slice(0,2))}<br>${PT_COB_NOM[p.g]} · FRP ${(p.f/10).toLocaleString("es-CO")} MW<br>${p.c ? "Confianza alta" : "Confianza nominal"}`);
+}
+function pintarPuntosL(pts, modo) {
+  if (LPtLayer) { LMap.removeLayer(LPtLayer); LPtLayer = null; }
+  if (!pts.length) return;
+  if (modo === "calor") {
+    LPtLayer = L.heatLayer(pts.map(p => [p.la, p.lo, 1]), { radius: 12, blur: 15, minOpacity: .35, maxZoom: 11,
+      gradient: { 0.2:'#2B6CB0', 0.4:'#38A169', 0.6:'#ECC94B', 0.8:'#DD6B20', 1:'#C53030' } }).addTo(LMap);
+  } else if (modo === "cluster") {
+    LPtLayer = L.markerClusterGroup({ chunkedLoading: true, showCoverageOnHover: false, maxClusterRadius: 50 });
+    LPtLayer.addLayers(pts.map(marcadorPt)); LMap.addLayer(LPtLayer);
+  } else {
+    LPtLayer = L.layerGroup(pts.map(marcadorPt)).addTo(LMap);
+  }
+}
+function leyendaFrecL(modo, clases, pos, escala, fv, unidadMapa) {
+  const leg = document.getElementById("leyenda");
+  if (modo === "calor") { leg.innerHTML = `<span class="tit">Densidad de puntos de calor</span><span style="display:inline-block;width:150px;height:10px;border-radius:2px;background:linear-gradient(90deg,#2B6CB0,#38A169,#ECC94B,#DD6B20,#C53030)"></span> <span style="color:var(--ink-3)">baja → alta</span>`; return; }
+  if (modo === "cluster" || modo === "puntos") { leg.innerHTML = `<span class="tit">Cobertura del punto</span>` + PT_COB_NOM.map((t,i)=>`<span><i style="background:${PT_COB_COL[i]};border-radius:50%"></i>${t}</span>`).join(""); return; }
+  let cortes;
+  if (escala.quantiles) { const q = escala.quantiles(); cortes = [d3.min(pos), ...q, d3.max(pos)]; }
+  else { const th = escala.thresholds(); cortes = [0, ...th, d3.max(pos) || 1]; }
+  leg.innerHTML = `<span class="tit">${unidadMapa}</span><span><i style="background:${css("--map-0")}"></i>0</span>` +
+    clases.map((c, i) => `<span><i style="background:${c}"></i>${fv(cortes[i] || 0)}–${fv(cortes[i + 1] || 0)}</span>`).join("");
+}
+function pintarControlModoL() {
+  const box = document.getElementById("selModoL"), modo = st.modoL || "coro";
+  const modos = [["coro","Coropleta"],["calor","Mapa de calor"],["cluster","Puntos agrupados"],["puntos","Puntos"]];
+  box.innerHTML = modos.map(([v,t]) => `<button data-v="${v}" aria-pressed="${modo===v}">${t}</button>`).join("");
+  box.querySelectorAll("button").forEach(b => b.onclick = () => { st.modoL = b.dataset.v; mapa(); });
+  const ctl = document.getElementById("ptCtl");
+  if (modo === "coro") { ctl.hidden = true; ctl.innerHTML = ""; return; }
+  ctl.hidden = false;
+  const pres = st.mpio ? [["30","Último mes"],["92","3 meses"],["365","Último año"],["todo","Todo"]] : [["30","Último mes"],["92","3 meses"]];
+  const actual = st.ptTodo ? "todo" : String(st.ptDias || (st.mpio ? 365 : PT_MAX_DIAS));
+  ctl.innerHTML = `<div class="fila">${pres.map(([v,t])=>`<button type="button" class="pbtn peq${actual===v?" on":""}" data-p="${v}">${t}</button>`).join("")} <span class="pnota" id="ptInfoL"></span></div>`
+    + (!st.mpio ? `<div class="pnota">En vista nacional/departamental se muestran hasta 3 meses a la vez.</div>` : "");
+  ctl.querySelectorAll("button[data-p]").forEach(b => b.onclick = () => {
+    if (b.dataset.p === "todo") st.ptTodo = true; else { st.ptTodo = false; st.ptDias = +b.dataset.p; }
+    mapa();
+  });
+}
+function mapaFrecL() {
+  const cont = document.getElementById("mapaL");
+  if (!LMap) {
+    LMap = L.map(cont, { zoomSnap: .25, attributionControl: true }).setView([4.4, -73.5], 5.2);
+    L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+      { attribution: "Tiles &copy; Esri", maxZoom: 16 }).addTo(LMap);
+    rendCanvasL = L.canvas({ padding: .3 });
+  }
+  const modo = st.modoL || "coro", conPuntos = modo !== "coro";
+  const capa = capaMapa(), fv = capa.f, unidadMapa = capa.unidad;
+  const clases = [css("--h1"), css("--h2"), css("--h3"), css("--h4"), css("--h5")];
+  const nivelMun = st.dpto !== NAL;
+  const feats = nivelMun ? GEO_MUN.features.filter(f => f.properties.DPTO_CCDGO === st.dpto) : GEO_DEP.features;
+  const codF = f => nivelMun ? f.properties.MPIO_CCNCT : f.properties.DPTO_CCDGO;
+  const nomF = f => titulo(nivelMun ? f.properties.MPIO_CNMBR : f.properties.DPTO_CNMBR);
+  const valores = {};
+  for (const f of feats) valores[codF(f)] = nivelMun ? capa.mun(codF(f)) : capa.dep(codF(f));
+  const pos = Object.values(valores).filter(v => v > 0);
+  const escala = pos.length >= 5 ? d3.scaleQuantile().domain(pos).range(clases)
+    : d3.scaleQuantize().domain([0, d3.max(pos) || 1]).range(clases);
+  const fill = v => v > 0 ? escala(v) : css("--map-0");
+  if (LChoro) LChoro.remove();
+  if (LBorde) { LBorde.remove(); LBorde = null; }
+  const bordeDep = nivelMun ? "#9AA4B1" : "#5B6878", bordeMun = "#6B7684";
+  LChoro = L.geoJSON({ type: "FeatureCollection", features: feats }, {
+    style: f => ({ color: nivelMun ? bordeMun : bordeDep, weight: nivelMun ? .9 : .9, fillColor: conPuntos ? css("--map-0") : fill(valores[codF(f)]), fillOpacity: conPuntos ? .22 : .85 }),
+    onEachFeature: (f, layer) => {
+      const cod = codF(f), v = valores[cod] || 0;
+      layer.bindTooltip(`<b>${nomF(f)}</b><br>${fv(v)} ${unidadMapa}`, { sticky: true });   // nombre al pasar el cursor (toda vista)
+      layer.on("click", () => nivelMun ? elegirMpio(cod) : elegir(cod));
+      layer.on("mouseover", () => layer.setStyle({ weight: 2.6, color: css("--azul") }));
+      layer.on("mouseout", () => { LChoro.resetStyle(layer); layer.closeTooltip(); });
+    }
+  }).addTo(LMap);
+  if (nivelMun) {   // límite departamental resaltado
+    const dep = GEO_DEP.features.find(f => f.properties.DPTO_CCDGO === st.dpto);
+    if (dep) LBorde = L.geoJSON(dep, { interactive: false, style: { color: css("--azul"), weight: 2.4, fill: false } }).addTo(LMap);
+  }
+  if (LPtLayer) { LMap.removeLayer(LPtLayer); LPtLayer = null; }
+  try { LMap.fitBounds(LChoro.getBounds(), { padding: [8, 8] }); } catch (e) {}
+  document.getElementById("mapTitulo").textContent = capa.titulo + (nivelMun ? " · " + nomDepto(st.dpto) : " · departamentos");
+  const bp = document.getElementById("btnPais"); bp.hidden = st.dpto === NAL; bp.onclick = () => elegir(NAL);
+  pintarControlModoL();
+  leyendaFrecL(modo, clases, pos, escala, fv, unidadMapa);
+  if (conPuntos) {
+    const tk = ++ptTokenL, [d0, d1] = ptRango(), dA = st.dpto, mA = st.mpio, metA = st.met;
+    const info = document.getElementById("ptInfoL"); if (info) info.textContent = "Cargando puntos…";
+    ptFuentesL(d0, d1).then(fs => {
+      if (tk !== ptTokenL || st.dpto !== dA || st.mpio !== mA || st.met !== metA) return;
+      const pts = decodPuntos(fs, d0, d1); pintarPuntosL(pts, modo);
+      const el = document.getElementById("ptInfoL");
+      if (el) el.innerHTML = `<b>${fmt(pts.length)}</b> puntos · ${fechaTxt(diaStr(d0))}–${fechaTxt(diaStr(d1))}`;
+      window.PUNTOS_RESUMEN = `Mapa de puntos de calor VIIRS georreferenciados (${M.metricas[st.met].nombre}) del ${fechaTxt(diaStr(d0))} al ${fechaTxt(diaStr(d1))}: ${fmt(pts.length)} puntos.`;
+    }).catch(() => { const el = document.getElementById("ptInfoL"); if (el) el.textContent = "No se pudieron cargar los puntos."; });
+  } else window.PUNTOS_RESUMEN = "";
+  setTimeout(() => LMap && LMap.invalidateSize(), 60);
+}
+function capaMapa() {
+  if (st.tab === "lluvia") return capaLluvia();
+  const MB = DATOS.mapbiomas;
+  if (st.tab === "area" && MB) {
+    const n = MB.anios.length, haA = o => o ? d3.sum(o.ha, r => d3.sum(r)) / n : 0;
+    return { titulo: "Área quemada", unidad: "ha quemadas / año", f: v => fmtC(v),
+             dep: c => haA(MB.datos[c]), mun: c => haA(MB.datos[st.dpto]?.mpios?.[c]) };
+  }
+  const met = st.tab === "cap" ? "firms_puntos" : st.met, campo = st.tab === "cap" ? "prom" : st.mapa;
+  const u = unidad(met);
+  const lst = {}; for (const x of (DATOS.deptos[st.dpto]?.municipios?.[met] || [])) lst[x.cod] = campo === "prom" ? x.prom : x.dens;
+  return { titulo: st.tab === "cap" ? "Capacidades" : "Frecuencia", f: v => nf(v, met),
+           unidad: campo === "prom" ? `${u} / año` : `${u} / año por 1.000 km²`,
+           dep: c => { const r = DATOS.deptos[c]?.resumen?.[met]; return r ? (campo === "prom" ? r.prom_anual : r.densidad) : 0; },
+           mun: c => lst[c] || 0 };
+}
+
+// ---------- paneles mensuales ----------
+let tipEl;
+function paneles() {
+  const box = document.getElementById("panels"); box.innerHTML = "";
+  const C = cubo(st.dpto, st.met);
+  const acumulado = st.registro !== "diario";
+  aniosDisp = aniosDisponibles(C);
+  if (st.anios == null) st.anios = new Set(aniosDisp);     // por defecto, todos visibles
+  const aniosSel = aniosDisp.filter(y => st.anios.has(y)); // años elegidos por el usuario
+  const W = 320, H = 190, mg = { l: 46, r: 8, t: 8, b: 22 };
+  const proms = {}; let ymaxGlobal = 0;
+  for (const m of MESES_ENSO) {
+    proms[m] = promedioMes(C, m, !acumulado);
+    const accP = acumulado ? proms[m] : promedioMes(C, m, false);   // total mensual (siempre acumulado) para el subtítulo
+    proms[m].total = accP.serie.length ? accP.serie[accP.serie.length - 1][1] : null;
+    let mx = d3.max(proms[m].serie, d => d[1]) || 0;
+    for (const y of aniosSel) { const o = C.out[y][m]; if (!o) continue; const lm = d3.max(acumulado ? o.acc : o.v) || 0; if (lm > mx) mx = lm; }
+    proms[m].max = mx; ymaxGlobal = Math.max(ymaxGlobal, mx);
+  }
+  const u = unidad(st.met);
+  document.getElementById("titPaneles").textContent = (acumulado ? "Acumulado diario por mes" : "Registro diario por mes") + " · octubre a mayo";
+  document.getElementById("descPaneles").textContent = acumulado
+    ? "Cada línea es un año: el acumulado desde el día 1 del mes. La línea negra es el promedio de los años completos. Use la leyenda para mostrar u ocultar años."
+    : "Cada línea es un año: los puntos de calor de cada día del mes. La línea negra es el promedio diario de los años completos. Use la leyenda para mostrar u ocultar años.";
+  for (const m of MESES_ENSO) {
+    const nd = m === 2 ? 29 : diasMes(2015, m);
+    const div = document.createElement("div"); div.className = "panel";
+    const totProm = proms[m].total;
+    div.innerHTML = `<div class="ph"><b>${MESES[m-1]}</b><span>${totProm==null?"sin datos":"prom. "+nf(totProm, st.met)}</span></div>`;
+    const svg = d3.select(div).append("svg").attr("viewBox", `0 0 ${W} ${H}`)
+      .attr("role","img").attr("aria-label", `${MESES[m-1]}: ${acumulado?"acumulado":"registro diario"} por año`);
+    const x = d3.scaleLinear().domain([1, nd]).range([mg.l, W - mg.r]);
+    const ymax = (st.escala === "comun" ? ymaxGlobal : proms[m].max) || 1;
+    const y = d3.scaleLinear().domain([0, ymax]).nice(4).range([H - mg.b, mg.t]);
+    const ax = svg.append("g").attr("class","ax");
+    for (const t of y.ticks(4)) {
+      ax.append("line").attr("class", t===0?"base":"gridl").attr("x1", mg.l).attr("x2", W-mg.r).attr("y1", y(t)).attr("y2", y(t));
+      ax.append("text").attr("x", mg.l - 6).attr("y", y(t) + 3.5).attr("text-anchor","end").text(d3.format("~s")(t).replace("k"," mil"));
+    }
+    for (const t of [1, 10, 20, nd]) ax.append("text").attr("x", x(t)).attr("y", H - 6).attr("text-anchor","middle").text(t);
+    const line = d3.line().x(d => x(d[0])).y(d => y(d[1]));
+    const gl = svg.append("g");
+    for (const yy of aniosSel) {
+      const o = C.out[yy][m]; if (!o) continue;
+      const arr = acumulado ? o.acc : o.v;
+      const pts = Array.from({length:o.acc.length}, (_,i) => [i+1, arr[i]]);
+      gl.append("path").attr("class", "yr" + (o.hueco ? " incompleto" : ""))
+        .attr("stroke", colorAnio(yy)).attr("d", line(pts)).datum(yy);
+    }
+    if (proms[m].serie.length) {
+      svg.append("path").attr("class","halo").attr("d", line(proms[m].serie));
+      svg.append("path").attr("class","prom").attr("d", line(proms[m].serie));
+    }
+    // interacción
+    const cross = svg.append("line").attr("class","cross").attr("y1", mg.t).attr("y2", H-mg.b).style("display","none");
+    svg.append("rect").attr("x", mg.l).attr("y", 0).attr("width", W-mg.l-mg.r).attr("height", H).attr("fill","transparent")
+      .on("pointermove", ev => {
+        const [px] = d3.pointer(ev); const d = Math.max(1, Math.min(nd, Math.round(x.invert(px))));
+        cross.attr("x1", x(d)).attr("x2", x(d)).style("display", null);
+        const val = (o, dd) => { const a = acumulado ? o.acc : o.v; return dd <= a.length ? a[dd-1] : null; };
+        const filas = [];
+        const p = proms[m].serie[d-1]; if (p) filas.push(["Promedio", p[1], true]);
+        const vals = [];
+        for (const yy of aniosSel) { const o = C.out[yy][m]; if (!o) continue; const v = val(o, d); if (v != null) vals.push([yy, v]); }
+        if (vals.length) { const mx = vals.reduce((a,b)=>b[1]>a[1]?b:a), mn = vals.reduce((a,b)=>b[1]<a[1]?b:a);
+          filas.push([`Máximo (${mx[0]})`, mx[1]]); filas.push([`Mínimo (${mn[0]})`, mn[1]]); }
+        mostrarTip(div, ev, `${acumulado?"1–":""}${d} de ${MESES[m-1].toLowerCase()}${acumulado?" · acumulado":""}`, filas);
+      })
+      .on("pointerleave", () => { cross.style("display","none"); ocultarTip(); });
+    box.appendChild(div);
+  }
+  leyendaAnios(C);
+  consolidada(C, acumulado);
+}
+
+// ---------- gráfica consolidada de toda la temporada oct–may ----------
+function consolidada(C, acumulado) {
+  const host = document.getElementById("consolidada"); if (!host) return;
+  const eje = []; let off = 0; const bounds = [];
+  for (const m of MESES_ENSO) { const nd = m===2?29:diasMes(2015,m); bounds.push({m, x0:off, nd}); for (let d=1; d<=nd; d++) eje.push({m,d}); off += nd; }
+  const TOT = off, iFeb29 = eje.findIndex(e => e.m===2 && e.d===29);
+
+  // Una línea por TEMPORADA: oct–dic del año S + ene–may del año S+1
+  const serieTemp = S => {
+    const out = new Array(TOT).fill(null); let run = 0, i0 = 0;
+    for (const m of MESES_ENSO) {
+      const yy = m >= 10 ? S : S + 1;                 // oct–dic en S; ene–may en S+1
+      const ndEje = m===2 ? 29 : diasMes(2015, m);
+      const o = C.out[yy] && C.out[yy][m];
+      for (let d=1; d<=ndEje; d++) {
+        const idx = i0 + d - 1;
+        if (o && d <= o.acc.length) { const dv = d <= o.v.length ? o.v[d-1] : 0; run += dv; out[idx] = acumulado ? run : dv; }
+        else if (o && m===2 && d===29) out[idx] = acumulado ? run : 0;   // 29-feb no bisiesto
+      }
+      i0 += ndEje;
+    }
+    return out;
+  };
+  const tieneTemp = S => (C.out[S] && [10,11,12].some(m => C.out[S][m])) ||
+                         (C.out[S+1] && [1,2,3,4,5].some(m => C.out[S+1][m]));
+  const completaTemp = S => MESES_ENSO.every(m => { const o = C.out[m>=10?S:S+1]; return o && o[m] && o[m].completo; });
+
+  const seasons = [];
+  for (let S = M.anio_ini; S <= M.anio_fin; S++) if (tieneTemp(S)) seasons.push(S);
+  const series = {}; for (const S of seasons) series[S] = serieTemp(S);
+  const comp = seasons.filter(completaTemp);
+  tempDisp = seasons;
+  if (st.temp == null) st.temp = new Set(seasons);        // por defecto, todas visibles
+  const sel = seasons.filter(S => st.temp.has(S));        // temporadas elegidas por el usuario
+  const prom = new Array(TOT).fill(null);
+  if (comp.length) for (let i=0;i<TOT;i++) { if (i===iFeb29) continue; let s=0,n=0; for (const S of comp){ const v=series[S][i]; if (v!=null){s+=v;n++;} } if (n) prom[i]=s/n; }
+
+  const PAL = (d3.schemeTableau10 || ["#1F4E79"]).concat(d3.schemeSet3 || []);
+  const colorTemp = S => PAL[seasons.indexOf(S) % PAL.length];
+  const etqTemp = S => `Oct ${S}–May ${S+1}`;
+
+  host.innerHTML = "";
+  const W = 960, H = 260, mg = { l: 52, r: 10, t: 10, b: 26 };
+  const x = d3.scaleLinear().domain([0, TOT-1]).range([mg.l, W-mg.r]);
+  let ymax = d3.max(prom.filter(v=>v!=null)) || 0;
+  for (const S of sel) ymax = Math.max(ymax, d3.max(series[S].filter(v=>v!=null)) || 0);
+  const yS = d3.scaleLinear().domain([0, ymax||1]).nice(4).range([H-mg.b, mg.t]);
+  const svg = d3.select(host).append("svg").attr("viewBox", `0 0 ${W} ${H}`).attr("role","img")
+    .attr("aria-label", `Temporada octubre a mayo, ${acumulado?"acumulado":"registro diario"} por temporada`);
+  const ax = svg.append("g").attr("class","ax");
+  for (const t of yS.ticks(4)) {
+    ax.append("line").attr("class", t===0?"base":"gridl").attr("x1", mg.l).attr("x2", W-mg.r).attr("y1", yS(t)).attr("y2", yS(t));
+    ax.append("text").attr("x", mg.l-6).attr("y", yS(t)+3.5).attr("text-anchor","end").text(d3.format("~s")(t).replace("k"," mil"));
+  }
+  bounds.forEach((b,i) => {
+    if (i>0) ax.append("line").attr("class","gridl").attr("x1", x(b.x0)).attr("x2", x(b.x0)).attr("y1", mg.t).attr("y2", H-mg.b).attr("stroke-dasharray","2 3");
+    ax.append("text").attr("x", x(b.x0 + b.nd/2)).attr("y", H-8).attr("text-anchor","middle").style("fill", css("--ink-2")).text(MES_C[b.m-1]);
+  });
+  const line = d3.line().defined(d => d[1] != null).x(d => x(d[0])).y(d => yS(d[1]));
+  const gl = svg.append("g");
+  for (const S of sel) gl.append("path").attr("class","yr").attr("stroke", colorTemp(S)).attr("d", line(series[S].map((v,i)=>[i,v])));
+  if (comp.length) { svg.append("path").attr("class","halo").attr("d", line(prom.map((v,i)=>[i,v]))); svg.append("path").attr("class","prom").attr("d", line(prom.map((v,i)=>[i,v]))); }
+  const cross = svg.append("line").attr("class","cross").attr("y1", mg.t).attr("y2", H-mg.b).style("display","none");
+  svg.append("rect").attr("x", mg.l).attr("y", 0).attr("width", W-mg.l-mg.r).attr("height", H).attr("fill","transparent")
+    .on("pointermove", ev => {
+      const [px, py] = d3.pointer(ev); const i = Math.max(0, Math.min(TOT-1, Math.round(x.invert(px))));
+      cross.attr("x1", x(i)).attr("x2", x(i)).style("display", null);
+      const e = eje[i], cy = yS.invert(py);
+      // temporada cuya línea está más cerca del cursor
+      let near = null, best = Infinity;
+      for (const S of sel) { const v = series[S][i]; if (v == null) continue; const dd = Math.abs(v - cy); if (dd < best) { best = dd; near = S; } }
+      const diaTxt = `${e.d} de ${MESES[e.m-1].toLowerCase()}${acumulado ? " · acumulado" : ""}`;
+      const filas = [];
+      if (near != null) filas.push([diaTxt, series[near][i], true]);
+      if (prom[i] != null) filas.push(["Promedio", prom[i]]);
+      mostrarTip(host, ev, near != null ? etqTemp(near) : diaTxt, filas);
+    })
+    .on("pointerleave", () => { cross.style("display","none"); ocultarTip(); });
+
+  // leyenda de temporadas interactiva (click = mostrar/ocultar)
+  const leg = document.createElement("div"); leg.className = "legyr"; leg.style.marginTop = "8px";
+  seasons.forEach(S => {
+    const on = st.temp.has(S);
+    const b = document.createElement("button");
+    b.className = "chip" + (on ? " on" : "");
+    b.setAttribute("aria-pressed", on);
+    b.title = (on ? "Ocultar " : "Mostrar ") + etqTemp(S);
+    b.innerHTML = `<i style="background:${on ? colorTemp(S) : css('--ink-3')}"></i>${etqTemp(S)}`;
+    if (!on) b.style.opacity = ".55";
+    b.onclick = () => { st.temp.has(S) ? st.temp.delete(S) : st.temp.add(S); paneles(); };
+    leg.appendChild(b);
+  });
+  if (comp.length) { const p = document.createElement("button"); p.className = "chip prom"; p.disabled = true;
+    p.innerHTML = `<i style="background:${css('--ink')}"></i>Promedio`; leg.appendChild(p); }
+  host.appendChild(leg);
+}
+function mostrarTip(panel, ev, t, filas) {
+  if (!tipEl) { tipEl = document.createElement("div"); tipEl.className = "tip"; }
+  panel.appendChild(tipEl);
+  tipEl.innerHTML = `<div class="t">${t}</div>` + filas.map(([k,v]) => `<div class="r"><span>${k}</span><span>${nf(v, st.met)} ${unidad(st.met)}</span></div>`).join("");
+  const r = panel.getBoundingClientRect(); let lx = ev.clientX - r.left + 12, ly = ev.clientY - r.top + 12;
+  tipEl.style.left = "0px"; tipEl.style.top = "0px";
+  const tw = tipEl.offsetWidth; if (lx + tw > r.width) lx = Math.max(0, ev.clientX - r.left - tw - 12);
+  tipEl.style.left = lx + "px"; tipEl.style.top = ly + "px";
+}
+function ocultarTip(){ if (tipEl && tipEl.parentNode) tipEl.parentNode.removeChild(tipEl); }
+
+function leyendaAnios(C) {
+  const box = document.getElementById("legyr"); box.innerHTML = "";
+  aniosDisp = aniosDisponibles(C);
+  if (st.anios == null) st.anios = new Set(aniosDisp);
+  // un chip por año: click = mostrar/ocultar (multiselección aditiva)
+  aniosDisp.forEach(y => {
+    const on = st.anios.has(y);
+    const b = document.createElement("button");
+    b.className = "chip" + (on ? " on" : "");
+    b.setAttribute("aria-pressed", on);
+    b.title = (on ? "Ocultar " : "Mostrar ") + y;
+    b.innerHTML = `<i style="background:${on ? colorAnio(y) : css('--ink-3')}"></i>${y}`;
+    if (!on) b.style.opacity = ".55";
+    b.onclick = () => { st.anios.has(y) ? st.anios.delete(y) : st.anios.add(y); paneles(); };
+    box.appendChild(b);
+  });
+  // referencia del promedio (no interactivo)
+  const p = document.createElement("button"); p.className = "chip prom"; p.disabled = true;
+  p.innerHTML = `<i style="background:${css('--ink')}"></i>Promedio`;
+  box.appendChild(p);
+}
+
+// ---------- KPIs, anual, municipios ----------
+function kpis() {
+  const d = DATOS.deptos[st.dpto] || {}; const u = unidad(st.met);
+  const r = d.resumen?.[st.met]; const an = d.anual?.[st.met] || {};
+  const C = cubo(st.dpto, st.met);
+  const ysC = M.anios_promedio.filter(y => Object.values(C.out[y]||{}).filter(o=>o.ult===o.nd).length === 12);
+  let mxY = null; for (const y of ysC) { const v = an[y] || 0; if (!mxY || v > mxY[1]) mxY = [y, v]; }
+  const porMes = []; for (let m = 1; m <= 12; m++) { const p = promedioMes(C, m); porMes.push(p.serie.length ? p.serie[p.serie.length-1][1] : 0); }
+  const mPico = porMes.indexOf(Math.max(...porMes));
+  const tot26 = an["2026"];
+  const items = [
+    ["Promedio anual", r ? nf(r.prom_anual, st.met) : "–", `${u} por año`],
+    ["Densidad", r ? nf(r.densidad, st.met) : "–", `${u} / año por 1.000 km²`],
+    ["Año con más", mxY ? String(mxY[0]) : "–", mxY ? `${nf(mxY[1], st.met)} ${u}` : "Sin años completos"],
+    ["Mes pico", Math.max(...porMes) > 0 ? MESES[mPico] : "–", Math.max(...porMes) > 0 ? `prom. ${nf(porMes[mPico], st.met)} ${u}` : ""],
+  ];
+  document.getElementById("kpis").innerHTML = items.map(([l,v,n]) =>
+    `<div class="card kpi"><div class="l">${l}</div><div class="v">${v}</div><div class="n">${n}</div></div>`).join("");
+  document.getElementById("nombre").textContent = st.dpto === NAL ? "Colombia" : titulo(d.nombre || "");
+  const info = M.metricas[st.met];
+  document.getElementById("dsub").textContent = `${FUENTE} · ${info.nombre.toLowerCase()} · datos ${fechaTxt(info.cobertura_ini||info.fecha_min)} a ${fechaTxt(info.fecha_max)}` + (tot26!=null ? ` · 2026 a la fecha: ${nf(tot26, st.met)} ${u}` : "");
+}
+const fechaTxt = s => { const d = parse(s); return `${d.getDate()} ${MES_C[d.getMonth()]} ${d.getFullYear()}`; };
+
+function anual() {
+  const an = DATOS.deptos[st.dpto]?.anual?.[st.met] || {};
+  const info = M.metricas[st.met]; const y0 = parse(info.cobertura_ini||info.fecha_min).getFullYear();
+  const ys = []; for (let y = Math.max(M.anio_ini, y0); y <= M.anio_fin; y++) ys.push(y);
+  const W = 520, H = 210, mg = {l:54, r:8, t:18, b:22};
+  const x = d3.scaleBand().domain(ys).range([mg.l, W-mg.r]).padding(0.22);
+  const vmax = d3.max(ys, y => an[y]||0) || 1;
+  const yS = d3.scaleLinear().domain([0, vmax]).nice(4).range([H-mg.b, mg.t]);
+  const box = d3.select("#anual"); box.selectAll("*").remove();
+  const svg = box.append("svg").attr("viewBox", `0 0 ${W} ${H}`).attr("role","img").attr("aria-label","Total por año");
+  const ax = svg.append("g").attr("class","ax");
+  for (const t of yS.ticks(4)) {
+    ax.append("line").attr("class", t===0?"base":"gridl").attr("x1", mg.l).attr("x2", W-mg.r).attr("y1", yS(t)).attr("y2", yS(t));
+    ax.append("text").attr("x", mg.l-6).attr("y", yS(t)+3.5).attr("text-anchor","end").text(d3.format("~s")(t).replace("k"," mil"));
+  }
+  const parcial = y => y === 2026 || (y === y0 && parse(info.cobertura_ini||info.fecha_min).getMonth() > 0);
+  svg.append("g").selectAll("path").data(ys).join("path")
+    .attr("class", y => "bar" + (parcial(y) ? " parcial" : ""))
+    .attr("d", y => { const v = an[y]||0, bx = x(y), bw = x.bandwidth(), top = yS(v), base = yS(0), r = Math.min(4, bw/2, base-top);
+      if (v <= 0) return ""; return `M${bx},${base}V${top+r}Q${bx},${top} ${bx+r},${top}H${bx+bw-r}Q${bx+bw},${top} ${bx+bw},${top+r}V${base}Z`; })
+    .append("title").text(y => `${y}: ${nf(an[y]||0, st.met)} ${unidad(st.met)}${parcial(y) ? " (año parcial)" : ""}`);
+  svg.append("g").attr("class","ax").selectAll("text").data(ys).join("text")
+    .attr("x", y => x(y) + x.bandwidth()/2).attr("y", H-6).attr("text-anchor","middle").text(y => "’" + String(y).slice(2));
+  const ymx = ys.reduce((a,b) => (an[b]||0) > (an[a]||0) ? b : a, ys[0]);
+  if (an[ymx]) svg.append("text").attr("class","ax").attr("x", x(ymx)+x.bandwidth()/2).attr("y", yS(an[ymx])-5)
+    .attr("text-anchor","middle").style("font","500 10.5px var(--f-mono)").style("fill", css("--ink")).text(nf(an[ymx], st.met));
+  document.getElementById("descAnual").textContent = `${FUENTE}, ${info.nombre.toLowerCase()}. Las barras punteadas son años incompletos.`;
+}
+
+function municipios() {
+  const d = DATOS.deptos[st.dpto] || {};
+  const lst = (d.municipios?.[st.met] || []).slice().sort((a,b) => b.prom - a.prom).slice(0, 12);
+  document.getElementById("titMun").textContent = st.dpto === NAL ? "Municipios con mayor frecuencia en el país" : "Municipios con mayor frecuencia";
+  const mx = d3.max(lst, x => x.prom) || 1; const u = unidad(st.met);
+  const tb = document.getElementById("tablaMun");
+  if (!lst.length) { tb.innerHTML = `<tr><td>Sin registros para esta métrica.</td></tr>`; return; }
+  tb.innerHTML = `<thead><tr><th>#</th><th>Municipio</th><th class="num wbar">${u} / año</th><th class="num">por 1.000 km²</th></tr></thead><tbody>` +
+    lst.map((x,i) => `<tr${st.dpto!==NAL ? ` class="clic${x.cod===st.mpio?" sel":""}" data-cod="${x.cod}" tabindex="0"` : ""}><td>${i+1}</td><td>${titulo(x.nombre||x.cod)}${st.dpto===NAL ? ` <span style="color:var(--ink-3)">· ${titulo(DATOS.deptos[x.cod.slice(0,2)]?.nombre||"")}</span>` : ""}</td>` +
+      `<td class="num barcell"><i style="width:${(x.prom/mx*55).toFixed(1)}%"></i><span>${nf(x.prom, st.met)}</span></td><td class="num">${nf(x.dens, st.met)}</td></tr>`).join("") + "</tbody>";
+  tb.querySelectorAll("tr.clic").forEach(tr => {
+    tr.onclick = () => elegirMpio(tr.dataset.cod);
+    tr.onkeydown = e => { if (e.key==="Enter"||e.key===" ") { e.preventDefault(); elegirMpio(tr.dataset.cod); } };
+  });
+}
+
+function rangosHuecos(dias) {
+  const r = []; let a = null, b = null;
+  for (const d of dias.slice().sort()) {
+    const t = parse(d);
+    if (b && (t - b) / 864e5 === 1) { b = t; continue; }
+    if (a) r.push([a, b]); a = b = t;
+  }
+  if (a) r.push([a, b]);
+  return r;
+}
+function textoHuecos() {
+  const dias = M.metricas.firms_puntos?.dias_sin_datos || [];
+  if (!dias.length) return "";
+  const f = d => `${d.getDate()} ${MES_C[d.getMonth()]} ${d.getFullYear()}`;
+  const txt = rangosHuecos(dias).map(([a,b]) => `${f(a)}–${f(b)}`).join("; ");
+  return `<li>Días sin datos del satélite Suomi-NPP (sin ningún punto en todo el país durante 5 días o más): ${txt}. Esos meses se dibujan con línea punteada y no entran al promedio; si falta más de la mitad del mes, no se dibujan.</li>`;
+}
+function notas() {
+  const m = M.metricas, p = m.firms_puntos || m[METS[0]];
+  const conCob = METS.length > 1;
+  document.getElementById("notas").innerHTML = `<h3>Fuentes y reglas de cálculo</h3><ul>
+    <li><b>${FUENTE}</b> (NASA FIRMS, 375 m): ${fechaTxt(p.cobertura_ini||p.fecha_min)} a ${fechaTxt(p.fecha_max)}. Hora de Colombia (UTC−5), solo satélite Suomi-NPP, confianza nominal y alta, sin fuentes fijas (teas de gas).</li>
+    <li>Cobertura: MapBiomas Colombia Colección 3 del año anterior al punto (2025 y 2026 usan 2024), dominante en una ventana de ~390 m. <i>Toda la vegetación</i> suma bosques, sabanas y herbazales, y pastos y cultivos; excluye áreas urbanas, minería, playas y agua.</li>
+    <li>Promedio: media del acumulado de los años completos ${M.anios_promedio[0]}–${M.anios_promedio[M.anios_promedio.length-1]}; 2026 no entra al promedio.</li>
+    <li>29 de febrero: en años no bisiestos el acumulado del día 29 es igual al del 28.</li>
+    ${false ? `<li><b>Área quemada:</b> MapBiomas Fuego Colección 1 (Landsat, 30 m), 2014–2025. Cobertura al momento de la quema según MapBiomas; la conversión a pasto o cultivo se mide con el mapa de cobertura Colección 3 del año siguiente (hasta 2023). Un punto se considera confirmado si hay área quemada del mismo mes o del siguiente a menos de ~195 m.</li>` : ""}
+    <li>Un punto de calor es un píxel con fuego activo al paso del satélite (una vez de día y una de noche); no equivale a un incendio. Los fuegos breves entre pasadas o bajo nubes no se registran, por eso la detección es menor en el Pacífico y los Andes.</li>${textoHuecos()}</ul>
+    <p style="margin:8px 0 0">Generado ${M.generado}.</p>`;
+  const av = document.getElementById("aviso");
+  av.hidden = conCob;
+  av.innerHTML = `<b>Pendiente:</b> <span>falta el filtro por cobertura (corra p05_cobertura_puntos.py y luego p03 y p04).</span>`;
+}
+
+function nino() {
+  const N = DATOS.nino, card = document.getElementById("ninoCard");
+  const dat = N && N.datos[st.met] && N.datos[st.met][st.dpto];
+  if (!N) { card.hidden = true; return; }
+  card.hidden = false;
+  const nt = N.temporadas.length, nm = N.meses.length;
+  let vals = new Array(nt * nm).fill(0), nombre;
+  if (st.mpio) {
+    vals = (dat && dat.mpios[st.mpio]) || vals;
+    const f = GEO_MUN.features.find(x => x.properties.MPIO_CCNCT === st.mpio);
+    nombre = titulo(f ? f.properties.MPIO_CNMBR : st.mpio);
+  } else {
+    vals = (dat && dat.total) || vals;
+    nombre = st.dpto === NAL ? "Colombia" : titulo(DATOS.deptos[st.dpto]?.nombre || "");
+  }
+  document.getElementById("ninoSub").textContent = `${nombre} · puntos de calor por mes · ${M.metricas[st.met].nombre.toLowerCase()}`;
+  const MES_N = {1:"Ene",2:"Feb",3:"Mar",4:"Abr",5:"May",6:"Jun",7:"Jul",8:"Ago",9:"Sep",10:"Oct",11:"Nov",12:"Dic"};
+  const cls = ["nbar1", "nbar2"], col = [css("--nino1"), css("--nino2")];
+  document.getElementById("ninoLeg").innerHTML = N.temporadas.map((t,i) =>
+    `<span><i style="background:${col[i]}"></i>${MES_N[N.meses[0]]} ${t.split("–")[0]} – ${MES_N[N.meses[nm-1]].toLowerCase()} ${t.split("–")[1]}</span>`).join("");
+  const W = 440, H = 210, mg = {l:40, r:6, t:18, b:22};
+  const x0 = d3.scaleBand().domain(N.meses.map(String)).range([mg.l, W-mg.r]).paddingInner(0.28).paddingOuter(0.1);
+  const x1 = d3.scaleBand().domain(d3.range(nt)).range([0, x0.bandwidth()]).paddingInner(0.12);
+  const vmax = d3.max(vals) || 1;
+  const y = d3.scaleLinear().domain([0, vmax]).nice(3).range([H-mg.b, mg.t]);
+  const box = d3.select("#ninoGraf"); box.selectAll("*").remove();
+  const svg = box.append("svg").attr("viewBox", `0 0 ${W} ${H}`).attr("role","img")
+    .attr("aria-label", `Puntos de calor por mes en ${nombre}, temporadas El Niño`);
+  const ax = svg.append("g").attr("class","ax");
+  for (const t of y.ticks(3)) {
+    ax.append("line").attr("class", t===0?"base":"gridl").attr("x1", mg.l).attr("x2", W-mg.r).attr("y1", y(t)).attr("y2", y(t));
+    ax.append("text").attr("x", mg.l-6).attr("y", y(t)+3.5).attr("text-anchor","end").text(d3.format("~s")(t).replace("k"," mil"));
+  }
+  N.meses.forEach((m, i) => {
+    ax.append("text").attr("x", x0(String(m)) + x0.bandwidth()/2).attr("y", H-6).attr("text-anchor","middle")
+      .style("font", "500 11px var(--f-body)").style("fill", css("--ink-2")).text(MES_N[m] || m);
+    for (let t = 0; t < nt; t++) {
+      const v = vals[t*nm + i], bx = x0(String(m)) + x1(t), bw = x1.bandwidth(), top = y(v), base = y(0), r = Math.min(3, bw/2, base-top);
+      if (v > 0) svg.append("path").attr("class", cls[t])
+        .attr("d", `M${bx},${base}V${top+r}Q${bx},${top} ${bx+r},${top}H${bx+bw-r}Q${bx+bw},${top} ${bx+bw},${top+r}V${base}Z`)
+        .append("title").text(`${MES_N[m]} ${m>=7 ? N.temporadas[t].split("–")[0] : N.temporadas[t].split("–")[1]}: ${nf(v, st.met)} puntos`);
+      svg.append("text").attr("x", bx + bw/2).attr("y", (v>0?top:base) - 4).attr("text-anchor","middle")
+        .style("font", "500 8.5px var(--f-mono)").style("fill", css("--ink-2"))
+        .text(v >= 1000 ? (v/1000).toFixed(v >= 10000 ? 0 : 1).replace(".", ",") + "k" : v);
+    }
+  });
+  const tot = d3.range(nt).map(t => d3.sum(vals.slice(t*nm, t*nm+nm)));
+  const dif = tot[0] > 0 ? Math.round((tot[1]-tot[0]) / tot[0] * 100) : null;
+  document.getElementById("ninoTot").innerHTML = N.temporadas.map((t,i) => `<span>${t}: <b>${nf(tot[i], st.met)}</b></span>`).join("") +
+    (dif != null ? `<span>Cambio: <b>${dif > 0 ? "+" : ""}${dif} %</b></span>` : "");
+  document.getElementById("ninoHint").textContent = st.dpto === NAL ? "Elija un departamento y luego toque un municipio en el mapa."
+    : (st.mpio ? "Toque de nuevo el municipio para volver al total del departamento." : "Toque un municipio en el mapa o en la tabla para ver su comparación.");
+}
+
+const fmt = (v, d=0) => Number(v).toLocaleString("es-CO", { maximumFractionDigits: d, minimumFractionDigits: 0 });
+const fmtC = v => v >= 1e6 ? fmt(v/1e6, 1) + " M" : v >= 1e4 ? fmt(v/1e3, 0) + " mil" : fmt(v);
+
+function ejeY(svg, y, W, mg) {
+  const ax = svg.append("g").attr("class","ax");
+  for (const t of y.ticks(4)) {
+    ax.append("line").attr("class", t===0?"base":"gridl").attr("x1", mg.l).attr("x2", W-mg.r).attr("y1", y(t)).attr("y2", y(t));
+    ax.append("text").attr("x", mg.l-6).attr("y", y(t)+3.5).attr("text-anchor","end").text(fmtC(t));
+  }
+  return ax;
+}
+function barra(x, y0, y1, w) {        // barra con esquinas superiores redondeadas
+  const r = Math.min(3, w/2, Math.max(0, y0-y1));
+  return `M${x},${y0}V${y1+r}Q${x},${y1} ${x+r},${y1}H${x+w-r}Q${x+w},${y1} ${x+w},${y1+r}V${y0}Z`;
+}
+
+function mapbiomas() {
+  const MB = DATOS.mapbiomas, sec = document.getElementById("mbSec");
+  if (!MB) { sec.hidden = true; return; }
+  const base = MB.datos[st.dpto];
+  sec.hidden = false;
+  let d = base, nombre = st.dpto === NAL ? "Colombia" : titulo(DATOS.deptos[st.dpto]?.nombre || "");
+  if (st.mpio) {
+    const f = GEO_MUN.features.find(x => x.properties.MPIO_CCNCT === st.mpio);
+    nombre = titulo(f ? f.properties.MPIO_CNMBR : st.mpio);
+    d = base && base.mpios[st.mpio];
+  }
+  const n = MB.anios.length, ceros = Array(n).fill(0);
+  if (!d) d = { ha: MB.anios.map(() => [0,0,0]), perdida: MB.anios_perdida.map(() => 0), pts: ceros, conf: ceros };
+  const col = { bosque: css("--c-bosque"), sabana: css("--c-sabana"), agropecuario: css("--c-agro") };
+  const nomG = { bosque: "Bosques", sabana: "Sabanas y herbazales", agropecuario: "Pastos y cultivos" };
+  const totAnio = d.ha.map(r => d3.sum(r)), total = d3.sum(totAnio);
+  const bosque = d3.sum(d.ha, r => r[0]);
+  const iP = MB.anios.map((a,i) => MB.anios_perdida.includes(a) ? i : -1).filter(i => i >= 0);
+  const bosqueP = d3.sum(iP, i => d.ha[i][0]), perd = d3.sum(d.perdida);
+  const pts = d3.sum(d.pts), conf = d3.sum(d.conf);
+  document.getElementById("mbDesc").textContent = `${nombre}. Área quemada cartografiada con imágenes Landsat; incluye quemas de pocas hectáreas. ${st.mpio ? "Toque de nuevo el municipio para volver al departamento." : (st.dpto === NAL ? "" : "Toque un municipio en el mapa o en la tabla para ver sus cifras.")}`;
+  const items = [
+    ["Área quemada", fmt(total / n), "ha por año (2014–2025)"],
+    ["En bosque", total ? fmt(bosque / total * 100, 1) + " %" : "–", `${fmt(bosque / n)} ha por año`],
+    ["Bosque que pasó a pasto o cultivo", fmt(perd), bosqueP ? `ha en 2014–2023 · ${fmt(perd / bosqueP * 100, 0)} % del bosque quemado` : "ha en 2014–2023"],
+    ["Puntos confirmados", pts ? fmt(conf / pts * 100, 0) + " %" : "–", pts ? `≈ ${fmt(total / pts, 1)} ha quemadas por punto` : "sin puntos"],
+  ];
+  document.getElementById("mbKpis").innerHTML = items.map(([l,v,t]) =>
+    `<div class="card kpi"><div class="l">${l}</div><div class="v">${v}</div><div class="n">${t}</div></div>`).join("");
+  document.getElementById("mbLeg").innerHTML = MB.grupos.map(g => `<span><i style="background:${col[g]}"></i>${nomG[g]}</span>`).join("");
+
+  // 1. barras apiladas por año
+  { const W = 520, H = 220, mg = {l:52, r:8, t:12, b:22};
+    const x = d3.scaleBand().domain(MB.anios).range([mg.l, W-mg.r]).padding(0.24);
+    const y = d3.scaleLinear().domain([0, d3.max(totAnio) || 1]).nice(4).range([H-mg.b, mg.t]);
+    const box = d3.select("#mbAnual"); box.selectAll("*").remove();
+    const svg = box.append("svg").attr("viewBox", `0 0 ${W} ${H}`).attr("role","img").attr("aria-label","Hectáreas quemadas por año y cobertura");
+    ejeY(svg, y, W, mg);
+    MB.anios.forEach((a, i) => {
+      let acc = 0;
+      MB.grupos.forEach((g, k) => {
+        const v = d.ha[i][k]; if (v <= 0) return;
+        const y0 = y(acc), y1 = y(acc + v); acc += v;
+        const top = d.ha[i].slice(k+1).every(z => z <= 0);
+        svg.append("path").attr("d", top ? barra(x(a), y0, y1, x.bandwidth()) : `M${x(a)},${y0}V${y1}H${x(a)+x.bandwidth()}V${y0}Z`)
+          .attr("fill", col[g]).attr("stroke", css("--surface")).attr("stroke-width", 1)
+          .append("title").text(`${a} · ${nomG[g]}: ${fmt(v)} ha`);
+      });
+      svg.append("text").attr("x", x(a)+x.bandwidth()/2).attr("y", H-6).attr("text-anchor","middle")
+        .style("font","10px var(--f-mono)").style("fill", css("--ink-3")).text("’" + String(a).slice(2));
+    });
+  }
+  // 2. dispersión puntos vs hectáreas por año
+  { const W = 520, H = 220, mg = {l:52, r:14, t:12, b:30};
+    const xs = d.pts, ys = totAnio;
+    const x = d3.scaleLinear().domain([0, d3.max(xs) || 1]).nice(4).range([mg.l, W-mg.r]);
+    const y = d3.scaleLinear().domain([0, d3.max(ys) || 1]).nice(4).range([H-mg.b, mg.t]);
+    const box = d3.select("#mbRel"); box.selectAll("*").remove();
+    const svg = box.append("svg").attr("viewBox", `0 0 ${W} ${H}`).attr("role","img").attr("aria-label","Puntos de calor y hectáreas quemadas por año");
+    ejeY(svg, y, W, mg);
+    const ax = svg.append("g").attr("class","ax");
+    for (const t of x.ticks(4)) ax.append("text").attr("x", x(t)).attr("y", H-mg.b+14).attr("text-anchor","middle").text(fmtC(t));
+    ax.append("text").attr("x", W-mg.r).attr("y", H-2).attr("text-anchor","end").text("puntos de calor por año");
+    const b = d3.sum(xs, (v,i) => v*ys[i]) / (d3.sum(xs, v => v*v) || 1);   // recta por el origen
+    if (d3.sum(xs) > 0) {
+      const xf = Math.min(x.domain()[1], y.domain()[1] / (b || 1));
+      svg.append("line").attr("x1", x(0)).attr("y1", y(0)).attr("x2", x(xf)).attr("y2", y(b * xf))
+        .attr("stroke", css("--ink-3")).attr("stroke-dasharray","4 3");
+    }
+    MB.anios.forEach((a, i) => {
+      svg.append("circle").attr("class","dot").attr("cx", x(xs[i])).attr("cy", y(ys[i])).attr("r", 4.5)
+        .append("title").text(`${a}: ${fmt(xs[i])} puntos · ${fmt(ys[i])} ha`);
+      svg.append("text").attr("x", x(xs[i]) + 6).attr("y", y(ys[i]) + 3).style("font","9.5px var(--f-mono)").style("fill", css("--ink-3")).text(a);
+    });
+    const mx = d3.mean(xs), my = d3.mean(ys);
+    const den = Math.sqrt(d3.sum(xs, v => (v-mx)**2) * d3.sum(ys, v => (v-my)**2));
+    const r = den ? d3.sum(xs, (v,i) => (v-mx)*(ys[i]-my)) / den : 0;
+    document.getElementById("mbRelTxt").textContent = d3.sum(xs) > 0
+      ? `Cada círculo es un año. Correlación: ${fmt(r, 2)}. La línea punteada equivale a ${fmt(b, 1)} ha quemadas por punto de calor; ese factor cambia mucho entre regiones.`
+      : "Sin puntos de calor en este territorio.";
+  }
+  // 3. pérdida de bosque por año
+  { const W = 520, H = 190, mg = {l:52, r:8, t:16, b:22};
+    const x = d3.scaleBand().domain(MB.anios_perdida).range([mg.l, W-mg.r]).padding(0.3);
+    const y = d3.scaleLinear().domain([0, d3.max(d.perdida) || 1]).nice(3).range([H-mg.b, mg.t]);
+    const box = d3.select("#mbPerdida"); box.selectAll("*").remove();
+    const svg = box.append("svg").attr("viewBox", `0 0 ${W} ${H}`).attr("role","img").attr("aria-label","Bosque quemado convertido a pasto o cultivo por año");
+    ejeY(svg, y, W, mg);
+    MB.anios_perdida.forEach((a, i) => {
+      const v = d.perdida[i];
+      if (v > 0) svg.append("path").attr("d", barra(x(a), y(0), y(v), x.bandwidth())).attr("fill", css("--accent"))
+        .append("title").text(`${a}: ${fmt(v)} ha`);
+      svg.append("text").attr("x", x(a)+x.bandwidth()/2).attr("y", H-6).attr("text-anchor","middle").style("font","10px var(--f-mono)").style("fill", css("--ink-3")).text("’" + String(a).slice(2));
+    });
+    document.getElementById("mbPerdTxt").textContent = "Bosque quemado en el año indicado que en el mapa de cobertura del año siguiente ya era pasto o cultivo (MapBiomas Colección 3).";
+  }
+  // 4. temporada: promedio mensual (departamento o país)
+  { const mm = (base && base.mes) || Array(12).fill(0);
+    document.getElementById("mbMesTit").textContent = `Temporada de quemas: hectáreas promedio por mes${st.mpio ? " (departamento)" : ""}`;
+    const W = 520, H = 190, mg = {l:52, r:8, t:12, b:22};
+    const x = d3.scaleBand().domain(d3.range(1,13)).range([mg.l, W-mg.r]).padding(0.25);
+    const y = d3.scaleLinear().domain([0, d3.max(mm) || 1]).nice(3).range([H-mg.b, mg.t]);
+    const box = d3.select("#mbMes"); box.selectAll("*").remove();
+    const svg = box.append("svg").attr("viewBox", `0 0 ${W} ${H}`).attr("role","img").attr("aria-label","Hectáreas quemadas promedio por mes");
+    ejeY(svg, y, W, mg);
+    mm.forEach((v, i) => {
+      if (v > 0) svg.append("path").attr("d", barra(x(i+1), y(0), y(v), x.bandwidth())).attr("fill", css("--h3"))
+        .append("title").text(`${MESES[i]}: ${fmt(v)} ha en promedio`);
+      svg.append("text").attr("x", x(i+1)+x.bandwidth()/2).attr("y", H-6).attr("text-anchor","middle").style("font","10px var(--f-body)").style("fill", css("--ink-3")).text(MES_C[i]);
+    });
+  }
+}
+
+for (const f of GEO_MUN.features) MUN_NOM[f.properties.MPIO_CCNCT] = titulo(f.properties.MPIO_CNMBR);
+
+// ---------- pestaña Área quemada: ranking y notas ----------
+function rankingHa() {
+  const MB = DATOS.mapbiomas, tb = document.getElementById("tablaMb");
+  if (!MB) { tb.innerHTML = `<tr><td>Sin datos de MapBiomas.</td></tr>`; return; }
+  const n = MB.anios.length, lst = [];
+  const deps = st.dpto === NAL ? Object.keys(MB.datos).filter(c => c !== NAL) : [st.dpto];
+  for (const c of deps) for (const [m, o] of Object.entries(MB.datos[c]?.mpios || {})) {
+    const tot = d3.sum(o.ha, r => d3.sum(r)) / n;
+    if (tot > 0) lst.push({ cod: m, ha: tot, bos: d3.sum(o.ha, r => r[0]) / n, perd: d3.sum(o.perdida || []) });
+  }
+  lst.sort((a, b) => b.ha - a.ha); const top = lst.slice(0, 12);
+  document.getElementById("titMb").textContent = st.dpto === NAL ? "Municipios con más área quemada en el país" : "Municipios con más área quemada";
+  if (!top.length) { tb.innerHTML = `<tr><td>Sin área quemada registrada.</td></tr>`; return; }
+  const mx = top[0].ha;
+  tb.innerHTML = `<thead><tr><th>#</th><th>Municipio</th><th class="num wbar">ha / año</th><th class="num">En bosque</th><th class="num">Bosque → pasto o cultivo</th></tr></thead><tbody>` +
+    top.map((x, i) => `<tr${st.dpto !== NAL ? ` class="clic${x.cod === st.mpio ? " sel" : ""}" data-cod="${x.cod}" tabindex="0"` : ""}><td>${i + 1}</td>` +
+      `<td>${MUN_NOM[x.cod] || x.cod}${st.dpto === NAL ? ` <span class="muted">· ${nomDepto(x.cod.slice(0, 2))}</span>` : ""}</td>` +
+      `<td class="num barcell"><i style="width:${(x.ha / mx * 55).toFixed(1)}%;background:var(--c-sabana)"></i><span>${fmt(x.ha)}</span></td>` +
+      `<td class="num">${fmt(x.bos / x.ha * 100, 0)} %</td><td class="num">${fmt(x.perd)} ha</td></tr>`).join("") + "</tbody>";
+  tb.querySelectorAll("tr.clic").forEach(tr => {
+    tr.onclick = () => elegirMpio(tr.dataset.cod);
+    tr.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); elegirMpio(tr.dataset.cod); } };
+  });
+}
+function notasArea() {
+  document.getElementById("notasArea").innerHTML = `<h3>Fuentes y reglas de cálculo</h3><ul>
+    <li><b>Área quemada:</b> MapBiomas Fuego Colección 1 (Landsat, 30 m), 2014–2025; 2026 aún no está publicado. Incluye quemas de pocas hectáreas.</li>
+    <li><b>Cobertura afectada:</b> la que MapBiomas registra al momento de la quema. La conversión a pasto o cultivo se mide con el mapa de cobertura Colección 3 del año siguiente (hasta 2023).</li>
+    <li><b>Punto confirmado:</b> punto de calor con área quemada de MapBiomas del mismo mes o del siguiente a menos de ~195 m. Un punto no confirmado no es un error: puede ser un fuego pequeño, bajo nubes o sin cicatriz visible a 30 m.</li>
+    <li>La relación hectáreas por punto describe el tipo de fuego de cada territorio; no es un factor para convertir puntos en hectáreas.</li></ul>`;
+}
+
+// ---------- pestaña Capacidades ----------
+const CAP = DATOS.capacidades;
+const colOrg = i => css(["--o1", "--o2", "--o3", "--o4"][i % 4]);
+const UNI = { "Unidades": "unidades", "Personas": "personas", "Vehículos": "vehículos", "Galones": "galones", "Otro": "sin unidad", "": "sin unidad" };
+const uniTxt = u => UNI[u] ?? u;
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+const centros = {};
+function centroMun(cod) {
+  if (!(cod in centros)) { const f = GEO_MUN.features.find(x => x.properties.MPIO_CCNCT === cod); centros[cod] = f ? d3.geoCentroid(f) : null; }
+  return centros[cod];
+}
+function regsDe(dpto, mpio) {
+  if (!CAP) return [];
+  return CAP.registros.filter(r => (dpto === NAL || r.d === dpto) && (!mpio || r.m === mpio));
+}
+const suma = (regs, un) => d3.sum(regs.filter(r => r.un === un), r => r.q || 0);
+
+function puntosCapacidad(svg) {
+  const box = document.getElementById("orgleg");
+  if (!CAP) { box.innerHTML = ""; return; }
+  const regs = regsDe(st.dpto);
+  const grupos = d3.groups(regs, r => { const p = r.lon != null ? [r.lon, r.lat] : centroMun(r.m); return p ? `${r.o}|${p[0].toFixed(2)}|${p[1].toFixed(2)}` : ""; })
+    .filter(([k]) => k);
+  const esc2 = st.dpto === NAL ? 1.3 : 1.9;
+  grupos.sort((a, b) => b[1].length - a[1].length);
+  const g = svg.append("g");
+  for (const [k, v] of grupos) {
+    const [o, lo, la] = k.split("|"), xy = proj([+lo, +la]); if (!xy) continue;
+    const mpios = [...new Set(v.map(r => MUN_NOM[r.m] || r.m))].join(", ");
+    const unid = [...new Set(v.map(r => r.u))].join(", ");
+    g.append("circle").attr("class", "capdot").attr("cx", xy[0]).attr("cy", xy[1])
+      .attr("r", 2.6 + Math.sqrt(v.length) * esc2).attr("fill", colOrg(+o))
+      .on("click", () => st.dpto === NAL ? elegir(v[0].d) : elegirMpio(v[0].m))
+      .append("title").text(`${CAP.organizaciones[+o]} · ${unid}\n${mpios}: ${v.length} registro${v.length > 1 ? "s" : ""}`);
+  }
+  const orgs = [...new Set(regsDe(NAL).map(r => r.o))];
+  box.innerHTML = `<span class="tit">Bases con capacidades (tamaño = n.º de registros)</span>` +
+    orgs.map(o => `<span><i style="background:${colOrg(o)}"></i>${CAP.organizaciones[o]}</span>`).join("");
+}
+
+function capacidades() {
+  const av = document.getElementById("capAviso");
+  if (!CAP) {
+    av.innerHTML = `<b>Sin datos:</b> <span>corra <code>python c01_capacidades.py</code> y luego <code>python p04_construir_app_v1.py</code>.</span>`;
+    ["capKpis", "tablaBrecha", "tablaInv", "tablaCat", "tablaUni"].forEach(id => document.getElementById(id).innerHTML = "");
+    return;
+  }
+  const orgs = CAP.organizaciones;
+  av.innerHTML = `<b>Información parcial.</b> <span>Incluye solo lo reportado por ${orgs.join(", ").replace(/, ([^,]*)$/, " y $1")}` +
+    `${CAP.fecha_reporte ? ` (a ${fechaTxt(CAP.fecha_reporte)})` : ""}. Faltan, entre otros, cuerpos de bomberos, corporaciones autónomas regionales, Fuerza Aérea y consejos territoriales de gestión del riesgo. ` +
+    `Un departamento sin registros no significa que no tenga capacidad.</span>`;
+  const todos = regsDe(NAL), regsD = regsDe(st.dpto), regs = regsDe(st.dpto, st.mpio);
+  const lugar = st.mpio ? (MUN_NOM[st.mpio] || st.mpio) : (st.dpto === NAL ? "Colombia" : nomDepto(st.dpto));
+
+  // KPIs
+  const nOrg = new Set(regs.map(r => r.o)).size, nUni = new Set(regs.map(r => r.o + "|" + r.u)).size;
+  const nMun = new Set(regs.map(r => r.m)).size, nDep = new Set(regs.map(r => r.d)).size;
+  const totMunD = st.dpto === NAL ? GEO_MUN.features.length : GEO_MUN.features.filter(f => f.properties.DPTO_CCDGO === st.dpto).length;
+  const items = [
+    ["Registros de capacidad", fmt(regs.length), regs.length ? `${nUni} unidad${nUni === 1 ? "" : "es"} de ${nOrg} institución${nOrg === 1 ? "" : "es"}` : "sin reportes"],
+    [st.mpio ? "Municipio" : "Municipios con base", st.mpio ? (regs.length ? "Con base" : "Sin base") : fmt(nMun),
+      st.mpio ? lugar : `de ${fmt(totMunD)}${st.dpto === NAL ? ` · ${nDep} departamentos` : ""}`],
+    ["Personal", fmt(suma(regs, "Personas")), "personas en registros con esa unidad"],
+    ["Vehículos", fmt(suma(regs, "Vehículos")), "en registros con esa unidad"],
+  ];
+  document.getElementById("capKpis").innerHTML = items.map(([l, v, t]) =>
+    `<div class="card kpi"><div class="l">${l}</div><div class="v">${v}</div><div class="n">${t}</div></div>`).join("");
+
+  // contexto de frecuencia del departamento
+  const MB = DATOS.mapbiomas, nA = MB ? MB.anios.length : 1;
+  const filas = GEO_DEP.features.map(f => {
+    const c = f.properties.DPTO_CCDGO, rr = todos.filter(r => r.d === c);
+    return { c, nom: titulo(f.properties.DPTO_CNMBR), pts: DATOS.deptos[c]?.resumen?.firms_puntos?.prom_anual || 0,
+      ha: MB && MB.datos[c] ? d3.sum(MB.datos[c].ha, r => d3.sum(r)) / nA : 0, n: rr.length,
+      org: new Set(rr.map(r => r.o)).size, per: suma(rr, "Personas"), veh: suma(rr, "Vehículos") };
+  }).sort((a, b) => b.pts - a.pts);
+  const tercio = Math.ceil(filas.length / 3);
+  const conReg = filas.filter(f => f.n > 0).map(f => f.n).sort((a, b) => a - b);
+  const mediana = conReg.length ? conReg[Math.floor((conReg.length - 1) / 2)] : 0;
+  filas.forEach((f, i) => { f.pos = i + 1; f.senal = i < tercio ? (f.n === 0 ? 1 : (f.n <= mediana ? 2 : 0)) : 0; });
+  const dsub = document.getElementById("dsub");
+  if (st.dpto === NAL) dsub.textContent = `${fmt(todos.length)} registros en ${new Set(todos.map(r => r.d)).size} de ${GEO_DEP.features.length} departamentos · ${CAP.archivos.length} archivos`;
+  else { const f = filas.find(x => x.c === st.dpto);
+    dsub.textContent = `Puesto ${f.pos} de ${filas.length} en puntos de calor por año (${nf(f.pts, "firms_puntos")}) · ${fmt(regsD.length)} registros de capacidad`; }
+
+  // tabla de brecha (solo nacional)
+  document.getElementById("capBrecha").hidden = st.dpto !== NAL;
+  if (st.dpto === NAL) {
+    document.getElementById("capBrechaDesc").innerHTML = `Departamentos ordenados por puntos de calor por año. La señal marca los ${tercio} con más puntos que no tienen registros ` +
+      `(<span class="badge b1">Sin registros</span>) o que tienen ${mediana} o menos, la mediana de los departamentos con registros (<span class="badge b2">Pocos registros</span>). Toque un departamento para ver su inventario.`;
+    const mx = filas[0].pts || 1;
+    const tb = document.getElementById("tablaBrecha");
+    tb.innerHTML = `<thead><tr><th>#</th><th>Departamento</th><th class="num wbar">Puntos de calor / año</th><th class="num">Área quemada ha / año</th><th class="num">Registros</th><th class="num">Instituciones</th><th class="num">Personal</th><th class="num">Vehículos</th><th>Señal</th></tr></thead><tbody>` +
+      filas.map(f => `<tr class="clic" data-cod="${f.c}" tabindex="0"><td>${f.pos}</td><td>${f.nom}</td>` +
+        `<td class="num barcell"><i style="width:${(f.pts / mx * 55).toFixed(1)}%"></i><span>${nf(f.pts, "firms_puntos")}</span></td>` +
+        `<td class="num">${fmt(f.ha)}</td><td class="num">${f.n || '<span class="muted">0</span>'}</td><td class="num">${f.org || '<span class="muted">–</span>'}</td>` +
+        `<td class="num">${f.per ? fmt(f.per) : '<span class="muted">–</span>'}</td><td class="num">${f.veh ? fmt(f.veh) : '<span class="muted">–</span>'}</td>` +
+        `<td>${f.senal === 1 ? '<span class="badge b1">Sin registros</span>' : f.senal === 2 ? '<span class="badge b2">Pocos registros</span>' : ""}</td></tr>`).join("") + "</tbody>";
+    tb.querySelectorAll("tr.clic").forEach(tr => {
+      tr.onclick = () => elegir(tr.dataset.cod);
+      tr.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); elegir(tr.dataset.cod); } };
+    });
+  }
+
+  // inventario (departamento o municipio)
+  document.getElementById("capInv").hidden = st.dpto === NAL;
+  if (st.dpto !== NAL) {
+    document.getElementById("capInvTit").textContent = `Inventario reportado · ${lugar}`;
+    document.getElementById("capInvDesc").textContent = regs.length
+      ? "Los recursos iguales de una misma unidad y municipio se agrupan y se suman. " + (st.mpio ? "Toque de nuevo el municipio en el mapa para ver todo el departamento." : "Toque un punto o un municipio en el mapa para filtrar.")
+      : (st.mpio ? "Este municipio no tiene registros. Toque de nuevo el municipio para ver todo el departamento." : "Este departamento no tiene registros en los archivos recibidos.");
+    const clave = r => [r.m, r.o, r.u, r.c, r.t, r.un, r.di, r.al, r.sc].join("|");
+    const filasInv = d3.groups(regs, clave).map(([k, v]) => ({ ...v[0], q: v.some(r => r.q != null) ? d3.sum(v, r => r.q || 0) : null, nreg: v.length }))
+      .sort((a, b) => (MUN_NOM[a.m] || "").localeCompare(MUN_NOM[b.m] || "", "es") || a.c.localeCompare(b.c, "es") || (b.q || 0) - (a.q || 0));
+    const LIM = 15, ver = st.invTodo ? filasInv : filasInv.slice(0, LIM);
+    const recTxt = t => { t = String(t || ""); if (t === t.toUpperCase()) t = t.charAt(0) + t.slice(1).toLowerCase(); return t; };
+    document.getElementById("tablaInv").innerHTML = !filasInv.length ? "" :
+      `<thead><tr><th>Municipio</th><th>Unidad</th><th>Categoría</th><th>Recurso</th><th class="num">Cantidad</th><th>Disponibilidad</th><th title="Tiempo de alistamiento">Alistam.</th></tr></thead><tbody>` +
+      ver.map(r => `<tr><td>${MUN_NOM[r.m] || r.m}</td><td class="nw" title="${esc(orgs[r.o])}"><span class="oi" style="background:${colOrg(r.o)}"></span>${esc(r.u)}</td><td>${esc(r.c)}</td>` +
+        `<td class="rec">${esc(recTxt(r.t))}${r.nreg > 1 ? ` <span class="muted">· ${r.nreg} registros</span>` : ""}</td><td class="num">${r.q == null ? "–" : fmt(r.q, 1)} <span class="muted">${esc(uniTxt(r.un))}</span></td>` +
+        `<td>${esc(r.di) || '<span class="muted">sin dato</span>'}</td><td>${esc(r.al) || '<span class="muted">sin dato</span>'}</td></tr>`).join("") + "</tbody>";
+    const mas = document.getElementById("capInvMas");
+    mas.hidden = filasInv.length <= LIM;
+    mas.textContent = st.invTodo ? "Ver menos" : `Ver las ${filasInv.length} filas`;
+    mas.onclick = () => { st.invTodo = !st.invTodo; capacidades(); };
+  }
+
+  // recursos por categoría
+  const cats = d3.groups(regs, r => r.c).sort((a, b) => b[1].length - a[1].length);
+  document.getElementById("tablaCat").innerHTML = !cats.length ? `<tr><td class="muted">Sin registros.</td></tr>` :
+    `<thead><tr><th>Categoría</th><th class="num">Registros</th><th>Cantidad por unidad de medida</th></tr></thead><tbody>` +
+    cats.map(([c, v]) => `<tr><td>${esc(c)}</td><td class="num">${v.length}</td><td>` +
+      d3.groups(v, r => r.un).sort((a, b) => b[1].length - a[1].length)
+        .map(([u, w]) => `${fmt(d3.sum(w, r => r.q || 0), 1)} <span class="muted">${esc(uniTxt(u))}</span>`).join(" · ") + `</td></tr>`).join("") + "</tbody>";
+
+  // unidades: las del territorio y, en un departamento, las de alcance nacional con base en otro lugar
+  const fuera = st.dpto === NAL || st.mpio ? [] : todos.filter(r => r.d !== st.dpto && r.sc === "Nacional");
+  const uni = d3.groups(regs.concat(fuera), r => r.o + "|" + r.u + "|" + (r.d === st.dpto || st.dpto === NAL ? "" : r.d));
+  document.getElementById("capUniTit").textContent = st.dpto === NAL ? "Unidades que reportan" : "Unidades presentes y de apoyo nacional";
+  const regAlc = st.dpto === NAL || st.mpio ? 0 : todos.filter(r => r.d !== st.dpto && r.sc === "Regional").length;
+  document.getElementById("capUniDesc").textContent = st.dpto === NAL
+    ? "Cada unidad con sus registros, municipios con base y alcance operativo declarado."
+    : `Incluye unidades de alcance nacional con base en otro departamento. Otros ${regAlc} registros de alcance regional están en otros departamentos; falta que cada entidad indique qué departamentos cubre cada región.`;
+  document.getElementById("tablaUni").innerHTML = !uni.length ? `<tr><td class="muted">Sin registros.</td></tr>` :
+    `<thead><tr><th>Unidad</th><th>Base</th><th class="num">Registros</th><th>Alcance</th></tr></thead><tbody>` +
+    uni.sort((a, b) => b[1].length - a[1].length).map(([k, v]) => {
+      const [o, u, dOtro] = k.split("|"), mpios = [...new Set(v.map(r => r.m))];
+      const base = mpios.length > 2 ? `${mpios.length} municipios` : mpios.map(m => MUN_NOM[m] || m).join(", ");
+      return `<tr><td title="${esc(orgs[+o])}"><span class="oi" style="background:${colOrg(+o)}"></span>${esc(u)}</td>` +
+        `<td>${base}${dOtro ? ` <span class="muted">(${nomDepto(dOtro)})</span>` : ""}</td><td class="num">${v.length}</td>` +
+        `<td>${[...new Set(v.map(r => r.sc))].join(", ")}</td></tr>`; }).join("") + "</tbody>";
+
+  document.getElementById("capNotas").innerHTML = `<h3>Fuentes y reglas de cálculo</h3><ul>
+    <li><b>Fuente:</b> Matriz Nacional de Capacidades Incendios SNGRD. Archivos: ${CAP.archivos.map(esc).join("; ")}.</li>
+    <li><b>Ubicación:</b> el municipio escrito en el reporte (código DIVIPOLA asignado por nombre). En el mapa se usa la coordenada reportada si es válida y cae en el municipio; si no, el centro del municipio.</li>
+    <li><b>Cantidades:</b> las unidades de medida son distintas (personas, vehículos, unidades); solo se suman entre registros con la misma unidad. Los registros con unidad “Otro” se muestran como “sin unidad” y no se suman con los demás.</li>
+    <li><b>Alcance:</b> la base de una unidad regional o nacional no equivale a su área de cobertura.</li>
+    <li><b>Frecuencia de referencia:</b> puntos de calor VIIRS por año (toda la vegetación, 2014–2025) y área quemada MapBiomas por año (2014–2025).</li>
+    <li>Para agregar información: copie los nuevos archivos en la carpeta <code>capacidades</code> y corra <code>c01_capacidades.py</code> y <code>p04_construir_app_v1.py</code>.</li></ul>
+    <p style="margin:8px 0 0">Datos procesados ${fechaTxt(CAP.generado)}.</p>`;
+}
+
+// ================= Lluvia antecedente (portado de plantilla_app_v2.html) =================
+// ---------- Lluvia antecedente: el navegador calcula con el período de fechas que se elija ----------
+const LL_VAR = ["--r1", "--r2", "--r3", "--r4", "--r5"];
+const LL_CORTES = [70, 85, 100, 115];
+const LL_ETQ = ["menos de 70", "70–85", "85–100", "100–115", "más de 115"];
+const llClase = v => v < LL_CORTES[0] ? 0 : v < LL_CORTES[1] ? 1 : v < LL_CORTES[2] ? 2 : v < LL_CORTES[3] ? 3 : 4;
+const llColor = v => css(LL_VAR[llClase(v)]);
+const DIA0 = Date.UTC(2014, 0, 1);
+const diaDe = s => { const [y, m, d] = s.split("-").map(Number); return Math.round((Date.UTC(y, m - 1, d) - DIA0) / 864e5); };
+const diaStr = d => new Date(DIA0 + d * 864e5).toISOString().slice(0, 10);
+const diaTxt = d => fechaTxt(diaStr(d));
+const llMed = a => { if (!a.length) return null; const b = Float64Array.from(a).sort(); const m = b.length >> 1; return b.length % 2 ? b[m] : (b[m - 1] + b[m]) / 2; };
+window.LLUVIA_RESUMEN = "";
+const LL = { ok: false, prom: null, error: false };
+
+// Eventos: un archivo binario (uint16) con todos los eventos ordenados por fecha; ver p09_lluvia_antecedente.py
+function llCargar() {
+  if (LL.prom) return LL.prom;
+  LL.prom = (async () => {
+    const [idx, buf] = await Promise.all([
+      fetch("data/lluvia/indice.json").then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }),
+      fetch("data/lluvia/eventos.bin").then(r => { if (!r.ok) throw new Error(r.status); return r.arrayBuffer(); })]);
+    const n = idx.n, nb = idx.nb; let off = 0;
+    const u16 = len => { const a = new Uint16Array(buf, off, len); off += len * 2; return a; };
+    Object.assign(LL, { n, nb, esc: idx.escala, munis: idx.munis });
+    LL.mi = u16(n); LL.d = u16(n); LL.P = u16(n); LL.N = u16(n); LL.cb = u16(n); LL.cs = u16(n); LL.ca = u16(n);
+    LL.dec = u16(n * nb); LL.decN = u16(n * nb);
+    LL.ok = true;
+  })();
+  LL.prom.catch(() => { LL.error = true; LL.prom = null; });
+  return LL.prom;
+}
+function llRangoPreset(p) {
+  const L = LLUVIA.meta, h = diaDe(L.ultimo_evento);
+  if (p === "12m") return [diaStr(h - 364), L.ultimo_evento];
+  if (p === "3m") return [diaStr(h - 90), L.ultimo_evento];
+  if (p === "todo") return [L.primer_evento, L.ultimo_evento];
+  if (/^\d{4}$/.test(p)) { const fin = p + "-12-31"; return [p + "-01-01", fin > L.ultimo_evento ? L.ultimo_evento : fin]; }
+  return null;
+}
+function llAsegurarRango() {
+  if (!st.lluDesde || !st.lluHasta) [st.lluDesde, st.lluHasta] = llRangoPreset(st.lluPre) || llRangoPreset("12m");
+}
+function llFiltroUI() {
+  llAsegurarRango();
+  const box = document.getElementById("lluFiltro"), L = LLUVIA.meta;
+  const ult = +L.ultimo_evento.slice(0, 4), pri = +L.primer_evento.slice(0, 4), anios = [];
+  for (let y = ult; y >= pri; y--) anios.push(y);
+  const opts = [["12m", "Últimos 12 meses"], ["3m", "Últimos 3 meses"],
+    ...anios.map(y => [String(y), y === ult ? `Año ${y} (hasta la fecha)` : `Año ${y}`]), ["todo", "Todo el período"], ["custom", "Personalizado"]];
+  box.innerHTML = `<div class="fila"><span class="flab">Período de los eventos</span>
+    <select id="lluPre" aria-label="Período de los eventos">${opts.map(([v, t]) => `<option value="${v}"${st.lluPre === v ? " selected" : ""}>${t}</option>`).join("")}</select>
+    <label>Desde <input type="date" id="lluD" value="${st.lluDesde}" min="${L.primer_evento}" max="${L.ultimo_evento}"></label>
+    <label>Hasta <input type="date" id="lluH" value="${st.lluHasta}" min="${L.primer_evento}" max="${L.ultimo_evento}"></label></div>`;
+  const aplicar = () => { st.lluEv = null; mapa(); lluvia(); };
+  document.getElementById("lluPre").onchange = e => {
+    st.lluPre = e.target.value; const r = llRangoPreset(st.lluPre);
+    if (r) [st.lluDesde, st.lluHasta] = r; aplicar();
+  };
+  const fechas = () => {
+    let a = document.getElementById("lluD").value, b = document.getElementById("lluH").value;
+    if (!a || !b) return; if (a > b) [a, b] = [b, a];
+    st.lluDesde = a; st.lluHasta = b; st.lluPre = "custom"; aplicar();
+  };
+  document.getElementById("lluD").onchange = fechas; document.getElementById("lluH").onchange = fechas;
+}
+// ---- selección de eventos ----
+const llMascara = () => { // 1 por municipio dentro del alcance (país, departamento o municipio)
+  const m = new Uint8Array(LL.munis.length);
+  for (let k = 0; k < m.length; k++) { const c = LL.munis[k]; m[k] = st.mpio ? +(c === st.mpio) : st.dpto === NAL ? 1 : +c.startsWith(st.dpto); }
+  return m;
+};
+const llPuntos = i => st.met === "firms_bosque" ? LL.cb[i] : st.met === "firms_sabana" ? LL.cs[i] : st.met === "firms_agro" ? LL.ca[i] : LL.cb[i] + LL.cs[i] + LL.ca[i];
+function llLimite(x) { let lo = 0, hi = LL.n; while (lo < hi) { const mid = (lo + hi) >> 1; if (LL.d[mid] < x) lo = mid + 1; else hi = mid; } return lo; }
+function llBase() { // eventos del período y la cobertura, de todo el país
+  llAsegurarRango();
+  const k = `${st.lluDesde}|${st.lluHasta}|${st.met}`;
+  if (LL._bk === k) return LL._b;
+  const a = llLimite(diaDe(st.lluDesde)), b = llLimite(diaDe(st.lluHasta) + 1), out = [];
+  for (let i = a; i < b; i++) if (llPuntos(i) > 0) out.push(i);
+  LL._bk = k; LL._b = out; return out;
+}
+const llSelAlcance = () => { const m = llMascara(); return llBase().filter(i => m[LL.mi[i]]); };
+function llStats(sel) {
+  const n = sel.length; if (!n) return null;
+  const E = LL.esc, nb = LL.nb, minN = LLUVIA.meta.normal_min_mm, P = new Float64Array(n), pct = [];
+  const dec = new Float64Array(nb), decN = new Float64Array(nb); let sN = 0;
+  for (let k = 0; k < n; k++) {
+    const i = sel[k], p = LL.P[i] / E, nn = LL.N[i] / E; P[k] = p; sN += nn;
+    if (nn >= minN) pct.push(100 * p / nn);
+    for (let j = 0; j < nb; j++) { dec[j] += LL.dec[i * nb + j] / E; decN[j] += LL.decN[i * nb + j] / E; }
+  }
+  return { n, p: llMed(P), nm: sN / n, pc: pct.length ? llMed(pct) : null,
+    df: pct.length ? 100 * pct.filter(v => v < LLUVIA.meta.deficit_pct).length / pct.length : null,
+    d: Array.from(dec, v => v / n), dn: Array.from(decN, v => v / n), pcts: pct };
+}
+function llGruposPor(nivel) { // estadísticas por departamento ("dep") o por municipio del departamento elegido ("mun")
+  const base = llBase(), k = `${LL._bk}|${nivel}|${st.dpto}`;
+  if (LL._gk === k) return LL._g;
+  const g = new Map(), E = LL.esc, minN = LLUVIA.meta.normal_min_mm;
+  for (const i of base) {
+    const c = LL.munis[LL.mi[i]];
+    if (nivel === "mun" && st.dpto !== NAL && !c.startsWith(st.dpto)) continue;
+    const key = nivel === "dep" ? c.slice(0, 2) : c; let o = g.get(key);
+    if (!o) g.set(key, o = { n: 0, P: [], pct: [] });
+    const p = LL.P[i] / E, nn = LL.N[i] / E; o.n++; o.P.push(p); if (nn >= minN) o.pct.push(100 * p / nn);
+  }
+  for (const o of g.values()) {
+    o.p = llMed(o.P); o.pc = o.pct.length ? llMed(o.pct) : null;
+    o.df = o.pct.length ? 100 * o.pct.filter(v => v < LLUVIA.meta.deficit_pct).length / o.pct.length : null;
+  }
+  LL._gk = k; LL._g = g; return g;
+}
+function llLugar() {
+  return st.mpio ? `${MUN_NOM[st.mpio] || st.mpio} · ${nomDepto(st.mpio.slice(0, 2))}` : st.dpto === NAL ? "Colombia" : nomDepto(st.dpto);
+}
+function capaLluvia() {
+  const minE = LLUVIA.meta.min_eventos_mapa, minDep = 3;
+  const gDep = LL.ok && st.dpto === NAL ? llGruposPor("dep") : null, gMun = LL.ok && st.dpto !== NAL ? llGruposPor("mun") : null;
+  const val = (o, min) => o && o.pc != null && o.n >= min ? o.pc : 0;
+  return {
+    titulo: "Lluvia antecedente", unidad: "(mediana)",
+    f: v => v ? `${fmt(v)} % de lo normal` : (LL.ok ? "sin eventos suficientes en el período" : "cargando…"),
+    dep: c => gDep ? val(gDep.get(c), minDep) : 0, mun: c => gMun ? val(gMun.get(c), minE) : 0,
+    fill: v => v ? llColor(v) : css("--map-0"),
+    leyenda: () => `<span class="tit">Lluvia de los 90 días previos a los eventos del período, % de lo normal (mediana)</span>` +
+      `<span><i style="background:${css("--map-0")}"></i>${st.dpto === NAL ? "menos de " + minDep : "menos de " + minE} eventos-día</span>` +
+      LL_ETQ.map((t, i) => `<span><i style="background:${css(LL_VAR[i])}"></i>${t}</span>`).join(""),
+  };
+}
+function llVacio(id, txt) { document.getElementById(id).innerHTML = `<div class="lluvia-vacio">${txt}</div>`; }
+
+// ---- pantalla ----
+function lluvia() {
+  const L = LLUVIA.meta, lugar = llLugar();
+  document.getElementById("nombre").textContent = lugar;
+  document.getElementById("lluMinEv").textContent = L.min_eventos_mapa;
+  llFiltroUI(); llNotas();
+  if (!LL.ok) {
+    const msg = LL.error ? "No se pudieron cargar los eventos. Abra la app con iniciar_app (no con doble clic en el HTML)." : "Cargando los eventos (≈11 MB)…";
+    document.getElementById("lluKpis").innerHTML = `<div class="card kpi" style="grid-column:1/-1"><div class="n">${msg}</div></div>`;
+    document.getElementById("dsub").textContent = "";
+    if (!LL.error) llCargar().then(() => { if (st.tab === "lluvia") { mapa(); lluvia(); } }).catch(() => { if (st.tab === "lluvia") lluvia(); });
+    return;
+  }
+  const sel = llSelAlcance(), r = llStats(sel), d0 = diaDe(st.lluDesde), d1 = diaDe(st.lluHasta);
+  const periodo = `${diaTxt(d0)} al ${diaTxt(d1)}`;
+  document.getElementById("dsub").textContent = `${fmt(sel.length)} eventos-día · ${M.metricas[st.met].nombre.toLowerCase()} · del ${periodo}`;
+  document.getElementById("lluDesc").innerHTML = r
+    ? `Se analizan <b>${fmt(r.n)} eventos-día</b> ocurridos entre el ${diaTxt(d0)} y el ${diaTxt(d1)}. Para <b>cada evento</b> se mide la lluvia de los 90 días anteriores a su fecha (sin contar ese día) y aquí se resumen todos juntos. «Normal»: lo que suele llover en esas mismas fechas (promedio ${L.base[0]}–${L.base[1]}).`
+    : `No hay eventos en este período para ${lugar.split(" · ")[0]} con esta cobertura. Pruebe un período más largo.`;
+  llKpis(r); llBarras("lluDec", "lluLeg", "lluDecTxt", r && r.d, r && r.dn, "Promedio de los eventos del período"); llHistograma(r);
+  const ev = llEventoDetalle(sel); llSerie(sel, ev); llTabla(); llResumen(r, sel, ev, periodo, lugar);
+}
+function llKpis(r) {
+  const pocos = r && r.n < LLUVIA.meta.min_eventos_mapa;
+  const items = r ? [
+    ["Eventos-día en el período", fmt(r.n), pocos ? "pocos eventos: lectura poco confiable" : "días con puntos de calor en el alcance elegido"],
+    ["Lluvia previa a los eventos", `${fmt(r.p)} mm`, `mediana de los 90 días anteriores · normal para esas fechas: ${fmt(r.nm)} mm`],
+    ["Frente a lo normal", r.pc == null ? "–" : `${fmt(r.pc)} %`, "mediana · 100 % es lluvia normal"],
+    ["Con déficit de lluvia", r.df == null ? "–" : `${fmt(r.df)} %`, `de los eventos, con menos del ${LLUVIA.meta.deficit_pct} % de lo normal`],
+  ] : [["Eventos-día en el período", "0", "sin eventos con este filtro"], ["Lluvia previa a los eventos", "–", ""], ["Frente a lo normal", "–", ""], ["Con déficit de lluvia", "–", ""]];
+  document.getElementById("lluKpis").innerHTML = items.map(([l, v, n]) => `<div class="card kpi"><div class="l">${l}</div><div class="v">${v}</div><div class="n">${n}</div></div>`).join("");
+}
+// barras por bloques de 10 días: promedio de varios eventos o un solo evento, frente a lo normal
+function llBarras(idBox, idLeg, idTxt, d, dn, etqEvento) {
+  const box = document.getElementById(idBox), leg = document.getElementById(idLeg), txt = document.getElementById(idTxt);
+  box.innerHTML = ""; txt.textContent = "";
+  if (!d) { leg.innerHTML = ""; llVacio(idBox, "Sin eventos para mostrar."); return; }
+  leg.innerHTML = `<span><i style="background:var(--accent)"></i>${etqEvento}</span><span><i style="background:var(--ink-3);opacity:.55"></i>Normal en esas mismas fechas</span>`;
+  const W = 560, H = 240, mg = { l: 40, r: 6, t: 10, b: 38 };
+  const orden = d3.range(d.length - 1, -1, -1);
+  const x = d3.scaleBand().domain(orden).range([mg.l, W - mg.r]).paddingInner(0.18);
+  const y = d3.scaleLinear().domain([0, d3.max([...d, ...dn]) * 1.08 || 1]).nice(4).range([H - mg.b, mg.t]);
+  const svg = d3.select(box).append("svg").attr("viewBox", `0 0 ${W} ${H}`).attr("role", "img").attr("aria-label", "Lluvia por bloques de 10 días antes de la fecha del evento, frente a la normal");
+  ejeY(svg, y, W, mg);
+  const bw = x.bandwidth() / 2, ax = svg.append("g").attr("class", "ax");
+  for (const j of orden) {
+    const x0 = x(j), tit = `${10 * j + 1} a ${10 * (j + 1)} días antes`;
+    svg.append("path").attr("class", "barE").attr("d", barra(x0, y(0), y(d[j]), bw - 1)).append("title").text(`${tit}\n${etqEvento}: ${fmt(d[j], 0)} mm\nNormal: ${fmt(dn[j], 0)} mm`);
+    svg.append("path").attr("class", "barN").attr("d", barra(x0 + bw, y(0), y(dn[j]), bw - 1)).append("title").text(`${tit}\nNormal: ${fmt(dn[j], 0)} mm`);
+    ax.append("text").attr("x", x0 + x.bandwidth() / 2).attr("y", H - mg.b + 14).attr("text-anchor", "middle").text(`${10 * (j + 1)}–${10 * j + 1}`);
+  }
+  ax.append("text").attr("x", (mg.l + W - mg.r) / 2).attr("y", H - 6).attr("text-anchor", "middle").text("días antes del evento · mm por bloque de 10 días");
+  const se = d3.sum(d), sn = d3.sum(dn);
+  txt.textContent = `En los 90 días previos cayeron ${fmt(se)} mm, frente a ${fmt(sn)} mm esperados para esas fechas (${fmt(100 * se / sn)} %).`;
+}
+function llHistograma(r) {
+  const box = document.getElementById("lluHist"), txt = document.getElementById("lluHistTxt");
+  box.innerHTML = ""; txt.textContent = "";
+  const pcts = r ? r.pcts : [];
+  if (!pcts.length) { llVacio("lluHist", "Sin eventos para mostrar."); return; }
+  const NBIN = 20, cnt = new Array(NBIN + 1).fill(0);
+  for (const a of pcts) cnt[Math.min(NBIN, Math.floor(a / 10))]++;
+  const share = cnt.map(c => 100 * c / pcts.length), W = 560, H = 240, mg = { l: 40, r: 6, t: 10, b: 38 };
+  const x = d3.scaleLinear().domain([0, NBIN + 1]).range([mg.l, W - mg.r]);
+  const y = d3.scaleLinear().domain([0, d3.max(share) * 1.1 || 1]).nice(4).range([H - mg.b, mg.t]);
+  const svg = d3.select(box).append("svg").attr("viewBox", `0 0 ${W} ${H}`).attr("role", "img").attr("aria-label", "Distribución de los eventos según la lluvia antecedente como porcentaje de lo normal");
+  const ax = svg.append("g").attr("class", "ax");
+  for (const t of y.ticks(4)) {
+    ax.append("line").attr("class", t === 0 ? "base" : "gridl").attr("x1", mg.l).attr("x2", W - mg.r).attr("y1", y(t)).attr("y2", y(t));
+    ax.append("text").attr("x", mg.l - 6).attr("y", y(t) + 3.5).attr("text-anchor", "end").text(`${fmt(t)} %`);
+  }
+  const bw = x(1) - x(0);
+  share.forEach((s, i) => {
+    const lo = i * 10, hi = i === NBIN ? null : lo + 10;
+    svg.append("path").attr("class", hi != null && hi <= LLUVIA.meta.deficit_pct ? "hseco" : "hnorm").attr("d", barra(x(i) + 0.5, y(0), y(s), bw - 1))
+      .append("title").text(`${hi == null ? "Más de " + lo : lo + " a " + hi} % de lo normal\n${fmt(cnt[i])} eventos-día (${fmt(s, 1)} %)`);
+  });
+  for (const t of [0, 50, 100, 150, 200]) ax.append("text").attr("x", x(t / 10)).attr("y", H - mg.b + 14).attr("text-anchor", "middle").text(t === 200 ? "200+" : t);
+  ax.append("text").attr("x", (mg.l + W - mg.r) / 2).attr("y", H - 6).attr("text-anchor", "middle").text("lluvia de los 90 días previos, % de lo normal");
+  for (const [v, c] of [[LLUVIA.meta.deficit_pct, "ref2"], [100, "ref"]]) svg.append("line").attr("class", c).attr("x1", x(v / 10)).attr("x2", x(v / 10)).attr("y1", mg.t).attr("y2", H - mg.b);
+  svg.append("text").attr("class", "lab").attr("x", x(10) + 4).attr("y", mg.t + 8).text("normal");
+  const deficit = pcts.filter(a => a < LLUVIA.meta.deficit_pct).length, humedo = pcts.filter(a => a > 120).length;
+  txt.textContent = `${fmt(100 * deficit / pcts.length)} % de los eventos-día ocurrió con menos del ${LLUVIA.meta.deficit_pct} % de la lluvia normal (naranja) y ${fmt(100 * humedo / pcts.length)} % con más del 120 %. Es una asociación, no prueba que la lluvia previa cause el incendio.`;
+}
+// Un evento concreto: por defecto el más reciente del período; en un municipio se puede elegir tocando un punto
+function llEventoDetalle(sel) {
+  const sec = document.getElementById("lluEvSec"), E = LL.esc, nb = LL.nb;
+  if (!sel.length) { sec.hidden = true; return null; }
+  let i = st.lluEv;
+  if (i == null || sel.indexOf(i) < 0) {
+    let k = sel.length - 1, mejor = sel[k];
+    while (k > 0 && LL.d[sel[k - 1]] === LL.d[mejor]) { k--; if (llPuntos(sel[k]) > llPuntos(mejor)) mejor = sel[k]; }
+    i = mejor; st.lluEv = null;
+  }
+  const esUlt = st.lluEv == null, d = LL.d[i], cod = LL.munis[LL.mi[i]], p = LL.P[i] / E, nn = LL.N[i] / E;
+  const dd = Array.from({ length: nb }, (_, j) => LL.dec[i * nb + j] / E), dn = Array.from({ length: nb }, (_, j) => LL.decN[i * nb + j] / E);
+  sec.hidden = false;
+  document.getElementById("lluEvTit").textContent = esUlt ? "Un evento en detalle: el más reciente del período" : "Un evento en detalle: el que eligió";
+  document.getElementById("lluEvDesc").innerHTML = `<b>${diaTxt(d)}</b> · ${MUN_NOM[cod] || cod} (${nomDepto(cod.slice(0, 2))}) · ${fmt(llPuntos(i))} puntos de calor ese día. ` +
+    `En los 90 días anteriores (del ${diaTxt(d - 90)} al ${diaTxt(d - 1)}) cayeron <b>${fmt(p)} mm</b>; lo normal para esa fecha es ${fmt(nn)} mm` +
+    (nn >= LLUVIA.meta.normal_min_mm ? ` (<b>${fmt(100 * p / nn)} %</b> de lo normal).` : ".") + (st.mpio ? " Toque otro punto del gráfico de abajo para ver otro evento." : " Elija un municipio para escoger otros eventos.");
+  llBarras("lluEvBar", "lluEvLeg", "lluEvTxt", dd, dn, `Lluvia antes del ${diaTxt(d)}`);
+  return { i, d, cod, p, nn, dd, dn, esUlt };
+}
+function llSerie(sel, evSel) {
+  const box = document.getElementById("lluSerie"), dsc = document.getElementById("lluSerieDesc");
+  box.innerHTML = "";
+  if (!st.mpio) { dsc.textContent = ""; box.innerHTML = `<div class="lluvia-vacio">Toque un municipio en el mapa o en la tabla para ver cada uno de sus eventos del período.</div>`; return; }
+  const pts = sel.map(i => ({ i, d: LL.d[i], p: LL.P[i] / LL.esc, nn: LL.N[i] / LL.esc, n: llPuntos(i) })).filter(e => e.nn >= LLUVIA.meta.normal_min_mm).map(e => ({ ...e, a: 100 * e.p / e.nn }));
+  dsc.textContent = "Cada punto es un día con puntos de calor en el municipio. Altura: lluvia de los 90 días anteriores a ese día, como % de lo normal para esa fecha; el tamaño crece con el número de puntos. Naranja: menos del " + LLUVIA.meta.deficit_pct + " % de lo normal. Toque un punto para ver ese evento arriba.";
+  if (!pts.length) { box.innerHTML = `<div class="lluvia-vacio">Este municipio no tiene eventos en el período con esta cobertura.</div>`; return; }
+  const W = 900, H = 260, mg = { l: 44, r: 10, t: 12, b: 26 }, YMAX = 250, d0 = diaDe(st.lluDesde), d1 = diaDe(st.lluHasta);
+  const x = d3.scaleLinear().domain([d0, Math.max(d1, d0 + 1)]).range([mg.l, W - mg.r]), y = d3.scaleLinear().domain([0, YMAX]).range([H - mg.b, mg.t]);
+  const svg = d3.select(box).append("svg").attr("viewBox", `0 0 ${W} ${H}`).attr("role", "img").attr("aria-label", "Lluvia antecedente de cada evento del municipio, como porcentaje de lo normal");
+  const ax = svg.append("g").attr("class", "ax");
+  for (const t of [0, 50, 100, 150, 200, 250]) {
+    ax.append("line").attr("class", t === 0 ? "base" : "gridl").attr("x1", mg.l).attr("x2", W - mg.r).attr("y1", y(t)).attr("y2", y(t));
+    ax.append("text").attr("x", mg.l - 6).attr("y", y(t) + 3.5).attr("text-anchor", "end").text(t === 250 ? "250+" : `${t} %`);
+  }
+  const span = d1 - d0, largo = span > 400;
+  for (let t = 0; t <= 6; t++) { const dd = Math.round(d0 + span * t / 6); ax.append("text").attr("x", x(dd)).attr("y", H - 8).attr("text-anchor", t === 0 ? "start" : t === 6 ? "end" : "middle").text(largo ? diaStr(dd).slice(0, 4) : diaTxt(dd)); }
+  for (const [v, c] of [[LLUVIA.meta.deficit_pct, "ref2"], [100, "ref"]]) svg.append("line").attr("class", c).attr("x1", mg.l).attr("x2", W - mg.r).attr("y1", y(v)).attr("y2", y(v));
+  svg.selectAll("circle").data(pts).join("circle").attr("class", e => "pt " + (e.a < LLUVIA.meta.deficit_pct ? "seco" : "ok"))
+    .attr("cx", e => x(e.d)).attr("cy", e => y(Math.min(YMAX, e.a))).attr("r", e => 2.5 + Math.min(4, Math.sqrt(e.n) / 2.5)).style("cursor", "pointer")
+    .attr("stroke", e => evSel && e.i === evSel.i ? css("--ink") : "none").attr("stroke-width", 2)
+    .on("click", (ev, e) => { st.lluEv = e.i; const s = llSelAlcance(); const es = llEventoDetalle(s); llSerie(s, es); document.getElementById("lluEvSec").scrollIntoView({ behavior: "smooth", block: "nearest" }); llResumen(llStats(s), s, es, `${diaTxt(d0)} al ${diaTxt(d1)}`, llLugar()); })
+    .append("title").text(e => `${diaTxt(e.d)}\n${fmt(e.n)} puntos de calor\nLluvia 90 días previos: ${fmt(e.p)} mm (${fmt(e.a)} % de lo normal)`);
+}
+function llTabla() {
+  const minE = LLUVIA.meta.min_eventos_mapa, tb = document.getElementById("tablaLluvia"), g = llGruposPor("mun");
+  const lst = [...g.entries()].filter(([, o]) => o.n >= minE).map(([c, o]) => ({ cod: c, ...o })).sort((a, b) => b.n - a.n).slice(0, 12);
+  document.getElementById("lluTitMun").textContent = st.dpto === NAL ? "Municipios con más eventos en el país" : "Municipios con más eventos";
+  if (!lst.length) { tb.innerHTML = `<tr><td>Ningún municipio alcanza ${minE} eventos-día en este período con esta cobertura.</td></tr>`; return; }
+  const mx = d3.max(lst, x => x.n) || 1;
+  tb.innerHTML = `<thead><tr><th>#</th><th>Municipio</th><th class="num wbar">Eventos-día</th><th class="num">Lluvia 90 días (mm)</th><th class="num">% de lo normal</th><th class="num">Con déficit</th></tr></thead><tbody>` +
+    lst.map((x, i) => `<tr${st.dpto !== NAL ? ` class="clic${x.cod === st.mpio ? " sel" : ""}" data-cod="${x.cod}" tabindex="0"` : ""}><td>${i + 1}</td>` +
+      `<td>${MUN_NOM[x.cod] || x.cod}${st.dpto === NAL ? ` <span class="muted">· ${nomDepto(x.cod.slice(0, 2))}</span>` : ""}</td>` +
+      `<td class="num barcell"><i style="width:${(x.n / mx * 55).toFixed(1)}%"></i><span>${fmt(x.n)}</span></td><td class="num">${fmt(x.p)}</td>` +
+      `<td class="num">${x.pc == null ? "–" : `<span class="oi" style="background:${llColor(x.pc)}"></span>${fmt(x.pc)} %`}</td><td class="num">${x.df == null ? "–" : fmt(x.df) + " %"}</td></tr>`).join("") + "</tbody>";
+  tb.querySelectorAll("tr.clic").forEach(tr => {
+    tr.onclick = () => { st.lluEv = null; elegirMpio(tr.dataset.cod); };
+    tr.onkeydown = e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); st.lluEv = null; elegirMpio(tr.dataset.cod); } };
+  });
+}
+function llNotas() {
+  const L = LLUVIA.meta;
+  document.getElementById("lluNotas").innerHTML = `<h3>Fuentes y reglas de cálculo</h3><ul>
+    <li><b>Qué es la «lluvia antecedente»:</b> para cada evento, la lluvia acumulada en los 90 días anteriores a su fecha. No es una cifra del primer ni del último evento: el período elegido arriba define qué eventos entran, y los indicadores resumen a todos (mediana). El bloque «Un evento en detalle» muestra uno solo.</li>
+    <li><b>Lluvia: CHIRPS diario</b> (0,05°, unos 5 km), ${fechaTxt(L.fecha0)} a ${fechaTxt(L.chirps_hasta)}. Para cada municipio se promedia la lluvia de los píxeles con dato, ponderada por la fracción del píxel que cae dentro del municipio. En municipios grandes el promedio no describe un sitio puntual.</li>
+    <li><b>Evento:</b> municipio y día con al menos un punto de calor VIIRS S-NPP sobre vegetación, con el mismo filtro de cobertura de la pestaña Frecuencia. Un incendio de varios días cuenta una vez por día.</li>
+    <li><b>Ventana:</b> 90 días antes del evento, de t−90 a t−1 (el día del evento no entra), en 9 bloques de 10 días.</li>
+    <li><b>Normal:</b> promedio del mismo acumulado en la misma fecha calendario de ${L.base[0]}–${L.base[1]}; el 29 de febrero usa el promedio del 28 de febrero y el 1 de marzo. Así se compara cada evento con lo esperado en su época del año. Si el normal es menor de ${L.normal_min_mm} mm no se calcula el porcentaje (queda solo en mm).</li>
+    <li><b>Alcance:</b> hay ${fmt(L.eventos_analizados)} de ${fmt(L.eventos_total)} eventos-día analizables. Quedan fuera los de antes del 1 de abril de 2014 y los posteriores al último día CHIRPS (${fechaTxt(L.chirps_hasta)}), porque no tienen los 90 días completos, y los de municipios sin píxel CHIRPS con dato (San Andrés y Providencia).</li>
+    <li><b>Déficit:</b> evento con menos del ${L.deficit_pct} % de la lluvia normal. Los mapas pintan en gris los municipios con menos de ${L.min_eventos_mapa} eventos-día en el período.</li>
+    <li>Esta pestaña describe la lluvia que precedió a los incendios; no demuestra causalidad. Los puntos de calor no equivalen a incendios (ver Frecuencia).</li></ul>
+    <p style="margin:8px 0 0">Generado ${L.generado}.</p>`;
+}
+// Texto para el asistente: qué se está viendo, con frases explícitas
+function llResumen(r, sel, ev, periodo, lugar) {
+  if (!r) { window.LLUVIA_RESUMEN = `Pestaña Lluvia antecedente. Período elegido: ${periodo}. En ${lugar} no hay eventos en ese período con esta cobertura.`; return; }
+  const orden = r.d.map((_, i) => i).reverse(), pc = r.pcts, ct = f => Math.round(100 * pc.filter(f).length / Math.max(1, pc.length));
+  const t = [`Período de eventos elegido: del ${periodo}. Lugar: ${lugar}. Cobertura: ${M.metricas[st.met].nombre}.`,
+    `Cómo leer las cifras (frases exactas, no las reinterprete): se analizan ${fmt(r.n)} eventos-día de ese período; para cada uno se mide la lluvia de los 90 días anteriores a su fecha y se resumen todos. ` +
+    `(1) El evento típico (mediana) tuvo ${fmt(r.p)} mm en los 90 días previos, mientras que lo normal para esas fechas era ${fmt(r.nm)} mm; es decir, la lluvia típica fue ${fmt(r.pc)} % de lo normal (100 % sería normal). ` +
+    `(2) ${fmt(r.df)} de cada 100 eventos ocurrió con déficit, o sea con menos del ${LLUVIA.meta.deficit_pct} % de la lluvia normal. (3) «${fmt(r.pc)} %» describe la lluvia típica; NO es el porcentaje de eventos.`,
+    `Promedio de lluvia por bloques de 10 días antes de los eventos (mm, del bloque más lejano al más cercano): ${orden.map(j => `${10 * (j + 1)}-${10 * j + 1}d: ${fmt(r.d[j])}`).join("; ")}. Lo normal para esas fechas: ${orden.map(j => `${10 * (j + 1)}-${10 * j + 1}d: ${fmt(r.dn[j])}`).join("; ")}.`,
+    `Distribución de los eventos: menos de 50 % de lo normal: ${ct(a => a < 50)} %; 50–80 %: ${ct(a => a >= 50 && a < 80)} %; 80–120 %: ${ct(a => a >= 80 && a <= 120)} %; más de 120 %: ${ct(a => a > 120)} %.`];
+  if (ev) t.push(`Evento en detalle (${ev.esUlt ? "el más reciente del período" : "elegido por el usuario"}): ${diaTxt(ev.d)} en ${MUN_NOM[ev.cod] || ev.cod}; en los 90 días anteriores cayeron ${fmt(ev.p)} mm frente a ${fmt(ev.nn)} mm normales.`);
+  window.LLUVIA_RESUMEN = t.join("\n");
+}
+
+// ---------- Overlay de puntos de calor (D3) para la pestaña Lluvia antecedente ----------
+// Reusa helpers compartidos (PT_COB, PT_COB_NOM, PT_MAX_DIAS, PT_CACHE, ptMaxFecha, ptJson, ptHora, diaDe, diaStr).
+let ptToken = 0, ptTipEl = null;
+const puntosActivo = () => !!(st.puntos && st.tab === "lluvia");
+const ptNivel = () => st.mpio ? "mun" : st.dpto === NAL ? "nal" : "dep";
+const ptTxt = d => fechaTxt(diaStr(d));
+const ptCodMun = v => String(v).padStart(5, "0");
+function ptRangoDefecto(nv) { const h = diaDe(ptMaxFecha()); return nv === "mun" ? [diaStr(0), diaStr(h)] : [diaStr(h - 29), diaStr(h)]; }
+function ptAsegurarRango() {
+  const nv = ptNivel();
+  if (st.ptNivel !== nv || !st.ptDesde) { st.ptNivel = nv; [st.ptDesde, st.ptHasta] = ptRangoDefecto(nv); }
+  let d0 = Math.max(0, diaDe(st.ptDesde)), d1 = Math.min(diaDe(ptMaxFecha()), diaDe(st.ptHasta));
+  if (d1 < d0) [d0, d1] = [d1, d0];
+  st.ptAjuste = nv !== "mun" && d1 - d0 + 1 > PT_MAX_DIAS;
+  if (st.ptAjuste) d0 = d1 - PT_MAX_DIAS + 1;
+  st.ptDesde = diaStr(d0); st.ptHasta = diaStr(d1);
+}
+async function ptFuentes(nv, d0, d1) {
+  if (nv === "mun") return [await ptJson(`data/puntos/${st.mpio}.json`)];
+  const meses = []; for (let d = d0; d <= d1; d += 1) { const ym = diaStr(d).slice(0, 7); if (meses[meses.length - 1] !== ym) meses.push(ym); }
+  return Promise.all(meses.map(ym => ptJson(`data/puntos_mes/${ym}.json`)));
+}
+function ptLugar() { return st.mpio ? (MUN_NOM[st.mpio] || st.mpio) : st.dpto === NAL ? "Colombia" : nomDepto(st.dpto); }
+
+function puntosCtl(estado) {
+  const box = document.getElementById("puntosCtl");
+  if (st.tab !== "lluvia") { box.hidden = true; return; }
+  box.hidden = false;
+  if (!st.puntos) {
+    window.PUNTOS_RESUMEN = "";
+    box.innerHTML = `<div class="fila"><button type="button" class="pbtn" id="ptOn">Ver puntos de calor de ${ptLugar()}</button></div>`;
+    document.getElementById("ptOn").onclick = () => { st.puntos = true; mapa(); };
+    return;
+  }
+  ptAsegurarRango();
+  const nv = ptNivel(), h = ptMaxFecha(), pres = [["30", "Último mes"], ["92", "3 meses"]];
+  if (nv === "mun") pres.push(["365", "Último año"], ["todo", "Todo"]);
+  box.innerHTML = `<div class="fila"><button type="button" class="pbtn on" id="ptOff" aria-pressed="true">Ocultar puntos</button>
+      <button type="button" class="pbtn" id="ptCsv" title="Descargar los puntos que se ven, en CSV">CSV</button></div>
+    <div class="fila"><label>Desde <input type="date" id="ptD" value="${st.ptDesde}" min="2014-01-01" max="${h}"></label>
+      <label>Hasta <input type="date" id="ptH" value="${st.ptHasta}" min="2014-01-01" max="${h}"></label></div>
+    <div class="fila">${pres.map(([v, t]) => `<button type="button" class="pbtn peq" data-p="${v}">${t}</button>`).join("")}</div>
+    <div class="pinfo" id="ptInfo">${estado || "Cargando puntos…"}</div>
+    ${nv !== "mun" ? `<div class="pnota">${st.ptAjuste ? "Se ajustó el rango: " : ""}En la vista ${nv === "nal" ? "nacional" : "departamental"} se muestran hasta 3 meses a la vez para que cargue rápido.</div>` : ""}
+    <div class="pramp" aria-hidden="true"></div><div class="pramp-l"><span>${ptTxt(diaDe(st.ptDesde))}</span><span>${ptTxt(diaDe(st.ptHasta))}</span></div>`;
+  document.getElementById("ptOff").onclick = () => { st.puntos = false; mapa(); };
+  const rango = () => { st.ptDesde = document.getElementById("ptD").value || st.ptDesde; st.ptHasta = document.getElementById("ptH").value || st.ptHasta; mapa(); };
+  document.getElementById("ptD").onchange = rango; document.getElementById("ptH").onchange = rango;
+  box.querySelectorAll("button[data-p]").forEach(b => b.onclick = () => {
+    const hh = diaDe(h);
+    if (b.dataset.p === "todo") { st.ptDesde = diaStr(0); st.ptHasta = h; } else { st.ptDesde = diaStr(hh - (+b.dataset.p) + 1); st.ptHasta = h; }
+    mapa();
+  });
+}
+function dibujarPuntos(svg) {
+  const tk = ++ptToken, nv = ptNivel(), mpio = st.mpio, dpto = st.dpto;
+  puntosCtl();
+  const d0 = diaDe(st.ptDesde), d1 = diaDe(st.ptHasta);
+  ptFuentes(nv, d0, d1).then(fs => {
+    if (tk !== ptToken || !puntosActivo() || st.mpio !== mpio || st.dpto !== dpto) return;
+    pintarPuntos(svg, fs, nv, d0, d1);
+  }).catch(() => {
+    if (tk !== ptToken) return;
+    window.PUNTOS_RESUMEN = "";
+    const el = document.getElementById("ptInfo");
+    if (el) el.textContent = location.protocol === "file:" ? "Los puntos se descargan del servidor: abra la app con iniciar_app (no con doble clic en el HTML)." : "No se pudieron cargar los puntos de este período.";
+  });
+}
+function pintarPuntos(svg, fuentes, nv, d0, d1) {
+  const info = document.getElementById("ptInfo"), lugar = ptLugar(), cob = new Set(PT_COB[st.met] || PT_COB.firms_puntos);
+  const dp = nv === "dep" ? +st.dpto : null, NB = Math.max(1, Math.min(24, d1 - d0 + 1)), span = Math.max(1, d1 - d0 + 1);
+  const col = d3.scaleLinear().domain([0, NB - 1]).range([css("--yr-a"), css("--yr-b")]).interpolate(d3.interpolateLab);
+  svg.selectAll("g.pts, circle.ptsel").remove();
+  const trazos = new Array(NB).fill(""), pts = [];
+  fuentes.forEach((j, s) => {
+    for (let i = 0; i < j.n; i++) {
+      const d = j.d[i]; if (d < d0 || d > d1 || !cob.has(j.g[i])) continue;
+      if (dp != null && Math.floor(j.mp[i] / 1000) !== dp) continue;
+      const [x, y] = proj([j.lo[i] / 1e4, j.la[i] / 1e4]); if (!isFinite(x)) continue;
+      pts.push([x, y, s, i]);
+      const b = Math.min(NB - 1, Math.floor((d - d0) / span * NB)); trazos[b] += `M${x.toFixed(1)},${y.toFixed(1)}h0`;
+    }
+  });
+  const ancho = pts.length < 500 ? 4.6 : pts.length < 5000 ? 3.4 : pts.length < 20000 ? 2.5 : pts.length < 80000 ? 1.8 : 1.4;
+  const g = svg.append("g").attr("class", "pts").attr("aria-hidden", "true").style("pointer-events", "none");
+  trazos.forEach((d, b) => { if (d) g.append("path").attr("d", d).attr("fill", "none").attr("stroke", col(b)).attr("stroke-width", ancho).attr("stroke-linecap", "round").attr("stroke-opacity", 0.75); });
+  const periodo = `del ${ptTxt(d0)} al ${ptTxt(d1)}`;
+  if (!pts.length) { window.PUNTOS_RESUMEN = `Mapa de puntos de calor de ${lugar} ${periodo}: no hay puntos con esta cobertura.`; if (info) info.textContent = `Sin puntos ${periodo} con esta cobertura.`; return; }
+  const dia = p => fuentes[p[2]].d[p[3]];
+  if (info) info.innerHTML = `<b>${fmt(pts.length)}</b> puntos · ${ptTxt(d3.min(pts, dia))} a ${ptTxt(d3.max(pts, dia))}`;
+  const conf = pts.filter(p => fuentes[p[2]].k[p[3]] >= 0), pc = conf.length ? Math.round(100 * conf.filter(p => fuentes[p[2]].k[p[3]] === 1).length / conf.length) : null;
+  const porMes = d3.rollup(pts, v => v.length, p => diaStr(dia(p)).slice(0, 7));
+  window.PUNTOS_RESUMEN = `Mapa de puntos de calor georreferenciados de ${lugar} (cobertura: ${M.metricas[st.met].nombre}) ${periodo}: ${fmt(pts.length)} puntos` +
+    (porMes.size > 1 ? `. Por mes: ${[...porMes].sort().map(([m, n]) => `${m}: ${fmt(n)}`).join("; ")}.` : ".") +
+    (pc != null ? ` ${pc} % de los puntos con dato quedó confirmado por área quemada MapBiomas.` : "");
+  // tooltip: punto más cercano al cursor (quadtree)
+  const qt = d3.quadtree().x(p => p[0]).y(p => p[1]).addAll(pts), card = svg.node().closest(".mapcard");
+  if (!ptTipEl) { ptTipEl = document.createElement("div"); ptTipEl.className = "ptip"; }
+  const ocultar = () => { if (ptTipEl.parentNode) ptTipEl.parentNode.removeChild(ptTipEl); svg.selectAll("circle.ptsel").remove(); };
+  svg.on("mousemove.pt", ev => {
+    const [mx, my] = d3.pointer(ev, svg.node()), p = qt.find(mx, my, 9);
+    if (!p) return ocultar();
+    const j = fuentes[p[2]], i = p[3], mun = j.mp && j.mp.length ? ptCodMun(j.mp[i]) : st.mpio;
+    svg.selectAll("circle.ptsel").data([p]).join("circle").attr("class", "ptsel").attr("cx", p[0]).attr("cy", p[1]).attr("r", 5)
+      .attr("fill", "none").attr("stroke", css("--ink")).attr("stroke-width", 1.6).style("pointer-events", "none");
+    ptTipEl.innerHTML = `<b>${ptTxt(j.d[i])} · ${ptHora(j.m[i])}</b>${nv !== "mun" ? `<br>${MUN_NOM[mun] || mun} · ${nomDepto(mun.slice(0, 2))}` : ""}<br>${PT_COB_NOM[j.g[i]]} · FRP ${(j.f[i] / 10).toLocaleString("es-CO")} MW<br>` +
+      `${j.c[i] ? "Confianza alta" : "Confianza nominal"}${j.k[i] >= 0 ? " · " + (j.k[i] ? "confirmado" : "sin") + " área quemada MapBiomas" : ""}`;
+    card.appendChild(ptTipEl);
+    const r = card.getBoundingClientRect(); let lx = ev.clientX - r.left + 12, ly = ev.clientY - r.top + 12;
+    ptTipEl.style.left = "0px"; ptTipEl.style.top = "0px";
+    if (lx + ptTipEl.offsetWidth > r.width) lx = Math.max(0, ev.clientX - r.left - ptTipEl.offsetWidth - 12);
+    ptTipEl.style.left = lx + "px"; ptTipEl.style.top = ly + "px";
+  }).on("mouseleave.pt", ocultar);
+  const btn = document.getElementById("ptCsv");
+  if (btn) btn.onclick = () => {
+    const filas = ["fecha,hora,departamento,municipio,codigo_divipola,latitud,longitud,frp_mw,cobertura,confianza,confirmado_mapbiomas"];
+    for (const [, , s, i] of pts) {
+      const j = fuentes[s], cod = j.mp && j.mp.length ? ptCodMun(j.mp[i]) : st.mpio;
+      filas.push([diaStr(j.d[i]), ptHora(j.m[i]), `"${nomDepto(cod.slice(0, 2))}"`, `"${MUN_NOM[cod] || cod}"`, cod, (j.la[i] / 1e4).toFixed(4), (j.lo[i] / 1e4).toFixed(4),
+        (j.f[i] / 10).toFixed(1), PT_COB_NOM[j.g[i]], j.c[i] ? "alta" : "nominal", j.k[i] < 0 ? "" : j.k[i]].join(","));
+    }
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob(["﻿" + filas.join("\n")], { type: "text/csv;charset=utf-8" }));
+    a.download = `puntos_calor_${lugar.replace(/[^\p{L}\d]+/gu, "_")}_${st.ptDesde}_${st.ptHasta}.csv`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  };
+}
+
+function todo() {
+  pestanas();
+  if (st.tab === "wfs" || st.tab === "cap") return;   // módulos embebidos (iframe independiente)
+  segmentos(); selectorDeptos(); mapa(); cabecera();
+  if (st.tab === "frec") { kpis(); paneles(); anual(); municipios(); nino(); notas(); }
+  else if (st.tab === "area") { document.getElementById("aviso").hidden = true; mapbiomas(); rankingHa(); notasArea();
+    document.getElementById("dsub").textContent = "MapBiomas Fuego Colección 1 · Landsat 30 m · 2014–2025"; }
+  else if (st.tab === "lluvia") { document.getElementById("aviso").hidden = true; lluvia(); }
+}
+
+// ---- Reporte PDF: informe ejecutivo nacional + detalle de la pantalla, con encabezado y pie institucionales ----
+
+// Carga (si hace falta) un iframe embebido y espera a que su interior quede listo, con tope de tiempo.
+function asegurarIframe(fr, ms) {
+  return new Promise(res => {
+    if (!fr) return res();
+    try { const b = fr.contentDocument && fr.contentDocument.body; if (b && b.children.length > 1) return res(); } catch (e) {}
+    let listo = false; const fin = () => { if (!listo) { listo = true; res(); } };
+    if (!fr.src) fr.src = fr.dataset.src + "&_=" + Date.now();
+    fr.addEventListener("load", () => setTimeout(fin, 900), { once: true });
+    setTimeout(fin, ms);
+  });
+}
+function kpisIframe(fr, extractor) {
+  try { const idoc = fr && fr.contentDocument; if (idoc && idoc.body) return extractor(idoc); } catch (e) {}
+  return null;
+}
+
+// Arma los bloques del resumen ejecutivo nacional a partir de los datos ya cargados.
+async function datosEjecutivos() {
+  const met = st.met, uni = unidad(met), cobNom = (M.metricas[met] || {}).nombre || "–";
+  const bloques = [];
+
+  // 1) Frecuencia de incendios VIIRS
+  try {
+    const dN = DATOS.deptos[NAL] || {}, an = (dN.anual || {})[met] || {}, bl = [];
+    const ys = Object.keys(an).map(Number).sort((a, b) => a - b);
+    let ymax = null; for (const y of ys) { if (y >= M.anio_fin && y === 2026) continue; if (ymax === null || an[y] > an[ymax]) ymax = y; }
+    const ult = ys.length ? ys[ys.length - 1] : null;
+    if (ymax != null) bl.push(`Año con más actividad: <b>${ymax}</b> · ${nf(an[ymax], met)} ${uni}.`);
+    if (ult != null) bl.push(`${ult}${ult === 2026 ? " (a la fecha)" : ""}: <b>${nf(an[ult], met)}</b> ${uni}.`);
+    const N = DATOS.nino;
+    if (N && N.datos[met] && N.datos[met][NAL]) {
+      const vals = N.datos[met][NAL].total || [], nm = N.meses.length, nt = N.temporadas.length, tot = [];
+      for (let t = 0; t < nt; t++) tot.push(vals.slice(t * nm, t * nm + nm).reduce((a, b) => a + b, 0));
+      const dif = tot[0] > 0 ? Math.round((tot[1] - tot[0]) / tot[0] * 100) : null;
+      bl.push(`Temporadas El Niño — ${N.temporadas[0]}: <b>${nf(tot[0], met)}</b> · ${N.temporadas[1]}: <b>${nf(tot[1], met)}</b>${dif != null ? ` (<b>${dif > 0 ? "+" : ""}${dif} %</b>)` : ""}.`);
+    }
+    const top = ((dN.municipios || {})[met] || []).slice().sort((a, b) => b.prom - a.prom).slice(0, 3);
+    if (top.length) bl.push(`Municipios con más frecuencia: ${top.map(x => `${titulo(x.nombre || x.cod)} (${nf(x.prom, met)})`).join("; ")}.`);
+    if (bl.length) bloques.push({ c: "s1", h: "Frecuencia de incendios VIIRS", sub: `Puntos de calor VIIRS S-NPP · cobertura: ${cobNom}`, li: bl });
+  } catch (e) {}
+
+  // 2) Área quemada (MapBiomas)
+  try {
+    const MB = DATOS.mapbiomas;
+    if (MB && MB.datos[NAL]) {
+      const d = MB.datos[NAL], n = MB.anios.length;
+      const total = d.ha.reduce((s, r) => s + r.reduce((a, b) => a + b, 0), 0);
+      const bosque = d.ha.reduce((s, r) => s + r[0], 0);
+      const perd = (d.perdida || []).reduce((a, b) => a + b, 0);
+      const bl = [
+        `Área quemada: <b>${fmt(total / n)}</b> ha por año (${MB.anios[0]}–${MB.anios[n - 1]}).`,
+        `En bosque: <b>${total ? fmt(bosque / total * 100, 1) + " %" : "–"}</b> del área quemada.`,
+        `Bosque que pasó a pasto o cultivo: <b>${fmt(perd)}</b> ha (2014–2023).`,
+      ];
+      const lst = [];
+      for (const c of Object.keys(MB.datos)) { if (c === NAL) continue;
+        for (const [m, o] of Object.entries(MB.datos[c].mpios || {})) {
+          const t = o.ha.reduce((s, r) => s + r.reduce((a, b) => a + b, 0), 0) / n; if (t > 0) lst.push({ cod: m, ha: t }); } }
+      lst.sort((a, b) => b.ha - a.ha);
+      const top = lst.slice(0, 3);
+      if (top.length) bl.push(`Municipios con más área quemada: ${top.map(x => `${MUN_NOM[x.cod] || x.cod} (${fmt(x.ha)} ha/año)`).join("; ")}.`);
+      bloques.push({ c: "s2", h: "Área quemada", sub: "MapBiomas Fuego Colección 1 · Landsat 30 m · 2014–2025", li: bl });
+    }
+  } catch (e) {}
+
+  // 3) Lluvia antecedente (CHIRPS) — requiere los eventos cargados
+  try {
+    if (typeof LLUVIA !== "undefined" && LLUVIA) {
+      if (!LL.ok && !LL.error) { try { await llCargar(); } catch (e) {} }
+      if (LL.ok) {
+        const pv = { dpto: st.dpto, mpio: st.mpio };
+        st.dpto = NAL; st.mpio = null; LL._bk = null; LL._gk = null;
+        llAsegurarRango();
+        const r = llStats(llSelAlcance());
+        st.dpto = pv.dpto; st.mpio = pv.mpio; LL._bk = null; LL._gk = null;
+        if (r) {
+          const periodo = `${diaTxt(diaDe(st.lluDesde))} al ${diaTxt(diaDe(st.lluHasta))}`;
+          bloques.push({ c: "s3", h: "Lluvia antecedente", sub: `CHIRPS · lluvia de los 90 días previos · período ${periodo}`, li: [
+            `Eventos-día analizados: <b>${fmt(r.n)}</b>.`,
+            `Lluvia previa (mediana): <b>${fmt(r.p)} mm</b> · normal para esas fechas: ${fmt(r.nm)} mm.`,
+            `Frente a lo normal: <b>${r.pc == null ? "–" : fmt(r.pc) + " %"}</b> (100 % = lluvia normal).`,
+            `Con déficit (< ${LLUVIA.meta.deficit_pct} % de lo normal): <b>${r.df == null ? "–" : fmt(r.df) + " %"}</b> de los eventos.`,
+          ] });
+        }
+      }
+    }
+  } catch (e) {}
+
+  // 5) Capacidades (iframe) — los datos están embebidos en el tablero, se leen de forma fiable.
+  const capFr = document.getElementById("capFrame");
+  try { await asegurarIframe(capFr, 4000); } catch (e) {}
+
+  // 4) Frecuencia de incendios WFS — módulo aparte (OroraTech) con sus propios filtros y carga de datos.
+  // No se extrae una cifra en vivo para no arriesgar un número parcial en un documento oficial; se describe el módulo.
+  bloques.push({ c: "s4", h: "Frecuencia de incendios WFS", sub: "Detecciones diarias OroraTech WildFire Solution · octubre a mayo",
+    li: ["Detecciones satelitales diarias (OroraTech) por departamento y municipio, con coropletas, mapas de calor y rankings por temporada.",
+      "Para las cifras exactas y el detalle interactivo, consulte la pestaña «Frecuencia de incendios WFS» del portal."] });
+
+  const cap = kpisIframe(capFr, idoc => {
+    const limpio = t => (t || "").replace(/\s+/g, " ").trim();
+    const ks = [...idoc.querySelectorAll("#kpis .kpi")].slice(0, 4).map(k => {
+      const num = limpio(k.querySelector(".num")?.textContent), lbl = limpio(k.querySelector(".lbl")?.textContent), foot = limpio(k.querySelector(".foot")?.textContent);
+      if (!num && !lbl) return limpio(k.innerText);
+      return `${lbl}: <b>${num}</b>${foot ? ` · ${foot}` : ""}`;
+    }).filter(Boolean);
+    return ks.length ? ks : null;
+  });
+  bloques.push({ c: "s5", h: "Capacidades de respuesta", sub: "Matriz Nacional de Capacidades para la Atención de Incendios · SNGRD",
+    li: cap || ["Inventario de capacidades (unidades, personal, vehículos y equipos) reportadas por las entidades del SNGRD. Abra la pestaña para el detalle por entidad y territorio."] });
+
+  return bloques;
+}
+
+function pintarResumen(bloques) {
+  const cont = document.getElementById("print-resumen");
+  cont.innerHTML =
+    `<div class="re-tit">Resumen ejecutivo nacional</div>` +
+    `<div class="re-intro">Síntesis automática de los indicadores más relevantes de cada módulo del tablero, a escala nacional (Colombia). A continuación se incluye el detalle de la sección en pantalla.</div>` +
+    bloques.map(b => `<div class="re-sec ${b.c}"><p class="re-h">${b.h}</p><p class="re-sub">${b.sub}</p>` +
+      b.li.map(x => `<div class="re-li">${x}</div>`).join("") + `</div>`).join("");
+}
+
+let generandoPDF = false;
+async function imprimirReporte() {
+  if (generandoPDF) return;
+  generandoPDF = true;
+  const btn = document.getElementById("btnPDF"), txtBtn = btn ? btn.textContent : "";
+  if (btn) { btn.disabled = true; btn.textContent = "Preparando…"; }
+  try {
+    const nombreTab = (TABS.find(t => t[0] === st.tab) || [, st.tab])[1];
+    const embebida = st.tab === "wfs" || st.tab === "cap";
+    const lugar = embebida ? "Colombia" : (document.getElementById("nombre").textContent || "Colombia");
+    const meta = [`<b>Pestaña en pantalla:</b> ${nombreTab}`, `<b>Ámbito:</b> ${lugar}`];
+    if (!embebida) meta.push(`<b>Cobertura:</b> ${(M.metricas[st.met] || {}).nombre || "–"}`);
+    meta.push(`<b>Generado:</b> ${new Date().toLocaleString("es-CO")}`);
+    document.getElementById("print-meta").innerHTML = meta.join(" &nbsp;·&nbsp; ");
+
+    // Resumen ejecutivo nacional (automático)
+    try { pintarResumen(await datosEjecutivos()); } catch (e) { document.getElementById("print-resumen").innerHTML = ""; }
+
+    // Expandir el iframe de la pestaña embebida para que entre más contenido en el PDF.
+    let restaurar = null;
+    if (embebida) {
+      const fr = document.querySelector(".pane:not([hidden]) iframe");
+      try { const h = fr.contentDocument.body.scrollHeight; if (h > 400) { const prev = fr.style.height; fr.style.height = Math.min(h, 2400) + "px"; restaurar = () => fr.style.height = prev; } } catch (e) {}
+    }
+
+    // Nombre de archivo sugerido en el diálogo "Guardar como PDF".
+    const tituloPrev = document.title;
+    const fecha = new Date().toISOString().slice(0, 10);
+    document.title = `Reporte UNGRD · Incendios y Capacidades SNGRD · ${fecha}`;
+
+    const limpiar = () => { if (restaurar) restaurar(); document.title = tituloPrev; window.removeEventListener("afterprint", limpiar); };
+    window.addEventListener("afterprint", limpiar);
+    if (btn) { btn.disabled = false; btn.textContent = txtBtn; }
+    generandoPDF = false;
+    setTimeout(() => window.print(), 250);
+  } catch (e) {
+    if (btn) { btn.disabled = false; btn.textContent = txtBtn; }
+    generandoPDF = false;
+  }
+}
+
+// Corrige el desfase de los vectores de Leaflet en html2canvas: el SVG usa viewBox con origen
+// negativo + un transform que lo cancela; html2canvas ignora ese transform y desplaza los polígonos.
+// Se normaliza el viewBox a origen 0 y se quita el transform (queda igual que en pantalla).
+function arreglarLeaflet(d) {
+  try {
+    d.querySelectorAll(".leaflet-overlay-pane svg").forEach(svg => {
+      const vb = svg.getAttribute("viewBox");
+      if (vb) { const p = vb.split(/\s+/).map(Number); if (p.length === 4) svg.setAttribute("viewBox", `0 0 ${p[2]} ${p[3]}`); }
+      svg.style.transform = "none"; svg.style.left = "0px"; svg.style.top = "0px";
+    });
+  } catch (e) {}
+}
+
+// ---- Captura TODO el contenido de la vista actual (lo que se muestra en pantalla) con html2canvas ----
+async function capturarVista() {
+  const opts = { useCORS: true, allowTaint: false, backgroundColor: "#ffffff", scale: 2, logging: false, imageTimeout: 20000, onclone: doc => arreglarLeaflet(doc) };
+  const embebida = st.tab === "wfs" || st.tab === "cap";
+  if (embebida) {
+    // El contenido está dentro de un iframe (mismo origen): se captura su cuerpo completo (mapa + paneles + gráficas + tablas).
+    const fr = document.querySelector(".pane:not([hidden]) iframe");
+    if (!fr) return null;
+    const idoc = fr.contentDocument, iwin = fr.contentWindow;
+    if (!idoc || !idoc.body) return null;
+    let h2c = iwin.html2canvas;
+    if (!h2c) {   // cargar html2canvas dentro del iframe
+      await new Promise((res, rej) => { const s = idoc.createElement("script"); s.src = "https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"; s.onload = res; s.onerror = rej; idoc.head.appendChild(s); });
+      h2c = iwin.html2canvas;
+    }
+    if (!h2c) return null;
+    // El WFS tiene un layout de alto fijo (html,body{height:100%}) con panel de scroll interno; su pie
+    // queda anclado al fondo del viewport y se solaparía con los paneles al capturar todo. Se suelta ese
+    // alto solo durante la captura (se restaura enseguida) para que el contenido fluya y el pie quede al final.
+    const cap = idoc.createElement("style");
+    cap.textContent = "html,body{height:auto !important;overflow:visible !important}main{min-height:0 !important}#panel{overflow:visible !important;height:auto !important}";
+    idoc.head.appendChild(cap);
+    await new Promise(r => setTimeout(r, 180));
+    try { return await h2c(idoc.body, opts); }
+    finally { cap.remove(); }
+  }
+  // Pestañas nativas (VIIRS, Área, Lluvia): todo el bloque de visualización actual.
+  if (!window.html2canvas) return null;
+  return await window.html2canvas(document.querySelector(".layout"), opts);
+}
+
+// ---- Reporte PDF automático: captura todo lo que está en pantalla y lo descarga directo (sin diálogo ni configuración) ----
+async function descargarPDF() {
+  if (generandoPDF) return;
+  if (!window.jspdf || !window.jspdf.jsPDF) { alert("No se pudo cargar el generador de PDF (jsPDF). Verifique la conexión a internet."); return; }
+  if (!window.html2canvas) { alert("No se pudo cargar el capturador de pantalla (html2canvas). Verifique la conexión a internet."); return; }
+  generandoPDF = true;
+  const btn = document.getElementById("btnPDF"), tb = btn ? btn.textContent : "";
+  if (btn) { btn.disabled = true; btn.textContent = "Capturando…"; }
+  try {
+    const canvas = await capturarVista();
+    if (!canvas || !canvas.width) throw new Error("No se pudo capturar la vista en pantalla.");
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ unit: "mm", format: "a4" });
+    const PW = 210, PH = 297, MG = 12, CW = PW - 2 * MG;   // MG: margen (M es la metadata global)
+    const d = new Date();
+    const id = "ENSO-" + d.toISOString().slice(0, 10).replace(/-/g, "") + "-" + d.toTimeString().slice(0, 5).replace(":", "");
+    const fecha = d.toLocaleDateString("es-CO", { day: "2-digit", month: "long", year: "numeric" });
+    const hora = d.toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" });
+    const nombreTab = (TABS.find(t => t[0] === st.tab) || [, st.tab])[1];
+    const embebida = st.tab === "wfs" || st.tab === "cap";
+    const lugar = embebida ? "Colombia" : (document.getElementById("nombre").textContent || "Colombia");
+    const cob = embebida ? "" : " · " + ((M.metricas[st.met] || {}).nombre || "");
+
+    // logo rasterizado pequeño (una vez)
+    let logoData = null, logoRatio = 0.4;
+    const logo = document.querySelector("header.top img.logo");
+    try {
+      if (logo && logo.complete && logo.naturalWidth) {
+        logoRatio = logo.naturalHeight / logo.naturalWidth;
+        const lw = Math.min(460, logo.naturalWidth), lh = Math.round(lw * logoRatio);
+        const lc = document.createElement("canvas"); lc.width = lw; lc.height = lh;
+        const lx = lc.getContext("2d"); lx.fillStyle = "#ffffff"; lx.fillRect(0, 0, lw, lh); lx.drawImage(logo, 0, 0, lw, lh);
+        logoData = lc.toDataURL("image/jpeg", 0.92);
+      }
+    } catch (e) {}
+
+    const encabezado = (primera) => {
+      if (primera) {
+        if (logoData) doc.addImage(logoData, "JPEG", MG, 9, 25, 25 * logoRatio);
+        doc.setFont("helvetica", "bold"); doc.setFontSize(10); doc.setTextColor(14, 58, 102);
+        doc.text("ESCENARIOS INCENDIOS FORESTALES Y CAPACIDADES DEL SNGRD", PW - MG, 12, { align: "right" });
+        doc.setFont("helvetica", "normal"); doc.setFontSize(7.5); doc.setTextColor(90, 100, 120);
+        doc.text("Fenómeno El Niño 2026–2027 · UNGRD — Subdirección para el Conocimiento del Riesgo", PW - MG, 16.5, { align: "right" });
+        doc.setFont("helvetica", "bold"); doc.setFontSize(8.5); doc.setTextColor(14, 58, 102);
+        doc.text(`${nombreTab} · ${lugar}${cob}`, PW - MG, 21, { align: "right" });
+        doc.setFillColor(14, 58, 102); doc.rect(MG, 24, CW * 0.66, 1.4, "F");
+        doc.setFillColor(247, 148, 31); doc.rect(MG + CW * 0.66, 24, CW * 0.34, 1.4, "F");
+        return 28;   // y donde empieza el contenido
+      }
+      // páginas de continuación: franja delgada
+      doc.setFont("helvetica", "bold"); doc.setFontSize(8); doc.setTextColor(14, 58, 102);
+      doc.text(`${nombreTab} · ${lugar}${cob} (continuación)`, MG, 12);
+      doc.setFillColor(14, 58, 102); doc.rect(MG, 14, CW * 0.66, 1, "F");
+      doc.setFillColor(247, 148, 31); doc.rect(MG + CW * 0.66, 14, CW * 0.34, 1, "F");
+      return 18;
+    };
+    const pie = () => {
+      doc.setDrawColor(217, 222, 233); doc.line(MG, PH - 12, PW - MG, PH - 12);
+      doc.setFont("helvetica", "normal"); doc.setFontSize(6.3); doc.setTextColor(120, 130, 150);
+      doc.text(`Generado: ${fecha} · ${hora} · No. ${id}    |    Realizado por: Jorge Alpala (jorge.alpala@gestiondelriesgo.gov.co) · UNGRD – SCR.`, MG, PH - 8.5);
+      doc.text("Fuentes: VIIRS/FIRMS · OroraTech WFS · MapBiomas · CHIRPS · Capacidades SNGRD · DIVIPOLA–DANE · Mapas base Esri/OSM/CARTO. Ley 1523 de 2012; no reemplaza las alertas oficiales del IDEAM, el SGC ni la UNGRD.", MG, PH - 5.5);
+    };
+
+    // Colocar la captura completa, dividiéndola en páginas A4 si es más alta que una hoja.
+    const botArea = PH - 13.5;                   // límite inferior del contenido (sobre el pie)
+    const pxPorMm = canvas.width / CW;           // la imagen se dibuja al ancho del contenido
+    let srcY = 0, primera = true, paginas = 0;
+    while (srcY < canvas.height && paginas < 12) {
+      const top = encabezado(primera);
+      const availH = botArea - top;
+      const sliceH = Math.min(canvas.height - srcY, Math.floor(availH * pxPorMm));
+      const tmp = document.createElement("canvas"); tmp.width = canvas.width; tmp.height = sliceH;
+      const tctx = tmp.getContext("2d"); tctx.fillStyle = "#ffffff"; tctx.fillRect(0, 0, tmp.width, tmp.height);
+      tctx.drawImage(canvas, 0, srcY, canvas.width, sliceH, 0, 0, canvas.width, sliceH);
+      doc.addImage(tmp.toDataURL("image/jpeg", 0.9), "JPEG", MG, top, CW, sliceH / pxPorMm);
+      pie();
+      srcY += sliceH; primera = false; paginas++;
+      if (srcY < canvas.height && paginas < 12) doc.addPage();
+    }
+
+    doc.save(`Reporte_UNGRD_${st.tab}_${d.toISOString().slice(0, 10)}.pdf`);
+  } catch (e) {
+    console.error(e); alert("No se pudo generar el PDF: " + (e && e.message ? e.message : e));
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = tb; }
+    generandoPDF = false;
+  }
+}
+
+document.getElementById("btnPDF")?.addEventListener("click", descargarPDF);
+
+todo();
+let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(ocultarTip, 100); });
+matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", () => todo());
+new MutationObserver(() => todo()).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+
+// Exponer el estado al asistente de IA flotante (script clásico, fuera del módulo)
+window.st = st; window.DATOS = DATOS; window.M = M; window.TABS = TABS; window.descargarPDF = descargarPDF;
+</script>
+
+<!-- ============ Asistente de IA flotante (de moises/app_incendios/plantillas/asistente_widget.html) ============ -->
+<style>
+#asi-btn{position:fixed;right:18px;bottom:18px;z-index:50;width:60px;height:60px;border-radius:50%;border:2px solid var(--surface);background:var(--accent);color:#fff;cursor:pointer;padding:0;box-shadow:0 4px 18px rgba(0,0,0,.28);display:grid;place-items:center;transition:transform .15s}
+#asi-btn:hover{transform:scale(1.06)}
+#asi-btn:focus-visible,#asi-panel button:focus-visible,#asi-panel textarea:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+#asi-btn svg{width:42px;height:42px}
+#asi-hola{position:fixed;right:88px;bottom:30px;z-index:50;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:8px 12px;font-size:13.5px;box-shadow:var(--shadow);max-width:210px}
+#asi-hola::after{content:"";position:absolute;right:-6px;bottom:14px;width:10px;height:10px;background:var(--surface);border-right:1px solid var(--line);border-top:1px solid var(--line);transform:rotate(45deg)}
+#asi-panel{position:fixed;right:18px;bottom:90px;z-index:51;width:380px;max-width:calc(100vw - 24px);height:min(560px,calc(100vh - 110px));display:flex;flex-direction:column;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:14px;box-shadow:0 10px 40px rgba(0,0,0,.28);overflow:hidden}
+#asi-panel[hidden]{display:none!important}
+.asi-cab{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--surface-2);border-bottom:1px solid var(--line)}
+.asi-cab .av{width:36px;height:36px;border-radius:50%;background:var(--accent);display:grid;place-items:center;flex:none}
+.asi-cab .av svg{width:26px;height:26px}
+.asi-cab b{font-family:var(--f-display);font-stretch:85%;font-size:16px;display:block;line-height:1.1}
+.asi-cab small{font-size:12px;color:var(--ink-2)}
+.asi-cab .sp{flex:1}
+.asi-cab button{border:0;background:transparent;color:var(--ink-2);font-size:22px;line-height:1;cursor:pointer;border-radius:6px;padding:2px 8px}
+.asi-cab button:hover{color:var(--ink);background:var(--surface)}
+#asi-msgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px;font-size:14px;line-height:1.45}
+.asi-m{max-width:88%;padding:8px 11px;border-radius:12px;overflow-wrap:anywhere}
+.asi-m p{margin:0 0 6px}.asi-m p:last-child{margin:0}
+.asi-m ul{margin:4px 0 4px 16px;padding:0}
+.asi-m.bot{align-self:flex-start;background:var(--surface-2);border-bottom-left-radius:4px}
+.asi-m.yo{align-self:flex-end;background:var(--accent);color:#fff;border-bottom-right-radius:4px}
+.asi-m.err{align-self:flex-start;background:var(--warn-bg);color:var(--warn-ink)}
+.asi-sug{display:flex;flex-wrap:wrap;gap:6px;padding:0 12px 8px}
+.asi-sug button{font:500 12.5px var(--f-body);border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:5px 10px;cursor:pointer;text-align:left}
+.asi-sug button:hover{background:var(--surface-2)}
+.asi-pie{padding:8px 10px;border-top:1px solid var(--line)}
+.asi-form{display:flex;gap:8px;align-items:flex-end}
+#asi-q{flex:1;resize:none;font:14px var(--f-body);background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:8px 10px;max-height:90px}
+#asi-send{border:0;background:var(--accent);color:#fff;font:600 14px var(--f-body);border-radius:10px;padding:9px 13px;cursor:pointer}
+#asi-send:disabled{opacity:.5;cursor:default}
+.asi-aviso{font-size:11.5px;color:var(--ink-3);margin:6px 2px 0}
+.asi-puntos span{display:inline-block;width:6px;height:6px;margin-right:3px;border-radius:50%;background:var(--ink-3);animation:asip 1s infinite}
+.asi-puntos span:nth-child(2){animation-delay:.15s}.asi-puntos span:nth-child(3){animation-delay:.3s}
+@keyframes asip{0%,80%,100%{opacity:.25}40%{opacity:1}}
+@media (max-width:520px){#asi-panel{right:8px;left:8px;width:auto;max-width:none;bottom:84px}#asi-hola{display:none}}
+@media (prefers-reduced-motion:reduce){#asi-btn,.asi-puntos span{transition:none;animation:none}}
+</style>
+<button id="asi-btn" type="button" aria-label="Abrir el asistente de datos" aria-expanded="false" aria-controls="asi-panel">
+  <svg viewBox="0 0 48 48" aria-hidden="true">
+    <path d="M14 33a8 8 0 0 1-.6-16 11 11 0 0 1 21.2-2.2A8.5 8.5 0 0 1 35 33z" fill="#fff"/>
+    <circle cx="19.5" cy="24" r="2.1" fill="#1d2a2a"/><circle cx="28.5" cy="24" r="2.1" fill="#1d2a2a"/>
+    <path d="M20 28.2q4 3.2 8 0" fill="none" stroke="#1d2a2a" stroke-width="1.8" stroke-linecap="round"/>
+    <path d="M24 36.5c-2.2 2.4-3.6 4-3.6 5.7a3.6 3.6 0 0 0 7.2 0c0-1.7-1.4-3.3-3.6-5.7z" fill="#8fc2f0" transform="translate(0 -1.5) scale(.9) translate(2.6 3)"/>
+  </svg>
+</button>
+<div id="asi-hola" hidden>¿Necesita ayuda para leer esta pantalla? Pregúnteme.</div>
+<section id="asi-panel" role="dialog" aria-label="Asistente de datos" hidden>
+  <div class="asi-cab">
+    <span class="av" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M14 33a8 8 0 0 1-.6-16 11 11 0 0 1 21.2-2.2A8.5 8.5 0 0 1 35 33z" fill="#fff"/><circle cx="19.5" cy="24" r="2.1" fill="#1d2a2a"/><circle cx="28.5" cy="24" r="2.1" fill="#1d2a2a"/><path d="M20 28.2q4 3.2 8 0" fill="none" stroke="#1d2a2a" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+    <div><b>Asistente de datos</b><small>IA · meteorología y gestión del riesgo</small></div>
+    <span class="sp"></span>
+    <button type="button" id="asi-cerrar" aria-label="Cerrar el asistente">×</button>
+  </div>
+  <div id="asi-msgs" role="log" aria-live="polite"></div>
+  <div class="asi-sug" id="asi-sug"></div>
+  <div class="asi-pie">
+    <form class="asi-form" id="asi-form">
+      <label for="asi-q" class="sr" style="position:absolute;left:-9999px">Su pregunta</label>
+      <textarea id="asi-q" rows="1" maxlength="600" placeholder="Pregunte sobre lo que ve en pantalla…"></textarea>
+      <button id="asi-send" type="submit">Enviar</button>
+    </form>
+    <p class="asi-aviso">Respuestas generadas por IA a partir de los datos de esta pantalla. Pueden contener errores: verifique con el IDEAM y la UNGRD antes de tomar decisiones.</p>
+  </div>
+</section>
+<script>
+(() => {
+  const URL_API = window.ASISTENTE_URL || "/api/asistente";
+  const btn = document.getElementById("asi-btn"), hola = document.getElementById("asi-hola"),
+    panel = document.getElementById("asi-panel"), msgs = document.getElementById("asi-msgs"),
+    form = document.getElementById("asi-form"), q = document.getElementById("asi-q"),
+    send = document.getElementById("asi-send"), sug = document.getElementById("asi-sug");
+  const historial = []; let ocupado = false, saludado = false, disponible = false;
+
+  // El botón siempre está visible; aquí solo se detecta si el servidor (servidor_app.py) está en línea.
+  fetch(URL_API + "/estado", { cache: "no-store" }).then(r => r.ok ? r.json() : null).then(j => {
+    if (!j || !j.disponible) return;
+    disponible = true;
+    try { if (!sessionStorage.getItem("asi_visto")) { hola.hidden = false; setTimeout(() => hola.hidden = true, 9000); } } catch (e) {}
+  }).catch(() => {});
+
+  const esc = s => s.replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  // Markdown mínimo y seguro: se escapa todo y solo se habilitan **negrita** y listas con guion.
+  function md(t) {
+    const lineas = esc(t).split("\n"); let html = "", lista = false;
+    for (const l of lineas) {
+      const b = l.replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
+      const m = /^\s*[-*•]\s+(.*)$/.exec(b);
+      if (m) { if (!lista) { html += "<ul>"; lista = true; } html += `<li>${m[1]}</li>`; continue; }
+      if (lista) { html += "</ul>"; lista = false; }
+      if (b.trim()) html += `<p>${b}</p>`;
+    }
+    return html + (lista ? "</ul>" : "");
+  }
+  function agregar(clase, html) {
+    const d = document.createElement("div"); d.className = "asi-m " + clase; d.innerHTML = html;
+    msgs.appendChild(d); msgs.scrollTop = msgs.scrollHeight; return d;
+  }
+
+  // ---- Contexto de lo que el usuario está viendo ----
+  const num = (v, d = 0) => (v == null || isNaN(v)) ? "s/d" : Number(v).toLocaleString("es-CO", { maximumFractionDigits: d });
+  function textoPanel() {
+    const pane = document.querySelector(".pane:not([hidden])"); if (!pane) return "";
+    // Pestañas embebidas (WFS, Capacidades): leer el interior del iframe (mismo origen) con un resumen enfocado.
+    const ifr = pane.querySelector("iframe");
+    if (ifr) { try { const idoc = ifr.contentDocument; if (idoc && idoc.body) return textoIframe(idoc); } catch (e) {} }
+    const c = pane.cloneNode(true);
+    c.querySelectorAll("svg,canvas,button,select,input,script,style,.tip,.ptip,.notas,.guia").forEach(e => e.remove());
+    c.querySelectorAll("tr").forEach(tr => tr.appendChild(document.createTextNode("\n")));
+    c.querySelectorAll("td,th").forEach(td => td.appendChild(document.createTextNode(" | ")));
+    c.querySelectorAll("h3,h4,p,li,.kpi,section,.desc,.nota").forEach(e => e.appendChild(document.createTextNode("\n")));
+    return c.textContent.replace(/[ \t]+/g, " ").replace(/\n\s*\n+/g, "\n").trim().slice(0, 5200);
+  }
+  // Resumen enfocado del iframe: KPIs + cada sección visible (encabezado, descripción y primeras filas de su tabla).
+  function textoIframe(idoc) {
+    const vis = e => !!(e.offsetParent || e.getClientRects().length);
+    const partes = [], limpio = t => (t || "").replace(/\s+/g, " ").trim();
+    idoc.querySelectorAll(".kpi").forEach(k => { if (vis(k)) { const t = limpio(k.innerText); if (t) partes.push("• " + t); } });
+    idoc.querySelectorAll("section, .panel").forEach(sec => {
+      const h = sec.querySelector("h1,h2,h3,h4"); if (!h || !vis(h)) return;
+      let t = limpio(h.innerText);
+      const desc = sec.querySelector(".desc,.nota"); if (desc) t += " — " + limpio(desc.innerText).slice(0, 180);
+      const tabla = sec.querySelector("table");
+      if (tabla) {
+        const filas = [...tabla.querySelectorAll("tr")].slice(0, 14)
+          .map(tr => [...tr.children].map(td => limpio(td.innerText)).filter(Boolean).join(" | ")).filter(Boolean);
+        if (filas.length) t += "\n" + filas.join("\n");
+      }
+      if (t.trim()) partes.push(t);
+    });
+    let out = partes.join("\n");
+    if (out.length < 800) out = (out + "\n" + idoc.body.innerText).trim();   // complementa con el texto visible si el resumen es corto
+    return out.replace(/[ \t]+/g, " ").replace(/\n{2,}/g, "\n").trim().slice(0, 5200);
+  }
+  function datosGraficos() {
+    const out = [];
+    try {
+      if (st.tab === "lluvia") {
+        if (window.LLUVIA_RESUMEN) out.push(window.LLUVIA_RESUMEN);
+      } else if (st.tab === "frec") {
+        const d = DATOS.deptos[st.dpto] || {}, an = d.anual && d.anual[st.met];
+        if (an) out.push(`Total por año (${M.metricas[st.met].nombre}): ` + Object.keys(an).sort().map(y => `${y}: ${num(an[y])}`).join("; "));
+      }
+    } catch (e) {}
+    if (window.PUNTOS_RESUMEN) out.push(window.PUNTOS_RESUMEN);
+    return out.join("\n");
+  }
+  function contexto() {
+    const tabs = { frec: "Frecuencia de incendios VIIRS", wfs: "Frecuencia de incendios WFS (OroraTech)", lluvia: "Lluvia antecedente", area: "Área quemada", cap: "Capacidades de respuesta" };
+    const embebida = st.tab === "wfs" || st.tab === "cap";
+    const cab = [];
+    try {
+      cab.push(`Pestañas disponibles en el tablero: ${TABS.map(t => t[1]).join("; ")}`);
+      cab.push(`Pestaña actual: ${tabs[st.tab] || st.tab}`);
+      if (!embebida) {   // estos campos son del tablero nativo (VIIRS/Área/Lluvia), no de los iframes
+        cab.push(`Lugar: ${document.getElementById("nombre").textContent}`);
+        cab.push(`Cobertura (filtro): ${(M.metricas[st.met] || {}).nombre || "–"}`);
+        cab.push(`Subtítulo: ${document.getElementById("dsub").textContent}`);
+      }
+    } catch (e) {}
+    return `${cab.join("\n")}\n\n--- Texto visible de la pestaña ---\n${textoPanel()}\n\n--- Datos de los gráficos ---\n${datosGraficos()}`.slice(0, 5800);
+  }
+
+  // ---- Interacción ----
+  const SUG = {
+    lluvia: ["Resume lo que veo", "¿Qué significa «% de lo normal»?", "¿La lluvia previa explica los incendios?"],
+    frec: ["Resume lo que veo", "¿Qué es un punto de calor?", "¿Qué significa el mes pico?"],
+    wfs: ["Resume lo que veo", "¿Qué es una detección WFS?", "¿Qué temporada tuvo más incendios?"],
+    area: ["Resume lo que veo", "¿En qué se diferencia del punto de calor?"],
+    cap: ["Resume lo que veo", "¿Qué entidades reportan capacidades?", "¿Qué dice la señal de brecha?"],
+  };
+  function sugerencias() {
+    sug.innerHTML = "";
+    for (const t of (SUG[st.tab] || SUG.frec)) {
+      const b = document.createElement("button"); b.type = "button"; b.textContent = t;
+      b.onclick = () => preguntar(t); sug.appendChild(b);
+    }
+  }
+  function abrir(v) {
+    panel.hidden = !v; btn.setAttribute("aria-expanded", v); hola.hidden = true;
+    try { sessionStorage.setItem("asi_visto", "1"); } catch (e) {}
+    if (v) {
+      if (!saludado) {
+        agregar("bot", md("Hola, soy el asistente de datos. Puedo explicarle lo que está viendo, resumirlo o aclarar términos de lluvia, incendios y gestión del riesgo. **¿Qué le gustaría saber?**"));
+        if (!disponible) agregar("err", md("⚠️ Estoy **sin conexión**. El asistente necesita el servidor local: inicie `servidor_app.py` con una llave configurada (vea el LEEME del portal). Mientras tanto, puede usar la guía «Cómo leer esta pestaña» de cada sección."));
+        saludado = true;
+      }
+      sugerencias(); q.focus();
+    } else btn.focus();
+  }
+  // Si la IA no responde, la guía fija de la pestaña sigue disponible.
+  function ofrecerGuia() {
+    const g = document.getElementById("guia-" + st.tab); if (!g) return;
+    const d = agregar("err", `<p><button type="button" class="asi-guia" style="font:600 13px var(--f-body);border:1px solid currentColor;background:transparent;color:inherit;border-radius:8px;padding:4px 9px;cursor:pointer">Abrir la guía de esta pestaña</button></p>`);
+    d.querySelector("button").onclick = () => { abrir(false); g.open = true; g.scrollIntoView({ behavior: "smooth", block: "center" }); g.querySelector("summary").focus(); };
+  }
+  async function preguntar(texto) {
+    texto = (texto || "").trim(); if (!texto || ocupado) return;
+    ocupado = true; send.disabled = true; q.value = ""; q.style.height = "";
+    agregar("yo", `<p>${esc(texto)}</p>`);
+    const espera = agregar("bot", `<span class="asi-puntos" aria-label="Escribiendo"><span></span><span></span><span></span></span>`);
+    try {
+      const r = await fetch(URL_API, { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pregunta: texto, contexto: contexto(), historial: historial.slice(-6) }) });
+      const j = await r.json().catch(() => ({}));
+      espera.remove();
+      if (!r.ok) { agregar("err", `<p>${esc(j.error || "No pude responder ahora. Intente de nuevo.")}</p>`); ofrecerGuia(); }
+      else {
+        agregar("bot", md(j.respuesta));
+        historial.push({ rol: "usuario", texto }, { rol: "asistente", texto: j.respuesta });
+      }
+    } catch (e) {
+      espera.remove(); agregar("err", "<p>No hay conexión con el asistente. Intente de nuevo.</p>"); ofrecerGuia();
+    }
+    ocupado = false; send.disabled = false; q.focus();
+  }
+  btn.onclick = () => abrir(panel.hidden);
+  document.getElementById("asi-cerrar").onclick = () => abrir(false);
+  form.onsubmit = e => { e.preventDefault(); preguntar(q.value); };
+  q.onkeydown = e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); preguntar(q.value); } };
+  q.oninput = () => { q.style.height = "auto"; q.style.height = Math.min(90, q.scrollHeight) + "px"; };
+  panel.onkeydown = e => { if (e.key === "Escape") abrir(false); };
+  document.getElementById("tabs")?.addEventListener("click", () => { if (!panel.hidden) setTimeout(sugerencias, 0); });
+})();
+</script>

@@ -1,0 +1,55 @@
+# ─────────────────────────────────────────────────────────────
+#  .gitignore — versión de producción para GitHub Pages
+#  (los datos de data/** SÍ se publican; se excluyen secretos,
+#   temporales y archivos de desarrollo)
+# ─────────────────────────────────────────────────────────────
+
+# --- Secretos y credenciales (NUNCA publicar) ---
+.env
+.env.*
+*.env
+**/secrets*
+**/*secret*
+**/*apikey*
+**/*api_key*
+**/*.key
+**/*.pem
+**/credenciales*
+config.local.js
+
+# --- Backend del asistente (vive fuera de GitHub Pages) ---
+# Si clona aquí el servidor local para pruebas, no lo versiona:
+servidor_app.py
+servidor/
+**/.env
+
+# --- Reportes/PDF de muestra y temporales ---
+Reporte_ejemplo_*.pdf
+Reporte_UNGRD_*.pdf
+_diag_*.pdf
+*.tmp
+*.bak
+*.log
+
+# --- Sistema operativo / editores ---
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*~
+*.swp
+
+# --- Python (por si ejecuta scripts de generación en la carpeta) ---
+__pycache__/
+*.pyc
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# --- Node (solo si usara herramientas locales; no se despliega) ---
+node_modules/
+
+# --- Herramientas locales de build (apuntan a su carpeta de desarrollo) ---
+sincronizar_github.ps1
+sincronizar_github.sh
