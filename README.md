@@ -5,6 +5,8 @@ Portal web **estático** (UNGRD · Fenómeno El Niño 2026–2027) listo para pu
 servidores: todo corre en el navegador leyendo archivos por `fetch()`.
 
 > **Punto de entrada:** [`index.html`](index.html)
+> **En producción:** https://jorgealpala.github.io/escenarios-incendios-sngrd/ — con el
+> **asistente de IA activo** (Cloudflare Worker + Groq; ver sección **L**).
 
 ---
 
@@ -185,18 +187,42 @@ El asistente llama a `window.ASISTENTE_URL` (definida en [`config.js`](config.js
 
 - **Sin configurar (`""`)** → modo **offline**: el botón sigue visible y ofrece las guías
   “Cómo leer esta pestaña”. El resto del portal funciona normal. *(Es seguro publicar así.)*
-- **Para que responda en producción** sin exponer llaves, despliegue el proxy serverless
+- **Para que responda en producción** sin exponer llaves, se despliega el proxy serverless
   incluido en [`serverless/asistente_worker_ejemplo.js`](serverless/asistente_worker_ejemplo.js)
-  (plantilla de **Cloudflare Workers**, gratuito):
-  1. `npm i -g wrangler` y cree cuenta en Cloudflare.
-  2. Obtenga una llave gratuita (p. ej. **Groq**, https://console.groq.com).
-  3. Guárdela como **secreto** (no en el código): `wrangler secret put GROQ_API_KEY`.
-  4. Ajuste `ORIGENES_PERMITIDOS` con su URL de Pages y `wrangler deploy`.
-  5. En `config.js` ponga `window.ASISTENTE_URL = "https://<su-worker>.workers.dev/api/asistente";`
+  (**Cloudflare Workers**, gratuito). La llave de IA vive en Cloudflare, **nunca** en el repo.
+
+**Despliegue por el panel web (sin instalar nada — método usado):**
+1. Llave gratuita de **Groq** en https://console.groq.com → *API Keys* → *Create* (empieza con `gsk_…`).
+2. En https://dash.cloudflare.com → **Cómputo → Workers y Pages → Create → Create Worker** →
+   nómbralo `asistente-ungrd` → **Deploy**.
+3. **Editar código** → borra todo y **pega** el contenido de `serverless/asistente_worker_ejemplo.js` → **Deploy**.
+4. **Settings → Variables and Secrets → Add** → Type **Secret**, Name `GROQ_API_KEY`, Value = tu llave → **Deploy**.
+5. Copia la URL del Worker y pruébala: `https://<worker>.workers.dev/api/asistente/estado` → `{"disponible":true}`.
+6. En [`config.js`](config.js) pon `window.ASISTENTE_URL = "https://<worker>.workers.dev/api/asistente";` y `git push`.
+
+*(Alternativa por consola: `npm i -g wrangler`, `wrangler secret put GROQ_API_KEY`, `wrangler deploy` desde `serverless/` — ver `serverless/wrangler.toml`.)*
+
+### Configuración que quedó funcionando
+- **Proveedor:** Groq (gratuito). El Worker prueba varios modelos en orden y usa el primero disponible:
+  `openai/gpt-oss-20b` → `llama-3.1-8b-instant` → `llama-3.3-70b-versatile`.
+- **Importante — modelos:** no todas las cuentas tienen acceso a todos los modelos, y Groq los
+  rota/descontinúa. Si una cuenta no tiene acceso a `llama-3.1-8b-instant`/`70b`, el Worker cae
+  automáticamente en `openai/gpt-oss-20b` (que fue el que respondió aquí). Pon **primero** el que
+  tu cuenta sí tenga, para que no pierda tiempo en un intento fallido.
+- **Longitud de respuesta:** `max_tokens: 500` (respuestas más ágiles). Súbelo si las quieres más largas.
+
+### Solución de problemas
+- El Worker **reporta el motivo real** cuando un modelo falla (campo `detalle`/`errores` en la
+  respuesta), por ejemplo *“model … does not exist or you do not have access”* o *“decommissioned”*.
+  Si el asistente no responde, abre la URL del Worker con una consola y mira ese `detalle`.
+- Si sale “sin conexión” en el portal tras cambiar `config.js`: espera 1–2 min (caché de GitHub
+  Pages) y recarga con **Ctrl + F5**.
+- **CORS:** `ORIGENES_PERMITIDOS` dentro del Worker debe incluir tu origen de Pages
+  (aquí: `https://jorgealpala.github.io`).
 
 > **La llave vive en el serverless, NUNCA en este repositorio.** El portal solo conoce la
-> URL pública del proxy. El componente que *requiere* la credencial es ese proxy; es lo único
-> que debe quedar **fuera** de GitHub Pages.
+> URL pública del proxy. Si la llave llega a verse (captura, registro), **regenérala** en Groq
+> y actualiza su valor en Cloudflare.
 
 ## M. Cómo actualizar los datos sin modificar el código principal
 
@@ -218,7 +244,8 @@ El portal lee rutas y nombres **convencionales** (ver tabla **E–G**). Para cre
 - ✅ *Range-requests* para el Parquet (Pages los soporta).
 - ✅ Ningún archivo supera 100 MB (el mayor es `incendios.parquet`, 33 MB). Peso total ≈ 150 MB
   (muy por debajo del 1 GB recomendado por GitHub).
-- ⚠️ El **asistente** requiere el proxy externo (sección **L**) para responder.
+- ✅ El **asistente de IA** responde en producción vía un **Worker de Cloudflare** (modelo
+  `openai/gpt-oss-20b`, ~0,6 s por consulta corta); la llave nunca está en el repo (ver **L**).
 
 Detalle operativo del portal (pestañas, fuentes, asistente): ver [`LEEME_portal.md`](LEEME_portal.md).
 

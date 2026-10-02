@@ -106,7 +106,7 @@ export default {
           const r = await fetch(API_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json", Authorization: `Bearer ${llave}` },
-            body: JSON.stringify({ model: modelo, messages: mensajes, temperature: 0.3, max_tokens: 800 }),
+            body: JSON.stringify({ model: modelo, messages: mensajes, temperature: 0.3, max_tokens: 500 }),
           });
           const data = await r.json().catch(() => ({}));
           const respuesta = data?.choices?.[0]?.message?.content?.trim();
