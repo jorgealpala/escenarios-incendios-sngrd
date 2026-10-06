@@ -5,7 +5,8 @@ Portal web **estático** (UNGRD · Fenómeno El Niño 2026–2027) listo para pu
 servidores: todo corre en el navegador leyendo archivos por `fetch()`.
 
 > **Punto de entrada:** [`index.html`](index.html)
-> **En producción:** https://jorgealpala.github.io/escenarios-incendios-sngrd/ — con el
+> **Portal oficial (UNGRD · SCR):** https://scr-ungrd.github.io/escenarios-incendios-sngrd/
+> — copia de desarrollo: https://jorgealpala.github.io/escenarios-incendios-sngrd/ — con el
 > **asistente de IA activo** (Cloudflare Worker + Groq; ver sección **L**). Durante la vista
 > previa el portal puede pedir **contraseña** (candado temporal; ver sección **N**).
 
@@ -219,7 +220,7 @@ El asistente llama a `window.ASISTENTE_URL` (definida en [`config.js`](config.js
 - Si sale “sin conexión” en el portal tras cambiar `config.js`: espera 1–2 min (caché de GitHub
   Pages) y recarga con **Ctrl + F5**.
 - **CORS:** `ORIGENES_PERMITIDOS` dentro del Worker debe incluir tu origen de Pages
-  (aquí: `https://jorgealpala.github.io`).
+  (oficial: `https://scr-ungrd.github.io`; y `https://jorgealpala.github.io` durante la transición).
 
 > **La llave vive en el serverless, NUNCA en este repositorio.** El portal solo conoce la
 > URL pública del proxy. Si la llave llega a verse (captura, registro), **regenérala** en Groq

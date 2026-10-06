@@ -29,7 +29,8 @@
 // Orígenes autorizados a usar el asistente (su sitio de GitHub Pages).
 // Use "*" solo para pruebas; en producción liste su dominio exacto.
 const ORIGENES_PERMITIDOS = [
-  "https://jorgealpala.github.io",
+  "https://scr-ungrd.github.io",      // portal oficial (UNGRD - SCR)
+  "https://jorgealpala.github.io",    // copia de desarrollo (transición)
   "http://localhost:8000",
   "http://127.0.0.1:8000",
 ];
