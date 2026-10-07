@@ -174,7 +174,8 @@ td.num,th.num{text-align:right}
 .tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
 .tabs button small{font-weight:400;font-size:13px;color:var(--ink-3)}
 .tabs button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
-@media (max-width:640px){.tabs{flex-wrap:wrap}.tabs button{padding:8px 10px 7px;font-size:14px}}
+@media (max-width:1100px){.tabs{flex-wrap:wrap}}
+@media (max-width:640px){.tabs button{padding:8px 10px 7px;font-size:14px}}
 .pane{display:flex;flex-direction:column;gap:18px;min-width:0}
 .dos{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px 26px;margin-top:8px}
 @media (max-width:760px){.dos{grid-template-columns:minmax(0,1fr)}}
@@ -334,6 +335,25 @@ header.top{border-bottom:3px solid var(--azul);padding-bottom:10px;margin-bottom
 #pane-wfs,#pane-capdash{min-width:0;margin-top:10px}
 #pane-wfs .wfsbar,#pane-capdash .wfsbar{font-size:13px;color:var(--ink-2);margin:0 0 8px}
 #pane-wfs iframe,#pane-capdash iframe{width:100%;height:84vh;min-height:780px;border:0;border-radius:12px;background:var(--surface);box-shadow:var(--shadow);display:block}
+/* Ayuda: manuales, videos y créditos */
+#pane-ayuda{min-width:0;margin-top:10px;max-width:1000px}
+#pane-ayuda .ayuda-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:860px){#pane-ayuda .ayuda-grid{grid-template-columns:1fr}}
+#pane-ayuda .ayuda-card h3{font-size:16px;margin:0 0 4px;display:flex;align-items:center;gap:7px}
+#pane-ayuda .ayuda-lista{list-style:none;padding:0;margin:10px 0 0;display:flex;flex-direction:column;gap:9px}
+#pane-ayuda .ayuda-lista a{color:var(--accent);font-weight:600;text-decoration:none}
+#pane-ayuda .ayuda-lista a:hover{text-decoration:underline}
+#pane-ayuda .ayuda-lista .meta{color:var(--ink-3);font-size:12.5px}
+#pane-ayuda .ayuda-videos{display:flex;flex-direction:column;gap:14px;margin-top:10px}
+#pane-ayuda .video-embed{position:relative;padding-top:56.25%;border-radius:10px;overflow:hidden;background:var(--surface-2);border:1px solid var(--line)}
+#pane-ayuda .video-embed iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+#pane-ayuda figure{margin:0}
+#pane-ayuda figcaption{font-size:13px;color:var(--ink-2);margin-top:6px}
+#pane-ayuda .ayuda-vacio{color:var(--ink-3);font-size:13.5px;padding:8px 0}
+#pane-ayuda .acerca{margin-top:16px}
+#pane-ayuda .acerca p{font-size:14px;line-height:1.55;margin:7px 0;color:var(--ink-2)}
+#pane-ayuda .acerca b{color:var(--ink)}
+#pane-ayuda .ayuda-nota{font-size:12.5px;color:var(--ink-3);margin-top:10px}
 </style>
 <script>document.documentElement.setAttribute("data-theme","light");</script>
 
@@ -566,6 +586,46 @@ header.top{border-bottom:3px solid var(--azul);padding-bottom:10px;margin-bottom
     <iframe id="capFrame" title="Capacidades de respuesta · SNGRD" data-src="capacidades_sngrd.html?embed=1" loading="lazy"></iframe>
   </section>
 
+  <!-- ============ Ayuda: manuales, videos y créditos ============ -->
+  <section class="pane" id="pane-ayuda" hidden role="tabpanel" aria-labelledby="tab-ayuda">
+    <div class="ayuda-grid">
+      <!-- Manuales -->
+      <section class="card sec ayuda-card">
+        <h3>📘 Manuales</h3>
+        <p class="desc">Guías de uso del portal y de cada módulo.</p>
+        <ul class="ayuda-lista" id="ayuda-manuales">
+          <!-- Para agregar un manual: coloque el PDF en la carpeta "manuales/" y añada un <li> así:
+          <li><a href="manuales/guia_portal.pdf" target="_blank" rel="noopener">Guía del portal (PDF)</a>
+              <span class="meta">— cómo navegar y leer cada pestaña</span></li>
+          -->
+          <li class="ayuda-vacio">Los manuales estarán disponibles próximamente.</li>
+        </ul>
+      </section>
+
+      <!-- Videos -->
+      <section class="card sec ayuda-card">
+        <h3>🎬 Videos</h3>
+        <p class="desc">Tutoriales en video del portal.</p>
+        <div class="ayuda-videos" id="ayuda-videos">
+          <!-- Para agregar un video: pegue la URL de inserción (YouTube/Vimeo) en el src del iframe:
+          <figure class="video">
+            <div class="video-embed"><iframe src="https://www.youtube.com/embed/ID_DEL_VIDEO" title="Tutorial" allowfullscreen loading="lazy"></iframe></div>
+            <figcaption>Introducción al portal</figcaption>
+          </figure>
+          -->
+          <p class="ayuda-vacio">Los videos estarán disponibles próximamente.</p>
+        </div>
+      </section>
+    </div>
+
+    <!-- Acerca de -->
+    <section class="card sec ayuda-card acerca">
+      <h3>ℹ️ Acerca de</h3>
+      <p>Aplicación desarrollada por <b>Christian Euscátegui</b>, <b>Jorge Alpala</b> y <b>Moisés Santizo</b>, en el marco de la gestión del conocimiento del riesgo de la <b>UNGRD — Subdirección para el Conocimiento del Riesgo (SCR)</b>. Integra información de <b>MapBiomas Fuego</b>, <b>puntos de calor VIIRS</b> (NASA FIRMS), <b>OroraTech WildFire Solution (WFS)</b>, <b>lluvia CHIRPS</b>, la <b>Matriz Nacional de Capacidades del SNGRD</b> y <b>límites DIVIPOLA–DANE</b>. Mapas base: Esri · OpenStreetMap · CARTO.</p>
+      <p class="ayuda-nota">Herramienta de apoyo al conocimiento del riesgo (Ley 1523 de 2012).</p>
+    </section>
+  </section>
+
   <!-- Pie institucional solo para impresión / PDF -->
   <div id="print-footer" aria-hidden="true">
     <div class="pf-rule"></div>
@@ -620,7 +680,7 @@ const st = { tab: "frec", met: ORDEN_METS[0], dpto: NAL, mpio: null, hi: null, a
   lluPre: "12m", lluDesde: null, lluHasta: null, lluEv: null,
   modoL: "coro", ptDias: null, ptTodo: false,     // mapa Leaflet VIIRS: modo y período de puntos
   puntos: false, ptDesde: null, ptHasta: null, ptNivel: null, ptAjuste: false };   // overlay de puntos D3 (lluvia)
-const TABS = [["frec", "Frecuencia de incendios VIIRS"], ["wfs", "Frecuencia de incendios WFS"], ["area", "Área quemada", "consulta"], ["lluvia", "Lluvia antecedente"], ["cap", "Capacidades de respuesta"]]
+const TABS = [["frec", "Frecuencia de incendios VIIRS"], ["wfs", "Frecuencia de incendios WFS"], ["area", "Área quemada", "consulta"], ["lluvia", "Lluvia antecedente"], ["cap", "Capacidades de respuesta"], ["ayuda", "Ayuda"]]
   .filter(t => t[0] !== "lluvia" || LLUVIA);   // la pestaña Lluvia solo aparece si hay datos
 try { const s = JSON.parse(localStorage.getItem("incendios_v1_estado") || "{}");
   if (s.met && METS.includes(s.met)) st.met = s.met; if (s.mapa) st.mapa = s.mapa;
@@ -706,6 +766,7 @@ const SUBT = {
   area: "Consulta complementaria · área quemada y cobertura afectada según MapBiomas Fuego (30 m, 2014–2025)",
   lluvia: "Lluvia CHIRPS en los 90 días antes de cada evento de incendio · por departamento y municipio",
   cap: "Matriz Nacional de Capacidades para la Atención de Incendios · SNGRD (DCC, Ejército Nacional, Policía Nacional - PONALSAR)",
+  ayuda: "Manuales, videos y créditos del portal",
 };
 function pestanas() {
   const nav = document.getElementById("tabs"); nav.innerHTML = "";
@@ -723,9 +784,10 @@ function pestanas() {
     nav.appendChild(b);
   });
   for (const [k] of TABS) document.getElementById("pane-" + k).hidden = st.tab !== k;
-  const fullFrame = st.tab === "wfs" || st.tab === "cap";   // pestañas embebidas (iframe a ancho completo)
+  const fullFrame = st.tab === "wfs" || st.tab === "cap" || st.tab === "ayuda";   // pestañas a ancho completo (iframe o contenido estático)
   document.querySelector(".layout").hidden = fullFrame;     // oculta mapa + panel D3
   document.getElementById("selDepto").hidden = fullFrame;
+  document.getElementById("btnPDF").hidden = st.tab === "ayuda";   // el reporte PDF no aplica en Ayuda
   document.getElementById("pane-capdash").hidden = st.tab !== "cap";
   document.getElementById("filtroCob").hidden = st.tab !== "frec" && st.tab !== "lluvia";
   document.getElementById("selEscalaMapa").hidden = st.tab !== "frec";
@@ -2162,7 +2224,7 @@ function pintarPuntos(svg, fuentes, nv, d0, d1) {
 
 function todo() {
   pestanas();
-  if (st.tab === "wfs" || st.tab === "cap") return;   // módulos embebidos (iframe independiente)
+  if (st.tab === "wfs" || st.tab === "cap" || st.tab === "ayuda") return;   // embebidos / contenido estático
   segmentos(); selectorDeptos(); mapa(); cabecera();
   if (st.tab === "frec") { kpis(); paneles(); anual(); municipios(); nino(); notas(); }
   else if (st.tab === "area") { document.getElementById("aviso").hidden = true; mapbiomas(); rankingHa(); notasArea();
