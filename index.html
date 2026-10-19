@@ -260,7 +260,7 @@ header.top{border-bottom:3px solid var(--azul);padding-bottom:10px;margin-bottom
   .pane[hidden]{display:none !important}
   .card,.graf,section,.panel,#consolidada,.lluvia-svg{break-inside:avoid;box-shadow:none !important}
   #mapaL{height:440px !important}
-  #pane-wfs iframe,#pane-capdash iframe{height:1150px !important;min-height:0 !important;box-shadow:none !important}
+  #pane-wfs iframe,#pane-capdash iframe,#pane-reduccion iframe{height:1150px !important;min-height:0 !important;box-shadow:none !important}
   a{color:inherit !important;text-decoration:none !important}
   @page{size:A4;margin:1.2cm 1.2cm 1.4cm}
   #print-header .ph-top{display:flex;align-items:center;gap:14px}
@@ -331,10 +331,10 @@ header.top{border-bottom:3px solid var(--azul);padding-bottom:10px;margin-bottom
 /* Gráfica consolidada oct–may */
 #consolidada{position:relative}
 #consolidada svg{width:100%;height:auto;display:block;overflow:visible}
-/* Módulos embebidos (WFS y Capacidades) */
-#pane-wfs,#pane-capdash{min-width:0;margin-top:10px}
-#pane-wfs .wfsbar,#pane-capdash .wfsbar{font-size:13px;color:var(--ink-2);margin:0 0 8px}
-#pane-wfs iframe,#pane-capdash iframe{width:100%;height:84vh;min-height:780px;border:0;border-radius:12px;background:var(--surface);box-shadow:var(--shadow);display:block}
+/* Módulos embebidos (WFS, Capacidades, Reducción del Riesgo) */
+#pane-wfs,#pane-capdash,#pane-reduccion{min-width:0;margin-top:10px}
+#pane-wfs .wfsbar,#pane-capdash .wfsbar,#pane-reduccion .wfsbar{font-size:13px;color:var(--ink-2);margin:0 0 8px}
+#pane-wfs iframe,#pane-capdash iframe,#pane-reduccion iframe{width:100%;height:84vh;min-height:780px;border:0;border-radius:12px;background:var(--surface);box-shadow:var(--shadow);display:block}
 /* Ayuda: manuales, videos y créditos */
 #pane-ayuda{min-width:0;margin-top:10px;max-width:1000px}
 #pane-ayuda .ayuda-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
@@ -386,7 +386,7 @@ header.top{border-bottom:3px solid var(--azul);padding-bottom:10px;margin-bottom
       </div>
     </div>
     <div class="controls">
-      <div class="filtro" id="filtroCob"><span class="flab">Cobertura</span><div class="seg" id="selMetrica" role="group" aria-label="Cobertura"></div></div>
+      <div class="filtro" id="filtroCob"><span class="flab">Cobertura MapBiomas</span><div class="seg" id="selMetrica" role="group" aria-label="Cobertura MapBiomas"></div></div>
       <label for="selDepto" class="sr" hidden>Departamento</label>
       <select id="selDepto" aria-label="Departamento"></select>
       <button class="pbtn" id="btnPDF" title="Descargar en PDF lo que está viendo en pantalla, con formato institucional (automático, sin configurar la impresión)">⤓ Reporte PDF</button>
@@ -578,12 +578,17 @@ header.top{border-bottom:3px solid var(--azul);padding-bottom:10px;margin-bottom
 
   <section class="pane" id="pane-wfs" hidden>
     <p class="wfsbar">Desarrollo satelital <b>OroraTech WFS</b> embebido: detecciones diarias de incendios (octubre a mayo), con mapa nacional/departamental/municipal y gráficas por mes. Interactúe dentro del recuadro.</p>
-    <iframe id="wfsFrame" title="Frecuencia de incendios WFS" data-src="wfs.html?embed=1" loading="lazy"></iframe>
+    <iframe id="wfsFrame" title="Frecuencia de incendios WFS" data-src="wfs.html?embed=1"></iframe>
   </section>
 
   <section class="pane" id="pane-capdash" hidden>
     <p class="wfsbar"><b>Matriz Nacional de Capacidades para la Atención de Incendios · SNGRD</b>. Capacidades reportadas por las entidades (DCC, Ejército Nacional, Policía Nacional - PONALSAR); filtre por departamento, municipio y categoría. Interactúe dentro del recuadro.</p>
-    <iframe id="capFrame" title="Capacidades de respuesta · SNGRD" data-src="capacidades_sngrd.html?embed=1" loading="lazy"></iframe>
+    <iframe id="capFrame" title="Capacidades de respuesta · SNGRD" data-src="capacidades_sngrd.html?embed=1"></iframe>
+  </section>
+
+  <section class="pane" id="pane-reduccion" hidden>
+    <p class="wfsbar"><b>Reducción del Riesgo · incendios forestales</b>. Medidas organizadas por <b>línea de acción</b>, <b>temporalidad</b> (corto, mediano, largo plazo) y <b>escala</b> territorial. Toque una celda, fila o columna de la matriz para ver las medidas correspondientes. Interactúe dentro del recuadro.</p>
+    <iframe id="redFrame" title="Reducción del Riesgo · incendios forestales" data-src="reduccion_riesgo.html?embed=1"></iframe>
   </section>
 
   <!-- ============ Ayuda: manuales, videos y créditos ============ -->
@@ -593,12 +598,14 @@ header.top{border-bottom:3px solid var(--azul);padding-bottom:10px;margin-bottom
       <section class="card sec ayuda-card">
         <h3>📘 Manuales</h3>
         <p class="desc">Guías de uso del portal y de cada módulo.</p>
+        <p class="desc" style="margin-top:-2px">Manual de usuario por sección (PDF). Técnico pero en lenguaje sencillo, pensado para alcaldes y líderes comunitarios.</p>
         <ul class="ayuda-lista" id="ayuda-manuales">
-          <!-- Para agregar un manual: coloque el PDF en la carpeta "manuales/" y añada un <li> así:
-          <li><a href="manuales/guia_portal.pdf" target="_blank" rel="noopener">Guía del portal (PDF)</a>
-              <span class="meta">— cómo navegar y leer cada pestaña</span></li>
-          -->
-          <li class="ayuda-vacio">Los manuales estarán disponibles próximamente.</li>
+          <li><a href="manuales/Manual_01_Frecuencia_VIIRS.pdf" target="_blank" rel="noopener">Frecuencia de incendios VIIRS</a> <span class="meta">— puntos de calor satelitales</span></li>
+          <li><a href="manuales/Manual_02_Frecuencia_WFS.pdf" target="_blank" rel="noopener">Frecuencia de incendios WFS</a> <span class="meta">— detecciones OroraTech</span></li>
+          <li><a href="manuales/Manual_03_Area_quemada.pdf" target="_blank" rel="noopener">Área quemada</a> <span class="meta">— hectáreas afectadas (MapBiomas)</span></li>
+          <li><a href="manuales/Manual_04_Lluvia_antecedente.pdf" target="_blank" rel="noopener">Lluvia antecedente</a> <span class="meta">— sequía previa (CHIRPS)</span></li>
+          <li><a href="manuales/Manual_05_Capacidades.pdf" target="_blank" rel="noopener">Capacidades de respuesta</a> <span class="meta">— recursos del SNGRD</span></li>
+          <!-- Para agregar otro manual: coloque el PDF en la carpeta "manuales/" y añada un <li> igual a los de arriba. -->
         </ul>
       </section>
 
@@ -680,7 +687,7 @@ const st = { tab: "frec", met: ORDEN_METS[0], dpto: NAL, mpio: null, hi: null, a
   lluPre: "12m", lluDesde: null, lluHasta: null, lluEv: null,
   modoL: "coro", ptDias: null, ptTodo: false,     // mapa Leaflet VIIRS: modo y período de puntos
   puntos: false, ptDesde: null, ptHasta: null, ptNivel: null, ptAjuste: false };   // overlay de puntos D3 (lluvia)
-const TABS = [["frec", "Frecuencia de incendios VIIRS"], ["wfs", "Frecuencia de incendios WFS"], ["area", "Área quemada", "consulta"], ["lluvia", "Lluvia antecedente"], ["cap", "Capacidades de respuesta"], ["ayuda", "Ayuda"]]
+const TABS = [["frec", "Frecuencia de incendios VIIRS"], ["wfs", "Frecuencia de incendios WFS"], ["area", "Área quemada", "MapBiomas"], ["lluvia", "Lluvia antecedente"], ["reduccion", "Reducción del Riesgo"], ["cap", "Capacidades de respuesta"], ["ayuda", "Ayuda"]]
   .filter(t => t[0] !== "lluvia" || LLUVIA);   // la pestaña Lluvia solo aparece si hay datos
 try { const s = JSON.parse(localStorage.getItem("incendios_v1_estado") || "{}");
   if (s.met && METS.includes(s.met)) st.met = s.met; if (s.mapa) st.mapa = s.mapa;
@@ -765,6 +772,7 @@ const SUBT = {
   wfs: "Detecciones diarias de incendios OroraTech WFS · octubre a mayo (desarrollo satelital WFS)",
   area: "Consulta complementaria · área quemada y cobertura afectada según MapBiomas Fuego (30 m, 2014–2025)",
   lluvia: "Lluvia CHIRPS en los 90 días antes de cada evento de incendio · por departamento y municipio",
+  reduccion: "Medidas de reducción del riesgo por líneas de acción, temporalidad y escala · UNGRD — SCR",
   cap: "Matriz Nacional de Capacidades para la Atención de Incendios · SNGRD (DCC, Ejército Nacional, Policía Nacional - PONALSAR)",
   ayuda: "Manuales, videos y créditos del portal",
 };
@@ -784,7 +792,7 @@ function pestanas() {
     nav.appendChild(b);
   });
   for (const [k] of TABS) document.getElementById("pane-" + k).hidden = st.tab !== k;
-  const fullFrame = st.tab === "wfs" || st.tab === "cap" || st.tab === "ayuda";   // pestañas a ancho completo (iframe o contenido estático)
+  const fullFrame = st.tab === "wfs" || st.tab === "cap" || st.tab === "reduccion" || st.tab === "ayuda";   // pestañas a ancho completo (iframe o contenido estático)
   document.querySelector(".layout").hidden = fullFrame;     // oculta mapa + panel D3
   document.getElementById("selDepto").hidden = fullFrame;
   document.getElementById("btnPDF").hidden = st.tab === "ayuda";   // el reporte PDF no aplica en Ayuda
@@ -799,6 +807,7 @@ function pestanas() {
   // Carga diferida con cache-busting: cada recarga de la página trae la versión fresca del iframe
   if (st.tab === "wfs") { const fr = document.getElementById("wfsFrame"); if (fr && !fr.src) fr.src = fr.dataset.src + "&_=" + Date.now(); }
   if (st.tab === "cap") { const fr = document.getElementById("capFrame"); if (fr && !fr.src) fr.src = fr.dataset.src + "&_=" + Date.now(); }
+  if (st.tab === "reduccion") { const fr = document.getElementById("redFrame"); if (fr && !fr.src) fr.src = fr.dataset.src + "&_=" + Date.now(); }
 }
 const nomDepto = c => { const f = GEO_DEP.features.find(x => x.properties.DPTO_CCDGO === c);
   return titulo(DATOS.deptos[c]?.nombre || (f ? f.properties.DPTO_CNMBR : c)); };
@@ -2224,7 +2233,7 @@ function pintarPuntos(svg, fuentes, nv, d0, d1) {
 
 function todo() {
   pestanas();
-  if (st.tab === "wfs" || st.tab === "cap" || st.tab === "ayuda") return;   // embebidos / contenido estático
+  if (st.tab === "wfs" || st.tab === "cap" || st.tab === "reduccion" || st.tab === "ayuda") return;   // embebidos / contenido estático
   segmentos(); selectorDeptos(); mapa(); cabecera();
   if (st.tab === "frec") { kpis(); paneles(); anual(); municipios(); nino(); notas(); }
   else if (st.tab === "area") { document.getElementById("aviso").hidden = true; mapbiomas(); rankingHa(); notasArea();
@@ -2364,7 +2373,7 @@ async function imprimirReporte() {
   if (btn) { btn.disabled = true; btn.textContent = "Preparando…"; }
   try {
     const nombreTab = (TABS.find(t => t[0] === st.tab) || [, st.tab])[1];
-    const embebida = st.tab === "wfs" || st.tab === "cap";
+    const embebida = st.tab === "wfs" || st.tab === "cap" || st.tab === "reduccion";
     const lugar = embebida ? "Colombia" : (document.getElementById("nombre").textContent || "Colombia");
     const meta = [`<b>Pestaña en pantalla:</b> ${nombreTab}`, `<b>Ámbito:</b> ${lugar}`];
     if (!embebida) meta.push(`<b>Cobertura:</b> ${(M.metricas[st.met] || {}).nombre || "–"}`);
@@ -2413,7 +2422,7 @@ function arreglarLeaflet(d) {
 // ---- Captura TODO el contenido de la vista actual (lo que se muestra en pantalla) con html2canvas ----
 async function capturarVista() {
   const opts = { useCORS: true, allowTaint: false, backgroundColor: "#ffffff", scale: 2, logging: false, imageTimeout: 20000, onclone: doc => arreglarLeaflet(doc) };
-  const embebida = st.tab === "wfs" || st.tab === "cap";
+  const embebida = st.tab === "wfs" || st.tab === "cap" || st.tab === "reduccion";
   if (embebida) {
     // El contenido está dentro de un iframe (mismo origen): se captura su cuerpo completo (mapa + paneles + gráficas + tablas).
     const fr = document.querySelector(".pane:not([hidden]) iframe");
@@ -2461,7 +2470,7 @@ async function descargarPDF() {
     const fecha = d.toLocaleDateString("es-CO", { day: "2-digit", month: "long", year: "numeric" });
     const hora = d.toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" });
     const nombreTab = (TABS.find(t => t[0] === st.tab) || [, st.tab])[1];
-    const embebida = st.tab === "wfs" || st.tab === "cap";
+    const embebida = st.tab === "wfs" || st.tab === "cap" || st.tab === "reduccion";
     const lugar = embebida ? "Colombia" : (document.getElementById("nombre").textContent || "Colombia");
     const cob = embebida ? "" : " · " + ((M.metricas[st.met] || {}).nombre || "");
 
@@ -2693,7 +2702,7 @@ window.st = st; window.DATOS = DATOS; window.M = M; window.TABS = TABS; window.d
   }
   function contexto() {
     const tabs = { frec: "Frecuencia de incendios VIIRS", wfs: "Frecuencia de incendios WFS (OroraTech)", lluvia: "Lluvia antecedente", area: "Área quemada", cap: "Capacidades de respuesta" };
-    const embebida = st.tab === "wfs" || st.tab === "cap";
+    const embebida = st.tab === "wfs" || st.tab === "cap" || st.tab === "reduccion";
     const cab = [];
     try {
       cab.push(`Pestañas disponibles en el tablero: ${TABS.map(t => t[1]).join("; ")}`);
