@@ -32,7 +32,7 @@
   header p{margin:2px 0 0;color:var(--tenue);font-size:.85rem}
   html.embed header{display:none}   /* oculto cuando va embebido en la app macro (?embed=1) */
 
-  main{flex:1;display:grid;grid-template-columns:minmax(360px,44%) 1fr;min-height:0}
+  main{flex:1;display:grid;grid-template-columns:minmax(380px,52%) 1fr;min-height:0}
   #mapa-wrap{position:relative;border-right:1px solid var(--linea);min-height:0}
   #mapa{position:absolute;inset:0;background:#E6EBF0}
   .leaflet-interactive:focus{outline:none}
@@ -43,6 +43,16 @@
   .vista select{font:inherit;padding:3px 6px;border:1px solid var(--linea);border-radius:4px;background:#fff;color:var(--texto)}
   .vista .fila{display:flex;flex-direction:column;gap:3px}
   .vista .seg button{font-size:12px;padding:3px 8px}
+  .terr-ctl{background:#fff;border:1px solid var(--linea);border-radius:6px;padding:7px 8px;font-size:12px;color:var(--texto);max-width:235px}
+  .terr-ctl .seg{display:inline-flex;border:1px solid var(--linea);border-radius:5px;overflow:hidden;width:100%;margin-bottom:5px}
+  .terr-ctl .seg button{flex:1;font:inherit;font-size:11.5px;padding:4px 6px;border:0;background:#fff;cursor:pointer;color:var(--texto);white-space:nowrap}
+  .terr-ctl .seg button+button{border-left:1px solid var(--linea)}
+  .terr-ctl .seg button[aria-pressed="true"]{background:var(--azul);color:#fff}
+  .terr-ctl select{width:100%;font:inherit;font-size:12px;padding:3px 5px;margin-top:4px;border:1px solid var(--linea);border-radius:5px;background:#fff;color:var(--texto)}
+  .terr-ctl .catttl{font-weight:600;color:var(--tenue);font-size:11px;margin-top:5px}
+  .terr-ctl .catleg{margin-top:4px;max-height:128px;overflow:auto;display:flex;flex-direction:column;gap:2px}
+  .terr-ctl .catleg span{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--tenue);line-height:1.2}
+  .terr-ctl .catleg i{width:11px;height:11px;border-radius:2px;flex:none;border:1px solid rgba(0,0,0,.15)}
 
   .leyenda{background:#fff;padding:8px 10px;border:1px solid var(--linea);border-radius:4px;font-size:12px;line-height:1.5;min-width:150px}
   .leyenda b{display:block;margin-bottom:4px;font-weight:600}
@@ -239,9 +249,10 @@ import { parquetRead } from 'https://cdn.jsdelivr.net/npm/hyparquet@1.31.2/+esm'
 
 /* ---------- Configuración ---------- */
 const RUTA = {
-  parquet: 'data/wfs/incendios.parquet',
+  parquet: 'data/wfs/incendios_web.parquet',   // versión ligera (6 columnas, ~10 MB) para carga rápida
   deptos:  'data/wfs/departamentos_simplificado.geojson',
-  munis:   'data/wfs/municipios_simplificado.geojson'
+  munis:   'data/wfs/municipios_simplificado.geojson',
+  parques: 'data/wfs/parques_simplificado.geojson'
 };
 const DESFASE_H = -5;   // hora de Colombia; poner 0 para usar UTC
 const MESES = [[10,'Octubre',31],[11,'Noviembre',30],[12,'Diciembre',31],[1,'Enero',31],[2,'Febrero',29],[3,'Marzo',31],[4,'Abril',30],[5,'Mayo',31]];
@@ -276,6 +287,7 @@ const fmt = n => n.toLocaleString('es-CO');
 /* ---------- Estado ---------- */
 const E = {
   modo:'cal', escala:'ind', registro:'acumulado',
+  terr:'dep', pnn:null, pnnCat:'', // territorio: 'dep' (depto/municipio) | 'pnn' (áreas protegidas) + filtro de categoría
   depto:null, muni:null,
   activos:{cal:new Set(), tem:new Set()},
   confs:new Set(CONF_VISIBLES),
@@ -285,6 +297,19 @@ const E = {
   clasif:'jenks'        // 'jenks' | 'cuantil' | 'tecnico'
 };
 let D, nomDep = {}, nomMun = {}, gjMun;
+let gjPnn = null, PNN = [], pnnIdx = {}, HAY_PNN = false;   // áreas protegidas: features, lista {id,nombre,cat,bbox,polys}, id→índice
+let PNN_GRID = null, CATS_PNN = [];                          // índice espacial (grilla) y categorías presentes
+const PNN_CELL = 0.1;                                        // tamaño de celda de la grilla, en grados (~11 km)
+// Paleta por categoría RUNAP; una categoría no listada cae en el color por defecto.
+const CAT_COL = {
+  'Parque Nacional Natural':'#1B7A3D','Santuario de Fauna y Flora':'#2AA198','Santuario de Flora':'#5BC0BE',
+  'Área Natural Única':'#8E44AD','Vía Parque':'#B5651D','Reserva Natural':'#117A65',
+  'Reservas Forestales Protectoras Nacionales':'#1F6FB2','Reservas Forestales Protectoras Regionales':'#5DADE2',
+  'Parques Naturales Regionales':'#7D3C98','Distritos Regionales de Manejo Integrado':'#E67E22',
+  'Distritos Nacionales de Manejo Integrado':'#CA6F1E','Distritos de Conservación de Suelos':'#C0392B',
+  'Áreas de Recreación':'#D4AC0D','Reserva Natural de la Sociedad Civil':'#8A95A0'
+};
+const catColor = c => CAT_COL[c] || '#9AA4B1';
 let ok;     // serie activa + confianza + mes oct–mar (mapa y gráficas diarias)
 let okAnual; // serie activa + confianza, los 12 meses (gráficas complementarias)
 
@@ -304,10 +329,12 @@ async function iniciar(){
   }
   try{
     msg('Descargando capas y datos…');
-    const [gjDep, gjM, buf] = await Promise.all([
-      bajar(RUTA.deptos,'json'), bajar(RUTA.munis,'json'), bajar(RUTA.parquet,'bin')
+    const [gjDep, gjM, buf, gjP] = await Promise.all([
+      bajar(RUTA.deptos,'json'), bajar(RUTA.munis,'json'), bajar(RUTA.parquet,'bin'),
+      bajar(RUTA.parques,'json').catch(() => null)   // parques: opcional
     ]);
     gjMun = gjM;
+    if(gjP && gjP.features && gjP.features.length){ gjPnn = gjP; prepararPnn(gjPnn); HAY_PNN = true; }
     gjDep.features.forEach(f => nomDep[f.properties.DeCodigo] = f.properties.DeNombre);
     gjMun.features.forEach(f => {
       f.properties._dep = f.properties.MpCodigo === BOGOTA ? BOGOTA : f.properties.MpCodigo.slice(0,2);
@@ -319,6 +346,7 @@ async function iniciar(){
       columns: ['oldest_acquisition','cod_depto','cod_muni','lon','lat','confidence'],
       onComplete: filas => { D = compactar(filas); res(); }
     }));
+    if(HAY_PNN){ msg('Asignando detecciones a parques…'); asignarPnn(); }
     construirControles();
     construirGraficas();
     construirMapa(gjDep);
@@ -363,6 +391,68 @@ function compactar(filas){
 const etiqueta = y => E.modo === 'cal' ? String(y) : `${y}–${y+1}`;
 const colorSerie = y => PALETA[D.series[E.modo].indexOf(y) % PALETA.length];
 
+/* ---------- Parques nacionales: recorte espacial (punto-en-polígono) en el navegador ----------
+   Cada detección WFS trae lon/lat; aquí se marca en qué parque cae (o -1), una sola vez al cargar.
+   Así el filtro por parque se comporta igual que el filtro por departamento/municipio y todas las
+   gráficas y el mapa se recalculan solos. Usa el mismo polígono simplificado que se dibuja. */
+const esPNN = () => E.terr === 'pnn' && HAY_PNN;
+const anillosDe = g => g.type === 'Polygon' ? [g.coordinates] : g.type === 'MultiPolygon' ? g.coordinates : [];
+function prepararPnn(gj){
+  PNN = []; pnnIdx = {};
+  const cats = new Set();
+  PNN_CON_DATOS = new Set();
+  gj.features.forEach(f => {
+    const polys = anillosDe(f.geometry);
+    let x0=Infinity, y0=Infinity, x1=-Infinity, y1=-Infinity;
+    for(const poly of polys) for(const [x,y] of poly[0]){ if(x<x0)x0=x; if(x>x1)x1=x; if(y<y0)y0=y; if(y>y1)y1=y; }
+    const id = String(f.properties.PNN_ID), cat = f.properties.CAT || '';
+    pnnIdx[id] = PNN.length;
+    PNN.push({ id, nombre:f.properties.PNN_NOMBRE, cat, bbox:[x0,y0,x1,y1], polys });
+    if(f.properties.D_WFS){ PNN_CON_DATOS.add(id); cats.add(cat); }   // solo áreas con detecciones WFS visibles
+  });
+  CATS_PNN = [...cats].sort((a,b)=>a.localeCompare(b,'es'));
+  // índice espacial: a cada celda de la grilla se asocian las áreas cuyo bbox la toca
+  PNN_GRID = new Map();
+  PNN.forEach((p,pi) => {
+    const [x0,y0,x1,y1] = p.bbox;
+    for(let gx=Math.floor(x0/PNN_CELL); gx<=Math.floor(x1/PNN_CELL); gx++)
+      for(let gy=Math.floor(y0/PNN_CELL); gy<=Math.floor(y1/PNN_CELL); gy++){
+        const k = gx+','+gy; let a = PNN_GRID.get(k); if(!a){ a=[]; PNN_GRID.set(k,a); } a.push(pi);
+      }
+  });
+}
+function enAnillo(x, y, ring){
+  let dentro = false;
+  for(let i=0, j=ring.length-1; i<ring.length; j=i++){
+    const xi=ring[i][0], yi=ring[i][1], xj=ring[j][0], yj=ring[j][1];
+    if(((yi>y)!==(yj>y)) && (x < (xj-xi)*(y-yi)/(yj-yi)+xi)) dentro = !dentro;
+  }
+  return dentro;
+}
+function enParque(x, y, p){
+  const b = p.bbox; if(x<b[0]||x>b[2]||y<b[1]||y>b[3]) return false;
+  for(const poly of p.polys){
+    if(!enAnillo(x,y,poly[0])) continue;
+    let hueco = false;
+    for(let h=1; h<poly.length; h++) if(enAnillo(x,y,poly[h])){ hueco = true; break; }
+    if(!hueco) return true;
+  }
+  return false;
+}
+function asignarPnn(){
+  // asigna cada detección a su área (para filtrar/contar por área). Qué áreas se MUESTRAN lo define
+  // la bandera D_WFS del geojson (ver procesar_parques.py), ya calculada en prepararPnn.
+  D.pnn = new Int16Array(D.n).fill(-1);
+  for(let i=0;i<D.n;i++){
+    const x = D.lon[i], y = D.lat[i];
+    const cands = PNN_GRID.get(Math.floor(x/PNN_CELL)+','+Math.floor(y/PNN_CELL));
+    if(!cands) continue;
+    for(const pi of cands){ if(enParque(x,y,PNN[pi])){ D.pnn[i] = pi; break; } }
+  }
+}
+const nomPnn = id => { const p = PNN[pnnIdx[id]]; return p ? p.nombre : id; };
+const catDePnn = id => { const p = PNN[pnnIdx[id]]; return p ? p.cat : ''; };
+
 /* ---------- Máscara de filtros ---------- */
 function calcularMascara(){
   ok = new Uint8Array(D.n); okAnual = new Uint8Array(D.n);
@@ -375,6 +465,11 @@ function calcularMascara(){
   }
 }
 function filtroNivel(){
+  if(esPNN()){
+    if(E.pnn != null){ const p = pnnIdx[E.pnn]; return i => D.pnn[i] === p; }
+    if(E.pnnCat){ const c = E.pnnCat; return i => D.pnn[i] >= 0 && PNN[D.pnn[i]].cat === c; }   // toda una categoría
+    return i => D.pnn[i] >= 0;   // todas las áreas combinadas
+  }
   if(E.muni) { const m = +E.muni; return i => D.mun[i] === m; }
   if(E.depto){ const d = +E.depto; return i => D.dep[i] === d; }
   return null;
@@ -404,6 +499,80 @@ function construirControles(){
   segmento('#modo', v => { E.modo = v; pintarChips(); actualizar(); });
   segmento('#escala', v => { E.escala = v; actualizarGraficas(); });
   segmento('#registro', v => { E.registro = v; actualizarGraficas(); });
+}
+function elegirTerrW(v){
+  E.terr = v; E.depto = null; E.muni = null; E.pnn = null; E.pnnCat = '';
+  if(v === 'pnn') E.vistaArea = 'calor';   // en áreas: mostrar todos los incendios (calor) con los polígonos encima
+  if(capaMun){ mapa.removeLayer(capaMun); capaMun = null; }
+  sincronizarCapasTerr(); pintarTerrCtlW();
+  mapa.flyToBounds(capaDep.getBounds(), {padding:[10,10], duration:.4});
+  actualizar();
+}
+function elegirCatW(c){ E.pnnCat = c; E.pnn = null; pintarTerrCtlW(); actualizar(); }   // filtra el mapa de áreas a una categoría
+function seleccionarPnn(id){ E.pnn = id; pintarTerrCtlW(); focoPnn(); actualizar(); }
+function volverPnnTodos(){ E.pnn = null; E.pnnCat = ''; pintarTerrCtlW(); mapa.flyToBounds(capaDep.getBounds(), {padding:[10,10], duration:.4}); actualizar(); }
+function focoPnn(){
+  if(E.pnn == null || !capaPnn) return;
+  let b = null; capaPnn.eachLayer(l => { if(String(l.feature.properties.PNN_ID) === E.pnn) b = l.getBounds(); });
+  if(b) mapa.flyToBounds(b, {padding:[25,25], duration:.6});
+}
+let capaPnnCat = null;   // categoría con la que se construyó capaPnn (para no reconstruirla en cada actualización)
+function montarCapaPnn(){
+  if(!HAY_PNN) return;
+  if(capaPnn){ mapa.removeLayer(capaPnn); capaPnn = null; }
+  // solo áreas con detecciones; además, si hay categoría elegida, solo esa
+  const feats = gjPnn.features.filter(f => PNN_CON_DATOS.has(String(f.properties.PNN_ID)) && (!E.pnnCat || f.properties.CAT === E.pnnCat));
+  capaPnn = L.geoJSON({type:'FeatureCollection', features:feats}, {
+    pane:'parkPane',   // los polígonos van ENCIMA de los puntos
+    onEachFeature:(f, l) => {
+      l.bindTooltip('', {sticky:true});
+      l.on('click', () => seleccionarPnn(String(f.properties.PNN_ID)));
+      l.on('mouseover', () => { if(String(f.properties.PNN_ID) !== E.pnn) l.setStyle({weight:2.2, color:'#0E3A66'}); });
+      l.on('mouseout',  () => estiloPnn(l));
+    }
+  });
+  capaPnnCat = E.pnnCat;
+  if(esPNN()) capaPnn.addTo(mapa);
+}
+function sincronizarCapasTerr(){
+  if(!HAY_PNN) return;
+  if(esPNN()){
+    if(capaLand && !mapa.hasLayer(capaLand)) capaLand.addTo(mapa);   // tierra neutra bajo los puntos
+    if(mapa.hasLayer(capaDep)) mapa.removeLayer(capaDep);            // en áreas no se muestran los departamentos
+    if(!capaPnn || capaPnnCat !== E.pnnCat) montarCapaPnn();
+    else if(!mapa.hasLayer(capaPnn)) capaPnn.addTo(mapa);
+    if(capaMun){ mapa.removeLayer(capaMun); capaMun = null; }
+  } else {
+    if(capaLand && mapa.hasLayer(capaLand)) mapa.removeLayer(capaLand);
+    if(!mapa.hasLayer(capaDep)) capaDep.addTo(mapa);
+    if(capaPnn && mapa.hasLayer(capaPnn)) mapa.removeLayer(capaPnn);
+  }
+}
+// control de territorio dentro del mapa (WFS)
+function pintarTerrCtlW(){
+  if(!HAY_PNN || !terrCtlW) return;
+  const div = terrCtlW.getContainer(); if(!div) return;
+  const pnn = esPNN();
+  let h = `<div class="seg" role="group" aria-label="Ver por territorio">
+    <button data-v="dep" aria-pressed="${!pnn}">Departamentos</button>
+    <button data-v="pnn" aria-pressed="${pnn}">Áreas protegidas</button></div>`;
+  if(pnn){
+    const esc = s => String(s).replace(/"/g,'&quot;');
+    const catOps = `<option value="">Todas las categorías</option>` +
+      CATS_PNN.map(c => `<option value="${esc(c)}"${c===E.pnnCat?' selected':''}>${c}</option>`).join('');
+    const areas = PNN.filter(p => PNN_CON_DATOS.has(p.id) && (!E.pnnCat || p.cat===E.pnnCat)).slice().sort((a,b)=>String(a.nombre).localeCompare(String(b.nombre),'es'));
+    const areaOps = `<option value="">Todas (${areas.length})</option>` +
+      areas.map(p => `<option value="${p.id}"${p.id===E.pnn?' selected':''}>${p.nombre}</option>`).join('');
+    h += `<select id="wSelCat" aria-label="Categoría RUNAP">${catOps}</select>`;
+    h += `<select id="wSelArea" aria-label="Área protegida">${areaOps}</select>`;
+    const cats = E.pnnCat ? [E.pnnCat] : CATS_PNN;
+    h += `<div class="catttl">Categoría${cats.length>1?'s':''} (RUNAP)</div><div class="catleg">` +
+      cats.map(c => `<span><i style="background:${catColor(c)}"></i>${c}</span>`).join('') + `</div>`;
+  }
+  div.innerHTML = h;
+  div.querySelectorAll('.seg button').forEach(b => b.onclick = () => elegirTerrW(b.dataset.v));
+  const sc = div.querySelector('#wSelCat');  if(sc) sc.onchange = () => elegirCatW(sc.value);
+  const sa = div.querySelector('#wSelArea'); if(sa) sa.onchange = () => { const v = sa.value || null; v ? seleccionarPnn(v) : volverPnnTodos(); };
 }
 function segmento(sel, fn){
   const cont = typeof sel === 'string' ? $(sel) : sel;
@@ -632,7 +801,8 @@ function colorDe(x){
 }
 
 /* ---------- Mapa ---------- */
-let mapa, capaDep, capaMun = null, capaPuntos = null, leyenda, panelVista, rendCanvas;
+let mapa, capaDep, capaMun = null, capaPnn = null, capaLand = null, capaPuntos = null, leyenda, panelVista, rendCanvas, terrCtlW = null;
+let PNN_CON_DATOS = new Set();   // ids de áreas con al menos una detección WFS (para mostrar solo esas)
 let conteos = {porDep:new Map(), porMun:new Map()};
 
 function construirMapa(gjDep){
@@ -643,6 +813,8 @@ function construirMapa(gjDep){
     attribution:'Tiles &copy; Esri &mdash; Esri, HERE, Garmin, &copy; OpenStreetMap', maxZoom:16 });
   mapa.createPane('etiquetas').style.zIndex = 650;
   mapa.getPane('etiquetas').style.pointerEvents = 'none';
+  mapa.createPane('landPane').style.zIndex = 350;   // tierra neutra: sobre el mapa base, bajo los puntos
+  mapa.createPane('parkPane').style.zIndex = 620;   // polígonos de áreas: SOBRE puntos/calor/marcadores
   const esriEtiq = L.tileLayer(ESRI + 'World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}', { pane:'etiquetas', maxZoom:16 });
   const osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution:'&copy; OpenStreetMap', maxZoom:19 });
   const gris = L.layerGroup([esriBase, esriEtiq]).addTo(mapa);
@@ -658,6 +830,14 @@ function construirMapa(gjDep){
   }).addTo(mapa);
   mapa.fitBounds(capaDep.getBounds(), {padding:[10,10]});
 
+  if(HAY_PNN){   // control de territorio dentro del mapa (Departamentos / Áreas protegidas)
+    terrCtlW = L.control({position:'topleft'});
+    terrCtlW.onAdd = () => { const d = L.DomUtil.create('div','terr-ctl'); L.DomEvent.disableClickPropagation(d); L.DomEvent.disableScrollPropagation(d); return d; };
+    terrCtlW.addTo(mapa);
+    // "tierra" neutra en su propio pane (bajo los puntos): tapa los límites departamentales en modo áreas
+    capaLand = L.geoJSON(gjDep, { pane:'landPane', interactive:false, style:{ stroke:false, fillColor:'#e9ece6', fillOpacity:1 } });
+  }
+
   panelVista = L.control({position:'topleft'});
   panelVista.onAdd = () => {
     const div = L.DomUtil.create('div','vista');
@@ -669,18 +849,19 @@ function construirMapa(gjDep){
   leyenda = L.control({position:'bottomright'});
   leyenda.onAdd = () => L.DomUtil.create('div','leyenda');
   leyenda.addTo(mapa);
+  if(HAY_PNN) pintarTerrCtlW();   // pinta el toggle inicial (modo departamentos)
 }
 
 function pintarPanelVista(){
   const div = panelVista.getContainer();
-  const muni = !!E.muni;
+  const muni = esPNN() ? !!E.pnn : !!E.muni;   // vista de puntos individuales (municipio o parque elegido)
   const opciones = muni
     ? [['cluster','Puntos agrupados'],['puntos','Puntos'],['calor','Mapa de calor']]
     : [['coro','Coropleta'],['calor','Mapa de calor']];
   const actual = muni ? E.vistaMuni : E.vistaArea;
   let h = `<div class="fila"><label>Representación</label><div class="seg">` +
     opciones.map(([v,t]) => `<button data-v="${v}" aria-pressed="${v===actual}">${t}</button>`).join('') + `</div></div>`;
-  if(!muni && E.vistaArea === 'coro'){
+  if(!muni && !esPNN() && E.vistaArea === 'coro'){   // en áreas el color es por categoría (sin clasificación por valor)
     h += `<div class="fila"><label for="sel-clasif">Clasificación</label><select id="sel-clasif">
       <option value="jenks">Cortes naturales (Jenks)</option>
       <option value="cuantil">Cuantiles</option>
@@ -692,8 +873,20 @@ function pintarPanelVista(){
   if(sel){ sel.value = clasifEfectiva(); sel.onchange = () => { E.clasif = sel.value; actualizarMapa(); }; }
 }
 
+function estiloPnn(l){
+  // Color por CATEGORÍA del área protegida (RUNAP); translúcido para ver los incendios debajo.
+  const id = String(l.feature.properties.PNN_ID), sel = id === E.pnn, col = catColor(l.feature.properties.CAT);
+  if(E.pnn){   // un área elegida: borde fuerte en la seleccionada, el resto tenue
+    l.setStyle({color: sel ? '#0E3A66' : col, weight: sel ? 2.8 : 1, fillColor: col, fillOpacity: sel ? .12 : .1});
+    if(sel) l.bringToFront();
+    return;
+  }
+  const conPuntos = E.vistaArea !== 'coro';   // con calor/puntos los polígonos van translúcidos (contorno)
+  l.setStyle({color: col, weight: conPuntos ? 1.3 : .5, fillColor: col, fillOpacity: conPuntos ? .14 : .72});
+}
 function estiloDep(l){
   const c = l.feature.properties.DeCodigo, x = conteos.porDep.get(+c)||0;
+  if(esPNN()) return;   // en modo áreas los departamentos no se muestran (va la capa de tierra neutra)
   if(!E.depto){
     if(E.vistaArea === 'calor') return l.setStyle({color:'#46525F', weight:.9, fillOpacity:0});
     return l.setStyle({color:'#5B6878', weight:.8, fillColor:colorDe(x), fillOpacity:.85});
@@ -713,13 +906,14 @@ function estiloMun(l){
 }
 
 function conteoEspacial(){
-  const porDep = new Map(), porMun = new Map();
+  const porDep = new Map(), porMun = new Map(), porPnn = new Map();
   for(let i=0;i<D.n;i++){
     if(!ok[i]) continue;
     porDep.set(D.dep[i], (porDep.get(D.dep[i])||0)+1);
     porMun.set(D.mun[i], (porMun.get(D.mun[i])||0)+1);
+    if(D.pnn && D.pnn[i] >= 0) porPnn.set(D.pnn[i], (porPnn.get(D.pnn[i])||0)+1);
   }
-  return {porDep, porMun};
+  return {porDep, porMun, porPnn};
 }
 
 function indicesNivel(){
@@ -727,8 +921,18 @@ function indicesNivel(){
   for(let i=0;i<D.n;i++) if(ok[i] && (!f || f(i))) idx.push(i);
   return idx;
 }
+// Puntos del MAPA en modo áreas: si hay un área elegida, solo esa; si no, TODOS los nacionales
+// (así se ven todos los incendios y encima los polígonos de áreas protegidas).
+function indicesMapa(){
+  if(!esPNN()) return indicesNivel();
+  const idx = [];
+  if(E.pnn != null){ const p = pnnIdx[E.pnn]; for(let i=0;i<D.n;i++) if(ok[i] && D.pnn[i]===p) idx.push(i); }
+  else for(let i=0;i<D.n;i++) if(ok[i]) idx.push(i);
+  return idx;
+}
 function limitesNivel(){
   let b = null;
+  if(esPNN()){ if(E.pnn && capaPnn) capaPnn.eachLayer(l => { if(String(l.feature.properties.PNN_ID)===E.pnn) b = l.getBounds(); }); return b || capaDep.getBounds(); }
   if(E.muni && capaMun) capaMun.eachLayer(l => { if(l.feature.properties.MpCodigo===E.muni) b = l.getBounds(); });
   else if(E.depto && capaMun) b = capaMun.getBounds();
   return b || capaDep.getBounds();
@@ -747,9 +951,10 @@ const fechaLocal = ms => new Date(ms + DESFASE_H*3600e3).toISOString().slice(0,1
 
 function actualizarCapaPuntos(){
   if(capaPuntos){ mapa.removeLayer(capaPuntos); capaPuntos = null; }
-  const vista = E.muni ? E.vistaMuni : E.vistaArea;
+  const detalle = esPNN() ? !!E.pnn : !!E.muni;
+  const vista = detalle ? E.vistaMuni : E.vistaArea;
   if(vista === 'coro') return 0;
-  const idx = indicesNivel();
+  const idx = indicesMapa();
   if(vista === 'calor'){
     const pts = idx.map(i => [D.lat[i], D.lon[i], 1]);
     const radio = E.muni ? 18 : E.depto ? 14 : 10, blur = Math.round(radio*.9);
@@ -758,6 +963,7 @@ function actualizarCapaPuntos(){
     const z = Math.round(mapa.getBoundsZoom(limitesNivel(), false, L.point(20,20)));
     capaPuntos = L.heatLayer(pts, {radius:radio, blur, minOpacity:.3, maxZoom:z,
                                    max:maxCalor(idx, z, (radio+blur)/2), gradient:GRADIENTE_CALOR}).addTo(mapa);
+    if(capaPuntos._canvas) capaPuntos._canvas.style.pointerEvents = 'none';   // deja pasar el clic a los polígonos
     return idx.length;
   }
   const marcador = i => L.circleMarker([D.lat[i], D.lon[i]], {
@@ -775,10 +981,13 @@ function actualizarCapaPuntos(){
 }
 
 function actualizarMapa(){
+  sincronizarCapasTerr();
   conteos = conteoEspacial();
-  const vals = E.depto
-    ? gjMun.features.filter(f=>f.properties._dep===E.depto).map(f=>conteos.porMun.get(+f.properties.MpCodigo)||0)
-    : Object.keys(nomDep).map(c=>conteos.porDep.get(+c)||0);
+  const vals = esPNN()
+    ? PNN.map((p,i) => conteos.porPnn.get(i)||0)
+    : E.depto
+      ? gjMun.features.filter(f=>f.properties._dep===E.depto).map(f=>conteos.porMun.get(+f.properties.MpCodigo)||0)
+      : Object.keys(nomDep).map(c=>conteos.porDep.get(+c)||0);
   clases = clasificar(vals);
 
   capaDep.eachLayer(l => {
@@ -791,6 +1000,11 @@ function actualizarMapa(){
     estiloMun(l);
     l.setTooltipContent(`<b>${nomMun[c]}</b><br>${fmt(conteos.porMun.get(+c)||0)} detecciones`);
   });
+  if(esPNN() && capaPnn) capaPnn.eachLayer(l => {
+    const id = String(l.feature.properties.PNN_ID), i = pnnIdx[id];
+    estiloPnn(l);
+    l.setTooltipContent(`<b>${l.feature.properties.PNN_NOMBRE}</b><br><span style="color:#9AA4B1">${l.feature.properties.CAT}</span><br>${fmt(conteos.porPnn.get(i)||0)} detecciones`);
+  });
 
   const n = actualizarCapaPuntos();
   pintarPanelVista();
@@ -798,8 +1012,13 @@ function actualizarMapa(){
 }
 
 function pintarLeyenda(n){
-  const vista = E.muni ? E.vistaMuni : E.vistaArea;
+  const detalle = esPNN() ? !!E.pnn : !!E.muni;
+  const vista = detalle ? E.vistaMuni : E.vistaArea;
   let h;
+  if(esPNN() && !E.pnn){   // mapa de áreas: el color es por categoría (leyenda de categorías en el panel del mapa)
+    leyenda.getContainer().innerHTML = `<b>Áreas protegidas</b><div class="nota">Color por categoría del área (ver panel del mapa)</div>`;
+    return;
+  }
   if(vista === 'coro'){
     h = `<b>Detecciones oct–may</b>`;
     if(!clases.length) h += `<div><i style="background:${CERO}"></i>Sin registros</div>`;
@@ -808,7 +1027,7 @@ function pintarLeyenda(n){
       if(clasifEfectiva() !== 'tecnico') h += `<div><i style="background:${CERO}"></i>0</div>`;
     }
     const nom = {jenks:'Cortes naturales (Jenks)', cuantil:'Cuantiles', tecnico:'Rangos técnicos'}[clasifEfectiva()];
-    h += `<div class="nota">${nom} · ${E.depto ? 'por municipio' : 'por departamento'}</div>`;
+    h += `<div class="nota">${nom} · ${esPNN() ? 'por parque' : E.depto ? 'por municipio' : 'por departamento'}</div>`;
   } else if(vista === 'calor'){
     h = `<b>Densidad de detecciones</b><div class="grad"></div><div class="extremos"><span>Baja</span><span>Alta</span></div>
          <div class="nota">${fmt(n)} detecciones</div>`;
@@ -821,6 +1040,7 @@ function pintarLeyenda(n){
 }
 
 function seleccionarDepto(cod){
+  if(esPNN()) return;   // en modo parques los clics van a la capa de parques
   E.depto = cod; E.muni = null;
   if(capaMun){ mapa.removeLayer(capaMun); capaMun = null; }
   const feats = gjMun.features.filter(f => f.properties._dep === cod);
@@ -866,9 +1086,15 @@ function pintarMiga(){
     if(fn) el.onclick = fn; else el.className = 'actual';
     nav.appendChild(el);
   };
-  add('Colombia', E.depto ? volverNacional : null);
-  if(E.depto) add(nomDep[E.depto], E.muni ? volverDepto : null);
-  if(E.muni) add(nomMun[E.muni], null);
+  if(esPNN()){
+    add('Áreas protegidas', (E.pnn || E.pnnCat) ? volverPnnTodos : null);
+    if(E.pnnCat && !E.pnn) add(E.pnnCat, null);
+    if(E.pnn) add(nomPnn(E.pnn), null);
+  } else {
+    add('Colombia', E.depto ? volverNacional : null);
+    if(E.depto) add(nomDep[E.depto], E.muni ? volverDepto : null);
+    if(E.muni) add(nomMun[E.muni], null);
+  }
 }
 
 function actualizar(){ calcularMascara(); pintarMiga(); actualizarGraficas(); actualizarMapa(); actualizarComplementarias(); }

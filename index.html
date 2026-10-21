@@ -72,7 +72,7 @@ header.top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:spac
 select{font:600 14px var(--f-body);background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:7px 10px;max-width:100%}
 .aviso{margin-top:14px;background:var(--warn-bg);color:var(--warn-ink);border-radius:8px;padding:9px 12px;font-size:14px;display:flex;gap:8px;align-items:flex-start}
 .aviso b{font-weight:600}
-.layout{display:grid;grid-template-columns:minmax(300px,420px) minmax(0,1fr);gap:24px;margin-top:18px;align-items:start}
+.layout{display:grid;grid-template-columns:minmax(340px,540px) minmax(0,1fr);gap:24px;margin-top:18px;align-items:start}
 @media (max-width:980px){.layout{grid-template-columns:minmax(0,1fr)}}
 .mapcol{display:flex;flex-direction:column;gap:16px;min-width:0}
 .card{background:var(--surface);border-radius:12px;box-shadow:var(--shadow);border:1px solid var(--line)}
@@ -242,8 +242,19 @@ header.top{border-bottom:3px solid var(--azul);padding-bottom:10px;margin-bottom
 @media (max-width:980px){.layout{grid-template-columns:minmax(0,1fr)}}
 @media (max-width:560px){#panels{grid-template-columns:1fr}}
 /* Mapa Leaflet de la pestaña VIIRS (paridad WFS) */
-#mapaL{width:100%;height:560px;border-radius:8px;z-index:0;background:#e9edf1}
+#mapaL{width:100%;height:660px;border-radius:8px;z-index:0;background:#e9edf1}
 #mapaL .leaflet-interactive:focus{outline:none}
+/* control de territorio dentro del mapa (Departamentos / Áreas protegidas) */
+.terr-ctl{background:var(--surface);border-radius:8px;box-shadow:0 1px 6px rgba(0,0,0,.22);padding:7px 8px;font-size:12px;color:var(--ink);max-width:230px}
+.terr-ctl .seg{display:inline-flex;border:1px solid var(--line);border-radius:5px;overflow:hidden;width:100%;margin-bottom:6px}
+.terr-ctl .seg button{flex:1;font:inherit;font-size:11.5px;padding:4px 6px;border:0;background:var(--surface);cursor:pointer;color:var(--ink);white-space:nowrap}
+.terr-ctl .seg button+button{border-left:1px solid var(--line)}
+.terr-ctl .seg button[aria-pressed="true"]{background:var(--azul);color:#fff}
+.terr-ctl select{width:100%;font:inherit;font-size:12px;padding:3px 5px;margin-top:4px;border:1px solid var(--line);border-radius:5px;background:var(--surface);color:var(--ink)}
+.terr-ctl .catleg{margin-top:6px;max-height:132px;overflow:auto;display:flex;flex-direction:column;gap:2px}
+.terr-ctl .catleg span{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink-2);line-height:1.2}
+.terr-ctl .catleg i{width:11px;height:11px;border-radius:2px;flex:none;border:1px solid rgba(0,0,0,.15)}
+.terr-ctl .catttl{font-weight:600;color:var(--ink-2);font-size:11px;margin-top:5px}
 .selModo{margin-top:10px;flex-wrap:wrap}
 #ptCtl{margin-top:8px}
 .pnota{font-size:11.5px;color:var(--ink-3)}
@@ -260,7 +271,7 @@ header.top{border-bottom:3px solid var(--azul);padding-bottom:10px;margin-bottom
   .pane[hidden]{display:none !important}
   .card,.graf,section,.panel,#consolidada,.lluvia-svg{break-inside:avoid;box-shadow:none !important}
   #mapaL{height:440px !important}
-  #pane-wfs iframe,#pane-capdash iframe,#pane-reduccion iframe{height:1150px !important;min-height:0 !important;box-shadow:none !important}
+  #pane-wfs iframe,#pane-capdash iframe{height:1150px !important;min-height:0 !important;box-shadow:none !important}
   a{color:inherit !important;text-decoration:none !important}
   @page{size:A4;margin:1.2cm 1.2cm 1.4cm}
   #print-header .ph-top{display:flex;align-items:center;gap:14px}
@@ -331,10 +342,10 @@ header.top{border-bottom:3px solid var(--azul);padding-bottom:10px;margin-bottom
 /* Gráfica consolidada oct–may */
 #consolidada{position:relative}
 #consolidada svg{width:100%;height:auto;display:block;overflow:visible}
-/* Módulos embebidos (WFS, Capacidades, Reducción del Riesgo) */
-#pane-wfs,#pane-capdash,#pane-reduccion{min-width:0;margin-top:10px}
-#pane-wfs .wfsbar,#pane-capdash .wfsbar,#pane-reduccion .wfsbar{font-size:13px;color:var(--ink-2);margin:0 0 8px}
-#pane-wfs iframe,#pane-capdash iframe,#pane-reduccion iframe{width:100%;height:84vh;min-height:780px;border:0;border-radius:12px;background:var(--surface);box-shadow:var(--shadow);display:block}
+/* Módulos embebidos (WFS, Capacidades) */
+#pane-wfs,#pane-capdash{min-width:0;margin-top:10px}
+#pane-wfs .wfsbar,#pane-capdash .wfsbar{font-size:13px;color:var(--ink-2);margin:0 0 8px}
+#pane-wfs iframe,#pane-capdash iframe{width:100%;height:84vh;min-height:780px;border:0;border-radius:12px;background:var(--surface);box-shadow:var(--shadow);display:block}
 /* Ayuda: manuales, videos y créditos */
 #pane-ayuda{min-width:0;margin-top:10px;max-width:1000px}
 #pane-ayuda .ayuda-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
@@ -424,6 +435,8 @@ header.top{border-bottom:3px solid var(--azul);padding-bottom:10px;margin-bottom
         <div class="tot" id="ninoTot"></div>
         <div class="hint" id="ninoHint"></div>
       </div>
+      <!-- Estrategias: la matriz de medidas (análisis propio) va debajo del mapa, en esta columna -->
+      <div id="estr-left" hidden></div>
     </aside>
 
     <main class="detail">
@@ -573,6 +586,8 @@ header.top{border-bottom:3px solid var(--azul);padding-bottom:10px;margin-bottom
       </div>
       <section class="card sec notas" id="capNotas"></section>
       </div>
+
+      <div class="pane" id="pane-estr" role="tabpanel" aria-labelledby="tab-estr" hidden></div>
     </main>
   </div>
 
@@ -584,11 +599,6 @@ header.top{border-bottom:3px solid var(--azul);padding-bottom:10px;margin-bottom
   <section class="pane" id="pane-capdash" hidden>
     <p class="wfsbar"><b>Matriz Nacional de Capacidades para la Atención de Incendios · SNGRD</b>. Capacidades reportadas por las entidades (DCC, Ejército Nacional, Policía Nacional - PONALSAR); filtre por departamento, municipio y categoría. Interactúe dentro del recuadro.</p>
     <iframe id="capFrame" title="Capacidades de respuesta · SNGRD" data-src="capacidades_sngrd.html?embed=1"></iframe>
-  </section>
-
-  <section class="pane" id="pane-reduccion" hidden>
-    <p class="wfsbar"><b>Reducción del Riesgo · incendios forestales</b>. Medidas organizadas por <b>línea de acción</b>, <b>temporalidad</b> (corto, mediano, largo plazo) y <b>escala</b> territorial. Toque una celda, fila o columna de la matriz para ver las medidas correspondientes. Interactúe dentro del recuadro.</p>
-    <iframe id="redFrame" title="Reducción del Riesgo · incendios forestales" data-src="reduccion_riesgo.html?embed=1"></iframe>
   </section>
 
   <!-- ============ Ayuda: manuales, videos y créditos ============ -->
@@ -609,9 +619,9 @@ header.top{border-bottom:3px solid var(--azul);padding-bottom:10px;margin-bottom
         </ul>
       </section>
 
-      <!-- Videos -->
+      <!-- Tutorial -->
       <section class="card sec ayuda-card">
-        <h3>🎬 Videos</h3>
+        <h3>🎬 Tutorial</h3>
         <p class="desc">Tutoriales en video del portal.</p>
         <div class="ayuda-videos" id="ayuda-videos">
           <!-- Para agregar un video: pegue la URL de inserción (YouTube/Vimeo) en el src del iframe:
@@ -628,7 +638,7 @@ header.top{border-bottom:3px solid var(--azul);padding-bottom:10px;margin-bottom
     <!-- Acerca de -->
     <section class="card sec ayuda-card acerca">
       <h3>ℹ️ Acerca de</h3>
-      <p>Aplicación desarrollada por <b>Christian Euscátegui</b>, <b>Jorge Alpala</b> y <b>Moisés Santizo</b>, en el marco de la gestión del conocimiento del riesgo de la <b>UNGRD — Subdirección para el Conocimiento del Riesgo (SCR)</b>. Integra información de <b>MapBiomas Fuego</b>, <b>puntos de calor VIIRS</b> (NASA FIRMS), <b>OroraTech WildFire Solution (WFS)</b>, <b>lluvia CHIRPS</b>, la <b>Matriz Nacional de Capacidades del SNGRD</b> y <b>límites DIVIPOLA–DANE</b>. Mapas base: Esri · OpenStreetMap · CARTO.</p>
+      <p>Aplicación desarrollada por Christian Euscátegui, Jorge Alpala, Moisés Santizo y María José Paéz, en el marco de la gestión del conocimiento del riesgo de la UNGRD — Subdirección para el Conocimiento del Riesgo (SCR) y aportes de la Subdirección para la Reducción del Riesgo y Subdirección para el Manejo de Desastres. Integra información de MapBiomas Fuego, puntos de calor VIIRS (NASA FIRMS), OroraTech WildFire Solution (WFS), lluvia CHIRPS, la Matriz Nacional de Capacidades del SNGRD y límites DIVIPOLA–DANE. Mapas base: Esri · OpenStreetMap · CARTO.</p>
       <p class="ayuda-nota">Herramienta de apoyo al conocimiento del riesgo (Ley 1523 de 2012).</p>
     </section>
   </section>
@@ -648,6 +658,7 @@ header.top{border-bottom:3px solid var(--azul);padding-bottom:10px;margin-bottom
 <script src="https://cdn.jsdelivr.net/npm/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="estrategias.js"></script>
 <script type="module">
 let DATOS = /*__DATOS__*/null;
 let GEO_DEP = /*__DEPTOS__*/null;
@@ -675,6 +686,43 @@ if (!DATOS) {
 let LLUVIA = null;
 try { LLUVIA = await fetch("data/lluvia/lluvia_app.json", { cache: "no-cache" }).then(r => r.ok ? r.json() : null); } catch (e) { LLUVIA = null; }
 
+// Parques Nacionales Naturales: estadísticas VIIRS por parque (parques_app.json) y polígonos para el mapa.
+// Si faltan, el modo "Parques nacionales" simplemente no aparece.
+let PARQUES = null, GEO_PNN = null;
+try {
+  [PARQUES, GEO_PNN] = await Promise.all([
+    fetch("data/viirs/parques_app.json", { cache: "no-cache" }).then(r => r.ok ? r.json() : null),
+    fetch("data/wfs/parques_simplificado.geojson", { cache: "no-cache" }).then(r => r.ok ? r.json() : null)
+  ]);
+  if (!PARQUES || !GEO_PNN) { PARQUES = GEO_PNN = null; }
+} catch (e) { PARQUES = GEO_PNN = null; }
+const HAY_PNN = !!(PARQUES && GEO_PNN);
+// Paleta por categoría RUNAP (áreas protegidas); una categoría no listada cae en el color por defecto.
+const CAT_COL = {
+  "Parque Nacional Natural": "#1B7A3D",
+  "Santuario de Fauna y Flora": "#2AA198",
+  "Santuario de Flora": "#5BC0BE",
+  "Área Natural Única": "#8E44AD",
+  "Vía Parque": "#B5651D",
+  "Reserva Natural": "#117A65",
+  "Reservas Forestales Protectoras Nacionales": "#1F6FB2",
+  "Reservas Forestales Protectoras Regionales": "#5DADE2",
+  "Parques Naturales Regionales": "#7D3C98",
+  "Distritos Regionales de Manejo Integrado": "#E67E22",
+  "Distritos Nacionales de Manejo Integrado": "#CA6F1E",
+  "Distritos de Conservación de Suelos": "#C0392B",
+  "Áreas de Recreación": "#D4AC0D",
+  "Reserva Natural de la Sociedad Civil": "#8A95A0"
+};
+const catColor = c => CAT_COL[c] || "#9AA4B1";
+let CATS_PNN = [], CAT_DE = {}, NOM_DE = {}, PNN_CON_DATOS = new Set();   // categorías, pid→cat, pid→nombre, áreas con datos VIIRS
+if (HAY_PNN) {
+  // solo áreas con datos VIIRS (bandera D_VIIRS del geojson, que la genera procesar_parques.py)
+  const s = new Set();
+  for (const f of GEO_PNN.features) { const id = String(f.properties.PNN_ID); CAT_DE[id] = f.properties.CAT; NOM_DE[id] = f.properties.PNN_NOMBRE; if (f.properties.D_VIIRS) { PNN_CON_DATOS.add(id); s.add(f.properties.CAT); } }
+  CATS_PNN = [...s].sort((a, b) => a.localeCompare(b, "es"));
+}
+
 const MESES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 const MES_C = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
 const MESES_ENSO = [10,11,12,1,2,3,4,5];   // temporada oct–may (orden del eje)
@@ -683,11 +731,11 @@ const M = DATOS.meta;
 const METS = Object.keys(M.metricas);
 const ORDEN_METS = ["firms_puntos","firms_bosque","firms_sabana","firms_agro"].filter(k => METS.includes(k));
 const FUENTE = "Puntos de calor VIIRS S-NPP";
-const st = { tab: "frec", met: ORDEN_METS[0], dpto: NAL, mpio: null, hi: null, anios: null, temp: null, escala: "propia", mapa: "prom", registro: "acumulado", repr: "coro",
+const st = { tab: "frec", met: ORDEN_METS[0], dpto: NAL, mpio: null, terr: "dep", pnn: null, pnnCat: "", hi: null, anios: null, temp: null, escala: "propia", mapa: "prom", registro: "acumulado", repr: "coro",
   lluPre: "12m", lluDesde: null, lluHasta: null, lluEv: null,
   modoL: "coro", ptDias: null, ptTodo: false,     // mapa Leaflet VIIRS: modo y período de puntos
   puntos: false, ptDesde: null, ptHasta: null, ptNivel: null, ptAjuste: false };   // overlay de puntos D3 (lluvia)
-const TABS = [["frec", "Frecuencia de incendios VIIRS"], ["wfs", "Frecuencia de incendios WFS"], ["area", "Área quemada", "MapBiomas"], ["lluvia", "Lluvia antecedente"], ["reduccion", "Reducción del Riesgo"], ["cap", "Capacidades de respuesta"], ["ayuda", "Ayuda"]]
+const TABS = [["frec", "Frecuencia de incendios VIIRS"], ["wfs", "Frecuencia de incendios WFS"], ["area", "Área quemada", "MapBiomas"], ["lluvia", "Lluvia antecedente"], ["estr", "Estrategias de reducción"], ["cap", "Capacidades de respuesta"], ["ayuda", "Ayuda"]]
   .filter(t => t[0] !== "lluvia" || LLUVIA);   // la pestaña Lluvia solo aparece si hay datos
 try { const s = JSON.parse(localStorage.getItem("incendios_v1_estado") || "{}");
   if (s.met && METS.includes(s.met)) st.met = s.met; if (s.mapa) st.mapa = s.mapa;
@@ -703,11 +751,26 @@ const unidad = met => M.metricas[met].unidad;
 const diasMes = (y, m) => new Date(y, m, 0).getDate();
 const parse = s => { const [y,m,d] = s.split("-").map(Number); return new Date(y, m-1, d); };
 
+// ---------- territorio actual: departamentos/municipio o parques nacionales ----------
+// El modo "parques" solo aplica a la pestaña VIIRS; las demás siguen por departamento/municipio.
+const esPNN = () => st.terr === "pnn" && HAY_PNN && st.tab === "frec";
+function nodoAct() {
+  if (esPNN()) return (PARQUES.parques[st.pnn || "00"]) || {};
+  return DATOS.deptos[st.dpto] || {};
+}
+const nomPnn = pid => titulo((PARQUES && PARQUES.parques[pid] && PARQUES.parques[pid].nombre) || NOM_DE[pid] || String(pid));
+function lugarAct() {
+  if (esPNN()) return st.pnn ? nomPnn(st.pnn) : "Áreas protegidas";
+  if (st.mpio) return MUN_NOM[st.mpio] || st.mpio;
+  return st.dpto === NAL ? "Colombia" : nomDepto(st.dpto);
+}
+const selSub = () => esPNN() ? st.pnn : st.mpio;   // unidad bajo el nivel nacional (municipio o parque)
+
 // ---------- cubo de datos: valores diarios por año/mes ----------
-function cubo(dpto, met) {
+function cubo(node, met) {
   const info = M.metricas[met];
   const ini = parse(info.cobertura_ini || info.fecha_min), fin = parse(info.fecha_max);
-  const raw = (DATOS.deptos[dpto] && DATOS.deptos[dpto].diario[met]) || {};
+  const raw = (node && node.diario && node.diario[met]) || {};
   const huecos = new Set(info.dias_sin_datos || []);
   const anios = [];
   for (let y = M.anio_ini; y <= M.anio_fin; y++) anios.push(y);
@@ -772,7 +835,7 @@ const SUBT = {
   wfs: "Detecciones diarias de incendios OroraTech WFS · octubre a mayo (desarrollo satelital WFS)",
   area: "Consulta complementaria · área quemada y cobertura afectada según MapBiomas Fuego (30 m, 2014–2025)",
   lluvia: "Lluvia CHIRPS en los 90 días antes de cada evento de incendio · por departamento y municipio",
-  reduccion: "Medidas de reducción del riesgo por líneas de acción, temporalidad y escala · UNGRD — SCR",
+  estr: "Estrategias SRR–UNGRD de reducción del riesgo por incendios forestales · diagnóstico, prioridades y matriz por departamento y municipio",
   cap: "Matriz Nacional de Capacidades para la Atención de Incendios · SNGRD (DCC, Ejército Nacional, Policía Nacional - PONALSAR)",
   ayuda: "Manuales, videos y créditos del portal",
 };
@@ -792,9 +855,11 @@ function pestanas() {
     nav.appendChild(b);
   });
   for (const [k] of TABS) document.getElementById("pane-" + k).hidden = st.tab !== k;
-  const fullFrame = st.tab === "wfs" || st.tab === "cap" || st.tab === "reduccion" || st.tab === "ayuda";   // pestañas a ancho completo (iframe o contenido estático)
+  const fullFrame = st.tab === "wfs" || st.tab === "cap" || st.tab === "ayuda";   // pestañas a ancho completo (iframe o contenido estático). «estr» usa el mapa compartido.
   document.querySelector(".layout").hidden = fullFrame;     // oculta mapa + panel D3
-  document.getElementById("selDepto").hidden = fullFrame;
+  // En VIIRS el selector de territorio (departamentos/áreas) vive dentro del mapa; el selector del
+  // encabezado solo aplica a Área quemada y Lluvia.
+  document.getElementById("selDepto").hidden = fullFrame || st.tab === "frec";
   document.getElementById("btnPDF").hidden = st.tab === "ayuda";   // el reporte PDF no aplica en Ayuda
   document.getElementById("pane-capdash").hidden = st.tab !== "cap";
   document.getElementById("filtroCob").hidden = st.tab !== "frec" && st.tab !== "lluvia";
@@ -803,11 +868,13 @@ function pestanas() {
   document.getElementById("selModoL").hidden = st.tab !== "frec";
   if (st.tab !== "frec") document.getElementById("ptCtl").hidden = true;
   document.getElementById("ninoCard").hidden = st.tab !== "frec";
+  const estrLeft = document.getElementById("estr-left");   // matriz de medidas, bajo el mapa, solo en Estrategias
+  estrLeft.hidden = st.tab !== "estr";
+  if (st.tab !== "estr") estrLeft.innerHTML = "";
   document.getElementById("subtitulo").textContent = SUBT[st.tab];
   // Carga diferida con cache-busting: cada recarga de la página trae la versión fresca del iframe
   if (st.tab === "wfs") { const fr = document.getElementById("wfsFrame"); if (fr && !fr.src) fr.src = fr.dataset.src + "&_=" + Date.now(); }
   if (st.tab === "cap") { const fr = document.getElementById("capFrame"); if (fr && !fr.src) fr.src = fr.dataset.src + "&_=" + Date.now(); }
-  if (st.tab === "reduccion") { const fr = document.getElementById("redFrame"); if (fr && !fr.src) fr.src = fr.dataset.src + "&_=" + Date.now(); }
 }
 const nomDepto = c => { const f = GEO_DEP.features.find(x => x.properties.DPTO_CCDGO === c);
   return titulo(DATOS.deptos[c]?.nombre || (f ? f.properties.DPTO_CNMBR : c)); };
@@ -855,6 +922,53 @@ function selectorDeptos() {
   sel.value = st.dpto;
   sel.onchange = () => elegir(sel.value);
 }
+function elegirTerr(v) {
+  if (!HAY_PNN && v === "pnn") return;
+  st.terr = v; st.mpio = null; st.pnn = null; st.pnnCat = ""; st.hi = null; st.ptTodo = false; st.ptDias = null;
+  todo();
+}
+function elegirCat(c) {   // filtra el mapa de áreas a una categoría (o todas)
+  st.pnnCat = c; st.pnn = null; st.ptTodo = false; st.ptDias = null;
+  todo();
+}
+function elegirPnn(pid) {
+  st.pnn = (st.pnn === pid) ? null : pid;   // volver a tocar el área = quitar selección
+  st.ptTodo = false; st.ptDias = null;
+  todo();
+}
+// ---------- control de territorio dentro del mapa (VIIRS) ----------
+function pintarTerrCtl() {
+  if (!HAY_PNN || !LTerr) return;
+  const div = LTerr.getContainer(); if (!div) return;
+  const pnn = esPNN();
+  let h = `<div class="seg" role="group" aria-label="Ver por territorio">
+    <button data-v="dep" aria-pressed="${!pnn}">Departamentos</button>
+    <button data-v="pnn" aria-pressed="${pnn}">Áreas protegidas</button></div>`;
+  if (!pnn) {
+    const ops = `<option value="${NAL}">Colombia (nacional)</option>` +
+      GEO_DEP.features.map(f => f.properties).sort((a, b) => a.DPTO_CNMBR.localeCompare(b.DPTO_CNMBR, "es"))
+        .map(p => `<option value="${p.DPTO_CCDGO}"${p.DPTO_CCDGO === st.dpto ? " selected" : ""}>${titulo(p.DPTO_CNMBR)}</option>`).join("");
+    h += `<select id="mapSelDepto" aria-label="Departamento">${ops}</select>`;
+  } else {
+    const esc = s => String(s).replace(/"/g, "&quot;");
+    const catOps = `<option value="">Todas las categorías</option>` +
+      CATS_PNN.map(c => `<option value="${esc(c)}"${c === st.pnnCat ? " selected" : ""}>${c}</option>`).join("");
+    const areas = GEO_PNN.features.map(f => f.properties).filter(p => PNN_CON_DATOS.has(String(p.PNN_ID)) && (!st.pnnCat || p.CAT === st.pnnCat))
+      .sort((a, b) => String(a.PNN_NOMBRE).localeCompare(String(b.PNN_NOMBRE), "es"));
+    const areaOps = `<option value="">Todas (${areas.length})</option>` +
+      areas.map(p => `<option value="${p.PNN_ID}"${String(p.PNN_ID) === st.pnn ? " selected" : ""}>${titulo(p.PNN_NOMBRE)}</option>`).join("");
+    h += `<select id="mapSelCat" aria-label="Categoría RUNAP">${catOps}</select>`;
+    h += `<select id="mapSelArea" aria-label="Área protegida">${areaOps}</select>`;
+    const cats = st.pnnCat ? [st.pnnCat] : CATS_PNN;
+    h += `<div class="catttl">Categoría${cats.length > 1 ? "s" : ""} (RUNAP)</div><div class="catleg">` +
+      cats.map(c => `<span><i style="background:${catColor(c)}"></i>${c}</span>`).join("") + `</div>`;
+  }
+  div.innerHTML = h;
+  div.querySelectorAll(".seg button").forEach(b => b.onclick = () => elegirTerr(b.dataset.v));
+  const sd = div.querySelector("#mapSelDepto"); if (sd) sd.onchange = () => elegir(sd.value);
+  const sc = div.querySelector("#mapSelCat");   if (sc) sc.onchange = () => elegirCat(sc.value);
+  const sa = div.querySelector("#mapSelArea");  if (sa) sa.onchange = () => elegirPnn(sa.value || null);
+}
 const titulo = s => s.toLowerCase().replace(/(^|[\s,.(-])(\p{L})/gu, (m,a,b)=>a+b.toUpperCase())
   .replace(/\b(De|Del|La|Y|D\.c\.)\b/g, w => ({"De":"de","Del":"del","La":"la","Y":"y","D.c.":"D.C."})[w]||w)
   .replace(/^la /,"La ");
@@ -865,6 +979,7 @@ function elegirMpio(cod) {
   if (st.tab === "frec") { nino(); municipios(); }
   else if (st.tab === "area") { mapbiomas(); rankingHa(); }
   else if (st.tab === "lluvia") lluvia();
+  else if (st.tab === "estr") renderEstr();
   else capacidades();
 }
 function elegir(cod) {
@@ -876,7 +991,8 @@ function elegir(cod) {
 // ---------- mapa ----------
 let proj, pathGen;
 // La pestaña VIIRS usa un mapa Leaflet (coropleta + puntos); Área y Lluvia siguen con el SVG D3.
-let LMap = null, LChoro = null, LBorde = null;
+let LMap = null, LChoro = null, LBorde = null, LTerr = null, LLand = null, COLB = null;
+const colBounds = () => (COLB ||= L.geoJSON(GEO_DEP).getBounds());   // encuadre de Colombia continental + insular
 function mapa() {
   const esFrec = st.tab === "frec";
   document.getElementById("mapaL").style.display = esFrec ? "" : "none";
@@ -980,20 +1096,23 @@ const ptJson = url => (PT_CACHE[url] ||= fetch(url).then(r => r.ok ? r.json() : 
 const ptHora = m => `${String(Math.floor(m/60)).padStart(2,"0")}:${String(m%60).padStart(2,"0")}`;
 function ptRango() {
   const h = diaDe(ptMaxFecha());
-  if (st.mpio) return st.ptTodo ? [0, h] : [Math.max(0, h - (st.ptDias || 365) + 1), h];
+  if (selSub()) return st.ptTodo ? [0, h] : [Math.max(0, h - (st.ptDias || 365) + 1), h];
   return [Math.max(0, h - (st.ptDias || PT_MAX_DIAS) + 1), h];
 }
 async function ptFuentesL(d0, d1) {
+  if (esPNN() && st.pnn) return [await ptJson(`data/puntos_pnn/${st.pnn}.json`)];   // área elegida: solo sus puntos
   if (st.mpio) return [await ptJson(`data/puntos/${st.mpio}.json`)];
+  // nacional (depto=Colombia) o áreas sin selección: TODOS los puntos del país, por mes
   const meses = []; for (let d = d0; d <= d1; d++) { const ym = diaStr(d).slice(0,7); if (meses[meses.length-1] !== ym) meses.push(ym); }
   return Promise.all(meses.map(ym => ptJson(`data/puntos_mes/${ym}.json`)));
 }
 function decodPuntos(fuentes, d0, d1) {
-  const cob = new Set(PT_COB[st.met] || PT_COB.firms_puntos), dp = (!st.mpio && st.dpto !== NAL) ? +st.dpto : null, pts = [];
+  // En modo parques los archivos ya vienen recortados al parque; solo en vista dep/departamental se filtra por departamento.
+  const cob = new Set(PT_COB[st.met] || PT_COB.firms_puntos), dp = (!esPNN() && !st.mpio && st.dpto !== NAL) ? +st.dpto : null, pts = [];
   for (const j of fuentes) for (let i = 0; i < j.n; i++) {
     const d = j.d[i]; if (d < d0 || d > d1 || !cob.has(j.g[i])) continue;
     if (dp != null && Math.floor((j.mp[i] || 0) / 1000) !== dp) continue;
-    pts.push({ la: j.la[i]/1e4, lo: j.lo[i]/1e4, d, m: j.m[i], g: j.g[i], c: j.c[i], f: j.f[i], mp: (j.mp && j.mp.length) ? j.mp[i] : +st.mpio });
+    pts.push({ la: j.la[i]/1e4, lo: j.lo[i]/1e4, d, m: j.m[i], g: j.g[i], c: j.c[i], f: j.f[i], mp: (j.mp && j.mp.length) ? j.mp[i] : +(st.mpio || 0) });
   }
   return pts;
 }
@@ -1008,6 +1127,7 @@ function pintarPuntosL(pts, modo) {
   if (modo === "calor") {
     LPtLayer = L.heatLayer(pts.map(p => [p.la, p.lo, 1]), { radius: 12, blur: 15, minOpacity: .35, maxZoom: 11,
       gradient: { 0.2:'#2B6CB0', 0.4:'#38A169', 0.6:'#ECC94B', 0.8:'#DD6B20', 1:'#C53030' } }).addTo(LMap);
+    if (LPtLayer._canvas) LPtLayer._canvas.style.pointerEvents = "none";   // deja pasar el clic a los polígonos
   } else if (modo === "cluster") {
     LPtLayer = L.markerClusterGroup({ chunkedLoading: true, showCoverageOnHover: false, maxClusterRadius: 50 });
     LPtLayer.addLayers(pts.map(marcadorPt)); LMap.addLayer(LPtLayer);
@@ -1019,6 +1139,7 @@ function leyendaFrecL(modo, clases, pos, escala, fv, unidadMapa) {
   const leg = document.getElementById("leyenda");
   if (modo === "calor") { leg.innerHTML = `<span class="tit">Densidad de puntos de calor</span><span style="display:inline-block;width:150px;height:10px;border-radius:2px;background:linear-gradient(90deg,#2B6CB0,#38A169,#ECC94B,#DD6B20,#C53030)"></span> <span style="color:var(--ink-3)">baja → alta</span>`; return; }
   if (modo === "cluster" || modo === "puntos") { leg.innerHTML = `<span class="tit">Cobertura del punto</span>` + PT_COB_NOM.map((t,i)=>`<span><i style="background:${PT_COB_COL[i]};border-radius:50%"></i>${t}</span>`).join(""); return; }
+  if (esPNN()) { leg.innerHTML = `<span class="tit">Color por categoría del área protegida (ver panel del mapa)</span>`; return; }   // coropleta de áreas: color por categoría
   let cortes;
   if (escala.quantiles) { const q = escala.quantiles(); cortes = [d3.min(pos), ...q, d3.max(pos)]; }
   else { const th = escala.thresholds(); cortes = [0, ...th, d3.max(pos) || 1]; }
@@ -1033,10 +1154,11 @@ function pintarControlModoL() {
   const ctl = document.getElementById("ptCtl");
   if (modo === "coro") { ctl.hidden = true; ctl.innerHTML = ""; return; }
   ctl.hidden = false;
-  const pres = st.mpio ? [["30","Último mes"],["92","3 meses"],["365","Último año"],["todo","Todo"]] : [["30","Último mes"],["92","3 meses"]];
-  const actual = st.ptTodo ? "todo" : String(st.ptDias || (st.mpio ? 365 : PT_MAX_DIAS));
+  const sub = selSub();
+  const pres = sub ? [["30","Último mes"],["92","3 meses"],["365","Último año"],["todo","Todo"]] : [["30","Último mes"],["92","3 meses"]];
+  const actual = st.ptTodo ? "todo" : String(st.ptDias || (sub ? 365 : PT_MAX_DIAS));
   ctl.innerHTML = `<div class="fila">${pres.map(([v,t])=>`<button type="button" class="pbtn peq${actual===v?" on":""}" data-p="${v}">${t}</button>`).join("")} <span class="pnota" id="ptInfoL"></span></div>`
-    + (!st.mpio ? `<div class="pnota">En vista nacional/departamental se muestran hasta 3 meses a la vez.</div>` : "");
+    + (!sub ? `<div class="pnota">En vista ${esPNN() ? "de todos los parques" : "nacional/departamental"} se muestran hasta 3 meses a la vez.</div>` : "");
   ctl.querySelectorAll("button[data-p]").forEach(b => b.onclick = () => {
     if (b.dataset.p === "todo") st.ptTodo = true; else { st.ptTodo = false; st.ptDias = +b.dataset.p; }
     mapa();
@@ -1049,29 +1171,66 @@ function mapaFrecL() {
     L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
       { attribution: "Tiles &copy; Esri", maxZoom: 16 }).addTo(LMap);
     rendCanvasL = L.canvas({ padding: .3 });
+    LMap.createPane("landPane"); LMap.getPane("landPane").style.zIndex = 350;   // tierra neutra: sobre el mapa base (200), bajo los puntos
+    LMap.createPane("parkPane"); LMap.getPane("parkPane").style.zIndex = 620;   // polígonos de áreas: SOBRE los puntos/calor y los marcadores (600)
+    if (HAY_PNN) {   // control de territorio dentro del mapa
+      LTerr = L.control({ position: "topleft" });
+      LTerr.onAdd = () => { const d = L.DomUtil.create("div", "terr-ctl"); L.DomEvent.disableClickPropagation(d); L.DomEvent.disableScrollPropagation(d); return d; };
+      LTerr.addTo(LMap);
+    }
   }
   const modo = st.modoL || "coro", conPuntos = modo !== "coro";
   const capa = capaMapa(), fv = capa.f, unidadMapa = capa.unidad;
   const clases = [css("--h1"), css("--h2"), css("--h3"), css("--h4"), css("--h5")];
-  const nivelMun = st.dpto !== NAL;
-  const feats = nivelMun ? GEO_MUN.features.filter(f => f.properties.DPTO_CCDGO === st.dpto) : GEO_DEP.features;
-  const codF = f => nivelMun ? f.properties.MPIO_CCNCT : f.properties.DPTO_CCDGO;
-  const nomF = f => titulo(nivelMun ? f.properties.MPIO_CNMBR : f.properties.DPTO_CNMBR);
+  const pnn = esPNN();
+  const nivelMun = !pnn && st.dpto !== NAL;
+  let feats, codF, nomF, valor, onClick, titCola, bordeCol, catF = null;
+  if (pnn) {
+    feats = GEO_PNN.features.filter(f => PNN_CON_DATOS.has(String(f.properties.PNN_ID)) && (!st.pnnCat || f.properties.CAT === st.pnnCat));   // solo áreas con datos
+    codF = f => String(f.properties.PNN_ID); nomF = f => titulo(f.properties.PNN_NOMBRE); catF = f => f.properties.CAT;
+    valor = cod => capa.pnn(cod); onClick = cod => elegirPnn(cod);
+    titCola = " · áreas protegidas" + (st.pnnCat ? " · " + st.pnnCat.toLowerCase() : ""); bordeCol = "#6B7684";
+  } else if (nivelMun) {
+    feats = GEO_MUN.features.filter(f => f.properties.DPTO_CCDGO === st.dpto);
+    codF = f => f.properties.MPIO_CCNCT; nomF = f => titulo(f.properties.MPIO_CNMBR);
+    valor = cod => capa.mun(cod); onClick = cod => elegirMpio(cod); titCola = " · " + nomDepto(st.dpto); bordeCol = "#6B7684";
+  } else {
+    feats = GEO_DEP.features; codF = f => f.properties.DPTO_CCDGO; nomF = f => titulo(f.properties.DPTO_CNMBR);
+    valor = cod => capa.dep(cod); onClick = cod => elegir(cod); titCola = " · departamentos"; bordeCol = "#5B6878";
+  }
   const valores = {};
-  for (const f of feats) valores[codF(f)] = nivelMun ? capa.mun(codF(f)) : capa.dep(codF(f));
+  for (const f of feats) valores[codF(f)] = valor(codF(f));
   const pos = Object.values(valores).filter(v => v > 0);
   const escala = pos.length >= 5 ? d3.scaleQuantile().domain(pos).range(clases)
     : d3.scaleQuantize().domain([0, d3.max(pos) || 1]).range(clases);
   const fill = v => v > 0 ? escala(v) : css("--map-0");
   if (LChoro) LChoro.remove();
   if (LBorde) { LBorde.remove(); LBorde = null; }
-  const bordeDep = nivelMun ? "#9AA4B1" : "#5B6878", bordeMun = "#6B7684";
+  // En modo áreas: capa de "tierra" neutra (en su propio pane, bajo los polígonos) que tapa los
+  // límites departamentales del mapa base, para que solo se vean las áreas protegidas.
+  if (pnn) {
+    if (!LLand) LLand = L.geoJSON(GEO_DEP, { pane: "landPane", interactive: false, style: { stroke: false, fillColor: "#e9ece6", fillOpacity: 1 } });
+    if (!LMap.hasLayer(LLand)) LLand.addTo(LMap);
+  } else if (LLand && LMap.hasLayer(LLand)) LMap.removeLayer(LLand);
+  const selCod = pnn ? st.pnn : null;
+  // En áreas protegidas el color es por CATEGORÍA (RUNAP); en depto/municipio es por valor (frecuencia).
+  // Con puntos activos, los polígonos van translúcidos y ENCIMA de los puntos (parkPane), para ver los
+  // incendios y a la vez las áreas; al hacer clic en una, los resultados se ajustan a esa zona.
+  const estiloF = f => {
+    const cod = codF(f), sel = selCod && cod === selCod, cc = pnn ? catColor(catF(f)) : null;
+    if (pnn) return { color: sel ? css("--azul") : cc, weight: sel ? 2.8 : (conPuntos ? 1.3 : .5),
+      fillColor: cc, fillOpacity: conPuntos ? (sel ? .28 : .14) : (selCod ? (sel ? .9 : .28) : .78) };
+    return { color: sel ? css("--azul") : bordeCol, weight: sel ? 2.4 : .9,
+      fillColor: conPuntos ? css("--map-0") : fill(valores[cod]), fillOpacity: conPuntos ? .22 : .85 };
+  };
   LChoro = L.geoJSON({ type: "FeatureCollection", features: feats }, {
-    style: f => ({ color: nivelMun ? bordeMun : bordeDep, weight: nivelMun ? .9 : .9, fillColor: conPuntos ? css("--map-0") : fill(valores[codF(f)]), fillOpacity: conPuntos ? .22 : .85 }),
+    pane: pnn ? "parkPane" : undefined,
+    style: estiloF,
     onEachFeature: (f, layer) => {
       const cod = codF(f), v = valores[cod] || 0;
-      layer.bindTooltip(`<b>${nomF(f)}</b><br>${fv(v)} ${unidadMapa}`, { sticky: true });   // nombre al pasar el cursor (toda vista)
-      layer.on("click", () => nivelMun ? elegirMpio(cod) : elegir(cod));
+      const extra = pnn ? `<br><span style="color:#9AA4B1">${catF(f)}</span>` : "";
+      layer.bindTooltip(`<b>${nomF(f)}</b>${extra}<br>${fv(v)} ${unidadMapa}`, { sticky: true });   // nombre al pasar el cursor
+      layer.on("click", () => onClick(cod));
       layer.on("mouseover", () => layer.setStyle({ weight: 2.6, color: css("--azul") }));
       layer.on("mouseout", () => { LChoro.resetStyle(layer); layer.closeTooltip(); });
     }
@@ -1081,16 +1240,24 @@ function mapaFrecL() {
     if (dep) LBorde = L.geoJSON(dep, { interactive: false, style: { color: css("--azul"), weight: 2.4, fill: false } }).addTo(LMap);
   }
   if (LPtLayer) { LMap.removeLayer(LPtLayer); LPtLayer = null; }
-  try { LMap.fitBounds(LChoro.getBounds(), { padding: [8, 8] }); } catch (e) {}
-  document.getElementById("mapTitulo").textContent = capa.titulo + (nivelMun ? " · " + nomDepto(st.dpto) : " · departamentos");
-  const bp = document.getElementById("btnPais"); bp.hidden = st.dpto === NAL; bp.onclick = () => elegir(NAL);
+  try {
+    if (pnn && selCod) { const pf = feats.find(f => codF(f) === selCod); LMap.fitBounds((pf ? L.geoJSON(pf) : LChoro).getBounds(), { padding: [20, 20] }); }
+    else if (pnn && st.pnnCat) LMap.fitBounds(LChoro.getBounds(), { padding: [14, 14] });   // zoom a la categoría elegida
+    else if (pnn) LMap.fitBounds(colBounds(), { padding: [8, 8] });   // todas: vista Colombia (evita que un área marina aleje el mapa)
+    else LMap.fitBounds(LChoro.getBounds(), { padding: [8, 8] });
+  } catch (e) {}
+  document.getElementById("mapTitulo").textContent = capa.titulo + ((pnn && selCod) ? " · " + nomPnn(selCod) : titCola);
+  const bp = document.getElementById("btnPais");
+  if (pnn) { bp.hidden = !st.pnn; bp.textContent = "← Ver todas las áreas"; bp.onclick = () => elegirPnn(null); }
+  else { bp.hidden = st.dpto === NAL; bp.textContent = "← Ver Colombia"; bp.onclick = () => elegir(NAL); }
+  pintarTerrCtl();
   pintarControlModoL();
   leyendaFrecL(modo, clases, pos, escala, fv, unidadMapa);
   if (conPuntos) {
-    const tk = ++ptTokenL, [d0, d1] = ptRango(), dA = st.dpto, mA = st.mpio, metA = st.met;
+    const tk = ++ptTokenL, [d0, d1] = ptRango(), dA = st.dpto, mA = st.mpio, pA = st.pnn, tA = st.terr, metA = st.met;
     const info = document.getElementById("ptInfoL"); if (info) info.textContent = "Cargando puntos…";
     ptFuentesL(d0, d1).then(fs => {
-      if (tk !== ptTokenL || st.dpto !== dA || st.mpio !== mA || st.met !== metA) return;
+      if (tk !== ptTokenL || st.dpto !== dA || st.mpio !== mA || st.pnn !== pA || st.terr !== tA || st.met !== metA) return;
       const pts = decodPuntos(fs, d0, d1); pintarPuntosL(pts, modo);
       const el = document.getElementById("ptInfoL");
       if (el) el.innerHTML = `<b>${fmt(pts.length)}</b> puntos · ${fechaTxt(diaStr(d0))}–${fechaTxt(diaStr(d1))}`;
@@ -1107,20 +1274,22 @@ function capaMapa() {
     return { titulo: "Área quemada", unidad: "ha quemadas / año", f: v => fmtC(v),
              dep: c => haA(MB.datos[c]), mun: c => haA(MB.datos[st.dpto]?.mpios?.[c]) };
   }
-  const met = st.tab === "cap" ? "firms_puntos" : st.met, campo = st.tab === "cap" ? "prom" : st.mapa;
+  const fijo = st.tab === "cap" || st.tab === "estr";   // Capacidades y Estrategias: toda la vegetación, promedio anual
+  const met = fijo ? "firms_puntos" : st.met, campo = fijo ? "prom" : st.mapa;
   const u = unidad(met);
   const lst = {}; for (const x of (DATOS.deptos[st.dpto]?.municipios?.[met] || [])) lst[x.cod] = campo === "prom" ? x.prom : x.dens;
-  return { titulo: st.tab === "cap" ? "Capacidades" : "Frecuencia", f: v => nf(v, met),
+  return { titulo: st.tab === "cap" ? "Capacidades" : st.tab === "estr" ? "Recurrencia de puntos de calor" : "Frecuencia", f: v => nf(v, met),
            unidad: campo === "prom" ? `${u} / año` : `${u} / año por 1.000 km²`,
            dep: c => { const r = DATOS.deptos[c]?.resumen?.[met]; return r ? (campo === "prom" ? r.prom_anual : r.densidad) : 0; },
-           mun: c => lst[c] || 0 };
+           mun: c => lst[c] || 0,
+           pnn: pid => { const r = PARQUES && PARQUES.parques[pid]?.resumen?.[met]; return r ? (campo === "prom" ? r.prom_anual : r.densidad) : 0; } };
 }
 
 // ---------- paneles mensuales ----------
 let tipEl;
 function paneles() {
   const box = document.getElementById("panels"); box.innerHTML = "";
-  const C = cubo(st.dpto, st.met);
+  const C = cubo(nodoAct(), st.met);
   const acumulado = st.registro !== "diario";
   aniosDisp = aniosDisponibles(C);
   if (st.anios == null) st.anios = new Set(aniosDisp);     // por defecto, todos visibles
@@ -1322,9 +1491,9 @@ function leyendaAnios(C) {
 
 // ---------- KPIs, anual, municipios ----------
 function kpis() {
-  const d = DATOS.deptos[st.dpto] || {}; const u = unidad(st.met);
+  const d = nodoAct(); const u = unidad(st.met);
   const r = d.resumen?.[st.met]; const an = d.anual?.[st.met] || {};
-  const C = cubo(st.dpto, st.met);
+  const C = cubo(nodoAct(), st.met);
   const ysC = M.anios_promedio.filter(y => Object.values(C.out[y]||{}).filter(o=>o.ult===o.nd).length === 12);
   let mxY = null; for (const y of ysC) { const v = an[y] || 0; if (!mxY || v > mxY[1]) mxY = [y, v]; }
   const porMes = []; for (let m = 1; m <= 12; m++) { const p = promedioMes(C, m); porMes.push(p.serie.length ? p.serie[p.serie.length-1][1] : 0); }
@@ -1338,14 +1507,14 @@ function kpis() {
   ];
   document.getElementById("kpis").innerHTML = items.map(([l,v,n]) =>
     `<div class="card kpi"><div class="l">${l}</div><div class="v">${v}</div><div class="n">${n}</div></div>`).join("");
-  document.getElementById("nombre").textContent = st.dpto === NAL ? "Colombia" : titulo(d.nombre || "");
+  document.getElementById("nombre").textContent = lugarAct();
   const info = M.metricas[st.met];
   document.getElementById("dsub").textContent = `${FUENTE} · ${info.nombre.toLowerCase()} · datos ${fechaTxt(info.cobertura_ini||info.fecha_min)} a ${fechaTxt(info.fecha_max)}` + (tot26!=null ? ` · 2026 a la fecha: ${nf(tot26, st.met)} ${u}` : "");
 }
 const fechaTxt = s => { const d = parse(s); return `${d.getDate()} ${MES_C[d.getMonth()]} ${d.getFullYear()}`; };
 
 function anual() {
-  const an = DATOS.deptos[st.dpto]?.anual?.[st.met] || {};
+  const an = nodoAct().anual?.[st.met] || {};
   const info = M.metricas[st.met]; const y0 = parse(info.cobertura_ini||info.fecha_min).getFullYear();
   const ys = []; for (let y = Math.max(M.anio_ini, y0); y <= M.anio_fin; y++) ys.push(y);
   const W = 520, H = 210, mg = {l:54, r:8, t:18, b:22};
@@ -1374,16 +1543,21 @@ function anual() {
 }
 
 function municipios() {
-  const d = DATOS.deptos[st.dpto] || {};
-  const lst = (d.municipios?.[st.met] || []).slice().sort((a,b) => b.prom - a.prom).slice(0, 12);
-  document.getElementById("titMun").textContent = st.dpto === NAL ? "Municipios con mayor frecuencia en el país" : "Municipios con mayor frecuencia";
+  const pnn = esPNN();
+  const lst = (nodoAct().municipios?.[st.met] || []).slice().sort((a,b) => b.prom - a.prom).slice(0, 12);
+  document.getElementById("titMun").textContent = pnn
+    ? (st.pnn ? "Municipios que cubre el parque" : "Municipios con más puntos en parques")
+    : (st.dpto === NAL ? "Municipios con mayor frecuencia en el país" : "Municipios con mayor frecuencia");
   const mx = d3.max(lst, x => x.prom) || 1; const u = unidad(st.met);
   const tb = document.getElementById("tablaMun");
   if (!lst.length) { tb.innerHTML = `<tr><td>Sin registros para esta métrica.</td></tr>`; return; }
-  tb.innerHTML = `<thead><tr><th>#</th><th>Municipio</th><th class="num wbar">${u} / año</th><th class="num">por 1.000 km²</th></tr></thead><tbody>` +
-    lst.map((x,i) => `<tr${st.dpto!==NAL ? ` class="clic${x.cod===st.mpio?" sel":""}" data-cod="${x.cod}" tabindex="0"` : ""}><td>${i+1}</td><td>${titulo(x.nombre||x.cod)}${st.dpto===NAL ? ` <span style="color:var(--ink-3)">· ${titulo(DATOS.deptos[x.cod.slice(0,2)]?.nombre||"")}</span>` : ""}</td>` +
-      `<td class="num barcell"><i style="width:${(x.prom/mx*55).toFixed(1)}%"></i><span>${nf(x.prom, st.met)}</span></td><td class="num">${nf(x.dens, st.met)}</td></tr>`).join("") + "</tbody>";
-  tb.querySelectorAll("tr.clic").forEach(tr => {
+  const mostrarDep = pnn || st.dpto === NAL;   // departamento del municipio
+  const clicable = !pnn && st.dpto !== NAL;    // en parques no se baja de nivel
+  const colDens = !pnn;                        // en parques no hay densidad por municipio
+  tb.innerHTML = `<thead><tr><th>#</th><th>Municipio</th><th class="num wbar">${u} / año</th>${colDens ? `<th class="num">por 1.000 km²</th>` : ""}</tr></thead><tbody>` +
+    lst.map((x,i) => `<tr${clicable ? ` class="clic${x.cod===st.mpio?" sel":""}" data-cod="${x.cod}" tabindex="0"` : ""}><td>${i+1}</td><td>${titulo(x.nombre||x.cod)}${mostrarDep ? ` <span style="color:var(--ink-3)">· ${titulo(DATOS.deptos[x.cod.slice(0,2)]?.nombre||"")}</span>` : ""}</td>` +
+      `<td class="num barcell"><i style="width:${(x.prom/mx*55).toFixed(1)}%"></i><span>${nf(x.prom, st.met)}</span></td>${colDens ? `<td class="num">${nf(x.dens, st.met)}</td>` : ""}</tr>`).join("") + "</tbody>";
+  if (clicable) tb.querySelectorAll("tr.clic").forEach(tr => {
     tr.onclick = () => elegirMpio(tr.dataset.cod);
     tr.onkeydown = e => { if (e.key==="Enter"||e.key===" ") { e.preventDefault(); elegirMpio(tr.dataset.cod); } };
   });
@@ -1423,19 +1597,21 @@ function notas() {
 }
 
 function nino() {
-  const N = DATOS.nino, card = document.getElementById("ninoCard");
-  const dat = N && N.datos[st.met] && N.datos[st.met][st.dpto];
+  const pnn = esPNN();
+  const N = pnn ? PARQUES.nino : DATOS.nino, card = document.getElementById("ninoCard");
+  const clave = pnn ? (st.pnn || "00") : st.dpto;
+  const dat = N && N.datos[st.met] && N.datos[st.met][clave];
   if (!N) { card.hidden = true; return; }
   card.hidden = false;
   const nt = N.temporadas.length, nm = N.meses.length;
   let vals = new Array(nt * nm).fill(0), nombre;
-  if (st.mpio) {
+  if (!pnn && st.mpio) {
     vals = (dat && dat.mpios[st.mpio]) || vals;
     const f = GEO_MUN.features.find(x => x.properties.MPIO_CCNCT === st.mpio);
     nombre = titulo(f ? f.properties.MPIO_CNMBR : st.mpio);
   } else {
     vals = (dat && dat.total) || vals;
-    nombre = st.dpto === NAL ? "Colombia" : titulo(DATOS.deptos[st.dpto]?.nombre || "");
+    nombre = lugarAct();
   }
   document.getElementById("ninoSub").textContent = `${nombre} · puntos de calor por mes · ${M.metricas[st.met].nombre.toLowerCase()}`;
   const MES_N = {1:"Ene",2:"Feb",3:"Mar",4:"Abr",5:"May",6:"Jun",7:"Jul",8:"Ago",9:"Sep",10:"Oct",11:"Nov",12:"Dic"};
@@ -1472,8 +1648,10 @@ function nino() {
   const dif = tot[0] > 0 ? Math.round((tot[1]-tot[0]) / tot[0] * 100) : null;
   document.getElementById("ninoTot").innerHTML = N.temporadas.map((t,i) => `<span>${t}: <b>${nf(tot[i], st.met)}</b></span>`).join("") +
     (dif != null ? `<span>Cambio: <b>${dif > 0 ? "+" : ""}${dif} %</b></span>` : "");
-  document.getElementById("ninoHint").textContent = st.dpto === NAL ? "Elija un departamento y luego toque un municipio en el mapa."
-    : (st.mpio ? "Toque de nuevo el municipio para volver al total del departamento." : "Toque un municipio en el mapa o en la tabla para ver su comparación.");
+  document.getElementById("ninoHint").textContent = esPNN()
+    ? (st.pnn ? "Toque de nuevo el parque para volver al total de parques." : "Elija un parque en el mapa o en el selector para ver su comparación.")
+    : (st.dpto === NAL ? "Elija un departamento y luego toque un municipio en el mapa."
+    : (st.mpio ? "Toque de nuevo el municipio para volver al total del departamento." : "Toque un municipio en el mapa o en la tabla para ver su comparación."));
 }
 
 const fmt = (v, d=0) => Number(v).toLocaleString("es-CO", { maximumFractionDigits: d, minimumFractionDigits: 0 });
@@ -2233,12 +2411,17 @@ function pintarPuntos(svg, fuentes, nv, d0, d1) {
 
 function todo() {
   pestanas();
-  if (st.tab === "wfs" || st.tab === "cap" || st.tab === "reduccion" || st.tab === "ayuda") return;   // embebidos / contenido estático
+  if (st.tab === "wfs" || st.tab === "cap" || st.tab === "ayuda") return;   // embebidos / contenido estático
   segmentos(); selectorDeptos(); mapa(); cabecera();
   if (st.tab === "frec") { kpis(); paneles(); anual(); municipios(); nino(); notas(); }
   else if (st.tab === "area") { document.getElementById("aviso").hidden = true; mapbiomas(); rankingHa(); notasArea();
     document.getElementById("dsub").textContent = "MapBiomas Fuego Colección 1 · Landsat 30 m · 2014–2025"; }
   else if (st.tab === "lluvia") { document.getElementById("aviso").hidden = true; lluvia(); }
+  else if (st.tab === "estr") renderEstr();
+}
+function renderEstr() {
+  if (!window.ESTR) { document.getElementById("pane-estr").innerHTML = '<section class="card sec"><p class="desc">No se cargó <code>estrategias.js</code>.</p></section>'; return; }
+  window.ESTR.render({ st, DATOS, M, GEO_DEP, GEO_MUN, MUN_NOM, NAL, nomDepto, titulo, fechaTxt, elegir, elegirMpio });
 }
 
 // ---- Reporte PDF: informe ejecutivo nacional + detalle de la pantalla, con encabezado y pie institucionales ----
@@ -2373,7 +2556,7 @@ async function imprimirReporte() {
   if (btn) { btn.disabled = true; btn.textContent = "Preparando…"; }
   try {
     const nombreTab = (TABS.find(t => t[0] === st.tab) || [, st.tab])[1];
-    const embebida = st.tab === "wfs" || st.tab === "cap" || st.tab === "reduccion";
+    const embebida = st.tab === "wfs" || st.tab === "cap";
     const lugar = embebida ? "Colombia" : (document.getElementById("nombre").textContent || "Colombia");
     const meta = [`<b>Pestaña en pantalla:</b> ${nombreTab}`, `<b>Ámbito:</b> ${lugar}`];
     if (!embebida) meta.push(`<b>Cobertura:</b> ${(M.metricas[st.met] || {}).nombre || "–"}`);
@@ -2422,7 +2605,7 @@ function arreglarLeaflet(d) {
 // ---- Captura TODO el contenido de la vista actual (lo que se muestra en pantalla) con html2canvas ----
 async function capturarVista() {
   const opts = { useCORS: true, allowTaint: false, backgroundColor: "#ffffff", scale: 2, logging: false, imageTimeout: 20000, onclone: doc => arreglarLeaflet(doc) };
-  const embebida = st.tab === "wfs" || st.tab === "cap" || st.tab === "reduccion";
+  const embebida = st.tab === "wfs" || st.tab === "cap";
   if (embebida) {
     // El contenido está dentro de un iframe (mismo origen): se captura su cuerpo completo (mapa + paneles + gráficas + tablas).
     const fr = document.querySelector(".pane:not([hidden]) iframe");
@@ -2470,7 +2653,7 @@ async function descargarPDF() {
     const fecha = d.toLocaleDateString("es-CO", { day: "2-digit", month: "long", year: "numeric" });
     const hora = d.toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" });
     const nombreTab = (TABS.find(t => t[0] === st.tab) || [, st.tab])[1];
-    const embebida = st.tab === "wfs" || st.tab === "cap" || st.tab === "reduccion";
+    const embebida = st.tab === "wfs" || st.tab === "cap";
     const lugar = embebida ? "Colombia" : (document.getElementById("nombre").textContent || "Colombia");
     const cob = embebida ? "" : " · " + ((M.metricas[st.met] || {}).nombre || "");
 
@@ -2702,7 +2885,7 @@ window.st = st; window.DATOS = DATOS; window.M = M; window.TABS = TABS; window.d
   }
   function contexto() {
     const tabs = { frec: "Frecuencia de incendios VIIRS", wfs: "Frecuencia de incendios WFS (OroraTech)", lluvia: "Lluvia antecedente", area: "Área quemada", cap: "Capacidades de respuesta" };
-    const embebida = st.tab === "wfs" || st.tab === "cap" || st.tab === "reduccion";
+    const embebida = st.tab === "wfs" || st.tab === "cap";
     const cab = [];
     try {
       cab.push(`Pestañas disponibles en el tablero: ${TABS.map(t => t[1]).join("; ")}`);

@@ -1,0 +1,1585 @@
+{
+ "meta": {
+  "escenario": "Incendios forestales",
+  "fuente": "UNGRD · Subdirección para la Reducción del Riesgo — «Estrategias SRR para el aplicativo (visor)», hoja Incendios",
+  "archivo": "Estrategias SRR para el aplicativo (visor).xlsx",
+  "generado": "2026-10-19",
+  "n": 47,
+  "complemento": {
+   "estado": "Propuesta técnica para validación de la SRR",
+   "nota": "Capa complementaria al Excel de la SRR. No modifica las estrategias: agrega el proceso de la Ley 1523 de 2012, el momento frente a la temporada, el responsable líder y de apoyo sugeridos, la evidencia de cumplimiento y las reglas con que el portal sugiere prioridades a partir de sus propios datos. Todo lo que aquí aparece debe ser revisado y aprobado por la Subdirección para la Reducción del Riesgo antes de publicarse.",
+   "version": "0.1",
+   "fecha": "2026-10-19"
+  }
+ },
+ "procesos": {
+  "conocimiento": {
+   "nombre": "Conocimiento del riesgo",
+   "fao": "Revisión y análisis",
+   "texto": "Identificar, analizar y monitorear el riesgo para saber dónde, cuándo y a quién afectan los incendios."
+  },
+  "reduccion_prospectiva": {
+   "nombre": "Reducción · intervención prospectiva",
+   "fao": "Reducción del riesgo",
+   "texto": "Evitar que se genere riesgo nuevo: ordenamiento, prácticas productivas y acuerdos que eliminan el uso del fuego."
+  },
+  "reduccion_correctiva": {
+   "nombre": "Reducción · intervención correctiva",
+   "fao": "Reducción del riesgo",
+   "texto": "Disminuir el riesgo que ya existe: manejo de combustibles, cortafuegos y protección de fuentes de agua."
+  },
+  "proteccion_financiera": {
+   "nombre": "Reducción · protección financiera",
+   "fao": "Reducción del riesgo",
+   "texto": "Asegurar recursos y coberturas para que el territorio pueda reponerse sin desfinanciar otros programas."
+  },
+  "preparacion": {
+   "nombre": "Manejo · preparación para la respuesta",
+   "fao": "Alistamiento",
+   "texto": "Organizar a las instituciones y a la comunidad para detectar, avisar y actuar a tiempo."
+  },
+  "recuperacion": {
+   "nombre": "Manejo · recuperación",
+   "fao": "Recuperación",
+   "texto": "Restaurar las áreas afectadas y evitar efectos encadenados (erosión, avenidas torrenciales, pérdida de agua)."
+  }
+ },
+ "momentos": {
+  "antes": {
+   "nombre": "Antes de la temporada",
+   "texto": "En los meses previos a la temporada de mayor actividad del territorio."
+  },
+  "durante": {
+   "nombre": "Durante la temporada",
+   "texto": "Mientras dura la temporada de mayor actividad."
+  },
+  "despues": {
+   "nombre": "Después de la temporada",
+   "texto": "Al terminar la temporada o después de un incendio."
+  },
+  "permanente": {
+   "nombre": "Todo el año",
+   "texto": "Gestión continua, con revisión anual."
+  }
+ },
+ "reglas": [
+  {
+   "id": "base",
+   "nombre": "Base para todo territorio",
+   "texto": "Acción de base para cualquier territorio con El Niño en curso.",
+   "claves": [
+    "activacion-y-articulacion-cmgrd-y-cdgrd",
+    "mesas-tecnicas-territoriales-de-seguimiento-al-fenomeno-el-n",
+    "divulgacion-de-la-resolucion-1070-de-2026-prohibicion-de-que"
+   ]
+  },
+  {
+   "id": "recurrencia",
+   "nombre": "Recurrencia alta de puntos de calor",
+   "texto": "Recurrencia {nivel}: está dentro del {tope} de territorios del país con más puntos de calor por año.",
+   "claves": [
+    "activar-los-pgrdepp",
+    "realizar-simulacros-de-incendios-forestales-a-escala-local",
+    "priorizar-comunidades-con-mayor-exposicion-y-vulnerabilidad",
+    "fortalecer-las-capacidades-de-comunicacion-institucionales",
+    "mapear-y-proteger-cuencas-abastecedoras-nacimientos-y-reserv",
+    "manejo-de-combustible-para-evitar-riesgo-en-infraestructura",
+    "articulacion-y-actualizacion-de-pmgrd-pdgrd"
+   ]
+  },
+  {
+   "id": "agro",
+   "nombre": "El fuego se concentra en pastos y cultivos",
+   "texto": "El {pct_agro} del área quemada (MapBiomas 2014–2025) fue pasto o cultivo: el uso del fuego en labores agropecuarias es la puerta de entrada.",
+   "claves": [
+    "campanas-de-sensibilizacion",
+    "promover-buenas-practicas-agropecuarias",
+    "promover-practicas-de-uso-y-aprovechamiento-de-residuos-fore",
+    "bancos-de-forraje-y-suplementacion-bovina",
+    "alternativas-de-reconversion-agropecuaria"
+   ]
+  },
+  {
+   "id": "bosque",
+   "nombre": "El fuego alcanza bosques",
+   "texto": "El {pct_bosque} del área quemada fue bosque{perdida_txt}.",
+   "claves": [
+    "manejo-de-combustible-para-evitar-riesgo-en-ecosistemas-estr",
+    "establecimiento-de-acuerdos-para-la-reduccion-del-riesgo-por",
+    "restauracion-ecologica-de-areas-afectadas-por-incendios",
+    "aislamiento-de-zonas-estrategicas-nacimientos-quebradas-y-hu",
+    "mantenimiento-de-bordes-de-bosque-ripario-y-demas-ecosistema"
+   ]
+  },
+  {
+   "id": "sabana",
+   "nombre": "El fuego se concentra en sabanas y herbazales",
+   "texto": "El {pct_sabana} del área quemada fue sabana o herbazal: la continuidad del combustible fino explica la propagación.",
+   "claves": [
+    "lineas-cortafuego-para-reducir-continuidad-horizontal-del-fu",
+    "retiro-de-biomasa-seca",
+    "identificacion-y-monitoreo-de-zonas-con-altas-cargas-de-comb",
+    "promover-jornadas-de-manejo-preventivo-de-la-vegetacion"
+   ]
+  },
+  {
+   "id": "nino",
+   "nombre": "Sensible a El Niño",
+   "texto": "En las temporadas El Niño (octubre–abril) hubo en promedio {razon_nino} veces los puntos de calor de una temporada típica.",
+   "claves": [
+    "activar-los-pgrdepp",
+    "realizar-simulacros-de-incendios-forestales-a-escala-local",
+    "identificacion-y-georreferenciacion-de-cuerpos-de-agua-estra",
+    "fortalecer-el-fondo-territorial-de-gestion-del-riesgo-ftgrd"
+   ]
+  },
+  {
+   "id": "capacidad",
+   "nombre": "Sin capacidades registradas",
+   "texto": "La Matriz Nacional de Capacidades no tiene registros con base en este {ambito} (información parcial).",
+   "claves": [
+    "fortalecer-y-activar-redes-de-prevencion-y-vigilancia-comuni",
+    "fortalecer-canales-de-comunicacion-con-entidades-de-respuest",
+    "fortalecer-interoperabilidad-entre-los-actores-del-sngrd",
+    "fortalecer-el-fondo-territorial-de-gestion-del-riesgo-ftgrd"
+   ]
+  }
+ ],
+ "regiones_departamento": {
+  "_nota": "Región natural predominante por departamento (aproximación). Solo se usa si la SRR marca regiones en el Excel; hoy casi todas las estrategias están sin marcar y aplican a todo el país.",
+  "05": "Andina",
+  "08": "Caribe",
+  "11": "Andina",
+  "13": "Caribe",
+  "15": "Andina",
+  "17": "Andina",
+  "18": "Amazonía",
+  "19": "Andina",
+  "20": "Caribe",
+  "23": "Caribe",
+  "25": "Andina",
+  "27": "Pacífico",
+  "41": "Andina",
+  "44": "Caribe",
+  "47": "Caribe",
+  "50": "Orinoquía",
+  "52": "Andina",
+  "54": "Andina",
+  "63": "Andina",
+  "66": "Andina",
+  "68": "Andina",
+  "70": "Caribe",
+  "73": "Andina",
+  "76": "Andina",
+  "81": "Orinoquía",
+  "85": "Orinoquía",
+  "86": "Amazonía",
+  "88": "Insular",
+  "91": "Amazonía",
+  "94": "Amazonía",
+  "95": "Amazonía",
+  "97": "Amazonía",
+  "99": "Orinoquía"
+ },
+ "estrategias": [
+  {
+   "id": "INC-INS-01",
+   "clave": "activacion-y-articulacion-cmgrd-y-cdgrd",
+   "fila_excel": 2,
+   "linea": "Institucional",
+   "estrategia": "Activación y Articulación CMGRD y CDGRD",
+   "descripcion": "",
+   "plazo": [
+    "corto"
+   ],
+   "escala_txt": "Departamental",
+   "escalas": [
+    "Departamental"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "preparacion",
+    "momento": "antes",
+    "lider": "Gobernación (CDGRD) y Alcaldía (CMGRD)",
+    "apoyo": "UNGRD, autoridad ambiental, bomberos",
+    "evidencia": "Actas de sesión extraordinaria con decisiones y responsables",
+    "escala_sugerida": [
+     "Departamental",
+     "Municipal"
+    ],
+    "observacion": "El Excel indica escala Departamental, pero la estrategia nombra también al CMGRD; se sugiere Departamental/Municipal."
+   }
+  },
+  {
+   "id": "INC-INS-02",
+   "clave": "fortalecer-interoperabilidad-entre-los-actores-del-sngrd",
+   "fila_excel": 3,
+   "linea": "Institucional",
+   "estrategia": "Fortalecer interoperabilidad entre los actores del SNGRD",
+   "descripcion": "",
+   "plazo": [
+    "corto"
+   ],
+   "escala_txt": "Departamental/Municipal",
+   "escalas": [
+    "Departamental",
+    "Municipal"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "preparacion",
+    "momento": "antes",
+    "lider": "CDGRD / CMGRD",
+    "apoyo": "Bomberos, Defensa Civil, Fuerza Pública, autoridad ambiental",
+    "evidencia": "Protocolo de coordinación con roles, canales y puntos de contacto"
+   }
+  },
+  {
+   "id": "INC-INS-03",
+   "clave": "fortalecer-canales-de-comunicacion-antes-durante-y-despues-d",
+   "fila_excel": 4,
+   "linea": "Institucional",
+   "estrategia": "Fortalecer canales de comunicación antes, durante y después de la emergencia",
+   "descripcion": "",
+   "plazo": [
+    "corto"
+   ],
+   "escala_txt": "Departamental/Municipal",
+   "escalas": [
+    "Departamental",
+    "Municipal"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "preparacion",
+    "momento": "permanente",
+    "lider": "Oficina de comunicaciones y coordinación de gestión del riesgo",
+    "apoyo": "Medios locales, juntas de acción comunal",
+    "evidencia": "Directorio de canales y mensajes tipo para antes, durante y después"
+   }
+  },
+  {
+   "id": "INC-INS-04",
+   "clave": "articulacion-y-actualizacion-de-pmgrd-pdgrd",
+   "fila_excel": 5,
+   "linea": "Institucional",
+   "estrategia": "Articulación y actualización de PMGRD / PDGRD",
+   "descripcion": "Revisar que los planes territoriales integren escenarios de riesgo por incendio forestal coordinando los CDGRD/CMGRD con el plan anual de inversiones del FTGRD",
+   "plazo": [
+    "mediano"
+   ],
+   "escala_txt": "Departamental/Municipal",
+   "escalas": [
+    "Departamental",
+    "Municipal"
+   ],
+   "regiones": [
+    "Caribe",
+    "Orinoquía",
+    "Andina",
+    "Pacífico",
+    "Amazonía",
+    "Insular"
+   ],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "conocimiento",
+    "momento": "permanente",
+    "lider": "Coordinación territorial de gestión del riesgo",
+    "apoyo": "Planeación, Hacienda, autoridad ambiental",
+    "evidencia": "PMGRD/PDGRD con el escenario de incendio forestal y proyectos en el plan anual de inversiones del FTGRD"
+   }
+  },
+  {
+   "id": "INC-INS-05",
+   "clave": "mapear-y-proteger-cuencas-abastecedoras-nacimientos-y-reserv",
+   "fila_excel": 6,
+   "linea": "Institucional",
+   "estrategia": "Mapear y proteger cuencas abastecedoras, nacimientos y reservorios utilizables como puntos de aprovisionamiento para el control de incendios por cuerpos de socorro",
+   "descripcion": "",
+   "plazo": [
+    "corto"
+   ],
+   "escala_txt": "Departamental/Municipal",
+   "escalas": [
+    "Departamental",
+    "Municipal"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "preparacion",
+    "momento": "antes",
+    "lider": "Cuerpo de bomberos y coordinación de gestión del riesgo",
+    "apoyo": "Autoridad ambiental, empresa de acueducto",
+    "evidencia": "Mapa de puntos de abastecimiento de agua entregado a los cuerpos de socorro"
+   }
+  },
+  {
+   "id": "INC-INS-06",
+   "clave": "socializar-los-pgrdepp",
+   "fila_excel": 7,
+   "linea": "Institucional",
+   "estrategia": "Socializar los PGRDEPP",
+   "descripcion": "",
+   "plazo": [
+    "corto"
+   ],
+   "escala_txt": "Departamental/Municipal",
+   "escalas": [
+    "Departamental",
+    "Municipal"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "preparacion",
+    "momento": "antes",
+    "lider": "Coordinación de gestión del riesgo",
+    "apoyo": "Sectores con planes (acueductos, energía, vías, salud)",
+    "evidencia": "Listado de entidades públicas y privadas a las que se socializó su PGRDEPP"
+   }
+  },
+  {
+   "id": "INC-INS-07",
+   "clave": "activar-los-pgrdepp",
+   "fila_excel": 8,
+   "linea": "Institucional",
+   "estrategia": "Activar los PGRDEPP",
+   "descripcion": "",
+   "plazo": [
+    "corto"
+   ],
+   "escala_txt": "Departamental/Municipal",
+   "escalas": [
+    "Departamental",
+    "Municipal"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "preparacion",
+    "momento": "durante",
+    "lider": "Entidades responsables de cada PGRDEPP",
+    "apoyo": "CMGRD / CDGRD",
+    "evidencia": "Reporte de activación de planes de entidades en zonas expuestas"
+   }
+  },
+  {
+   "id": "INC-INS-08",
+   "clave": "disenar-y-promover-estrategias-de-educomunicacion",
+   "fila_excel": 9,
+   "linea": "Institucional",
+   "estrategia": "Diseñar y promover estrategias de educomunicación",
+   "descripcion": "",
+   "plazo": [
+    "corto"
+   ],
+   "escala_txt": "Departamental/Municipal",
+   "escalas": [
+    "Departamental",
+    "Municipal"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "conocimiento",
+    "momento": "antes",
+    "lider": "Oficina de comunicaciones",
+    "apoyo": "Secretaría de Educación, autoridad ambiental",
+    "evidencia": "Plan de medios con piezas, públicos y calendario"
+   }
+  },
+  {
+   "id": "INC-INS-09",
+   "clave": "fortalecer-las-capacidades-de-comunicacion-institucionales",
+   "fila_excel": 10,
+   "linea": "Institucional",
+   "estrategia": "Fortalecer las capacidades de comunicación institucionales",
+   "descripcion": "Conformar redes comunitarias de alerta temprana para la detección temprana de conatos de incendio y coordinar protocolos de reporte oportuno con Bomberos y el CITEL.",
+   "plazo": [
+    "corto"
+   ],
+   "escala_txt": "Departamental/Municipal",
+   "escalas": [
+    "Departamental",
+    "Municipal"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "preparacion",
+    "momento": "antes",
+    "lider": "Coordinación de gestión del riesgo y bomberos",
+    "apoyo": "Juntas de acción comunal, Policía",
+    "evidencia": "Redes comunitarias de alerta conformadas y protocolo de reporte con bomberos"
+   }
+  },
+  {
+   "id": "INC-INS-10",
+   "clave": "realizar-simulacros-de-incendios-forestales-a-escala-local",
+   "fila_excel": 11,
+   "linea": "Institucional",
+   "estrategia": "Realizar simulacros de incendios forestales a escala local",
+   "descripcion": "",
+   "plazo": [
+    "mediano"
+   ],
+   "escala_txt": "Departamental/Municipal",
+   "escalas": [
+    "Departamental",
+    "Municipal"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "preparacion",
+    "momento": "antes",
+    "lider": "CMGRD",
+    "apoyo": "Bomberos, Defensa Civil, comunidad",
+    "evidencia": "Informe del simulacro con lecciones y ajustes al plan"
+   }
+  },
+  {
+   "id": "INC-INS-11",
+   "clave": "priorizar-comunidades-con-mayor-exposicion-y-vulnerabilidad",
+   "fila_excel": 12,
+   "linea": "Institucional",
+   "estrategia": "Priorizar comunidades con mayor exposición y vulnerabilidad",
+   "descripcion": "",
+   "plazo": [
+    "corto"
+   ],
+   "escala_txt": "Municipal",
+   "escalas": [
+    "Municipal"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "conocimiento",
+    "momento": "antes",
+    "lider": "Coordinación de gestión del riesgo",
+    "apoyo": "Planeación, bomberos",
+    "evidencia": "Listado de veredas o sectores priorizados con criterio documentado"
+   }
+  },
+  {
+   "id": "INC-EDU-01",
+   "clave": "campanas-de-sensibilizacion",
+   "fila_excel": 13,
+   "linea": "Educomunicación",
+   "estrategia": "Campañas de sensibilización",
+   "descripcion": "Implementar campañas pedagógicas comunitarias e institucionales sobre la prohibición absoluta de quemas abiertas agrícolas y fogatas.",
+   "plazo": [
+    "corto"
+   ],
+   "escala_txt": "Departamental/Municipal",
+   "escalas": [
+    "Departamental",
+    "Municipal"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "reduccion_prospectiva",
+    "momento": "antes",
+    "lider": "Oficina de comunicaciones",
+    "apoyo": "Autoridad ambiental, Secretaría de Agricultura, Policía",
+    "evidencia": "Campaña ejecutada sobre la prohibición de quemas y fogatas (piezas y alcance)"
+   }
+  },
+  {
+   "id": "INC-EDU-02",
+   "clave": "promover-buenas-practicas-agropecuarias",
+   "fila_excel": 14,
+   "linea": "Educomunicación",
+   "estrategia": "Promover buenas prácticas agropecuarias",
+   "descripcion": "",
+   "plazo": [
+    "corto"
+   ],
+   "escala_txt": "Departamental/Municipal",
+   "escalas": [
+    "Departamental",
+    "Municipal"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "reduccion_prospectiva",
+    "momento": "antes",
+    "lider": "Secretaría de Agricultura o servicio de extensión",
+    "apoyo": "Gremios, autoridad ambiental",
+    "evidencia": "Jornadas con productores sobre preparación de terreno sin fuego"
+   }
+  },
+  {
+   "id": "INC-EDU-03",
+   "clave": "divulgacion-de-la-resolucion-1070-de-2026-prohibicion-de-que",
+   "fila_excel": 15,
+   "linea": "Educomunicación",
+   "estrategia": "Divulgación de la Resolución 1070 de 2026 (prohibición de quemas durante el Fenómeno El Niño)",
+   "descripcion": "",
+   "plazo": [
+    "corto"
+   ],
+   "escala_txt": "Departamental/Municipal",
+   "escalas": [
+    "Departamental",
+    "Municipal"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "reduccion_prospectiva",
+    "momento": "antes",
+    "lider": "Autoridad ambiental y Alcaldía",
+    "apoyo": "Policía, Secretaría de Agricultura, emisoras",
+    "evidencia": "Divulgación documentada de la suspensión de quemas abiertas"
+   }
+  },
+  {
+   "id": "INC-EDU-04",
+   "clave": "fortalecer-capacidades-de-los-comunicadores-locales-y-sus-re",
+   "fila_excel": 16,
+   "linea": "Educomunicación",
+   "estrategia": "Fortalecer capacidades de los comunicadores locales y sus redes",
+   "descripcion": "",
+   "plazo": [
+    "mediano"
+   ],
+   "escala_txt": "Departamental/Municipal",
+   "escalas": [
+    "Departamental",
+    "Municipal"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "conocimiento",
+    "momento": "permanente",
+    "lider": "Oficina de comunicaciones",
+    "apoyo": "UNGRD, emisoras comunitarias",
+    "evidencia": "Comunicadores locales capacitados en mensajes de incendios"
+   }
+  },
+  {
+   "id": "INC-EDU-05",
+   "clave": "fortalecer-y-activar-las-redes-de-vigilancia-comunitaria",
+   "fila_excel": 17,
+   "linea": "Educomunicación",
+   "estrategia": "Fortalecer y activar las redes de vigilancia comunitaria",
+   "descripcion": "",
+   "plazo": [
+    "corto"
+   ],
+   "escala_txt": "Municipal",
+   "escalas": [
+    "Municipal"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "preparacion",
+    "momento": "durante",
+    "lider": "Coordinación de gestión del riesgo",
+    "apoyo": "Juntas de acción comunal, bomberos",
+    "evidencia": "Red activa con turnos y reporte a bomberos"
+   }
+  },
+  {
+   "id": "INC-EDU-06",
+   "clave": "identificar-los-canales-de-comunicacion-locales",
+   "fila_excel": 18,
+   "linea": "Educomunicación",
+   "estrategia": "Identificar los canales de comunicación locales",
+   "descripcion": "",
+   "plazo": [
+    "corto"
+   ],
+   "escala_txt": "Municipal",
+   "escalas": [
+    "Municipal"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "conocimiento",
+    "momento": "antes",
+    "lider": "Oficina de comunicaciones",
+    "apoyo": "Juntas de acción comunal",
+    "evidencia": "Inventario de canales por vereda (radio, perifoneo, grupos de mensajería)"
+   }
+  },
+  {
+   "id": "INC-SIL-01",
+   "clave": "podas-y-raleos-para-reducir-continuidad-vertical-del-fuego",
+   "fila_excel": 19,
+   "linea": "Silvicultura y manejo del paisaje",
+   "estrategia": "Podas y raleos (para reducir continuidad vertical del fuego)",
+   "descripcion": "",
+   "plazo": [
+    "corto"
+   ],
+   "escala_txt": "Municipal/Local",
+   "escalas": [
+    "Local",
+    "Municipal"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "reduccion_correctiva",
+    "momento": "antes",
+    "lider": "Propietarios y administradores de predios",
+    "apoyo": "Autoridad ambiental, bomberos",
+    "evidencia": "Áreas intervenidas georreferenciadas"
+   }
+  },
+  {
+   "id": "INC-SIL-02",
+   "clave": "aprovechamiento-de-arboles-muertos",
+   "fila_excel": 20,
+   "linea": "Silvicultura y manejo del paisaje",
+   "estrategia": "Aprovechamiento de árboles muertos",
+   "descripcion": "",
+   "plazo": [
+    "mediano"
+   ],
+   "escala_txt": "Municipal/Local",
+   "escalas": [
+    "Local",
+    "Municipal"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "reduccion_correctiva",
+    "momento": "antes",
+    "lider": "Autoridad ambiental",
+    "apoyo": "Propietarios, Alcaldía",
+    "evidencia": "Permisos y áreas con retiro de árboles muertos"
+   }
+  },
+  {
+   "id": "INC-SIL-03",
+   "clave": "mantenimiento-de-calles-en-plantaciones-forestales",
+   "fila_excel": 21,
+   "linea": "Silvicultura y manejo del paisaje",
+   "estrategia": "Mantenimiento de calles en plantaciones forestales",
+   "descripcion": "",
+   "plazo": [
+    "corto"
+   ],
+   "escala_txt": "Local",
+   "escalas": [
+    "Local"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "reduccion_correctiva",
+    "momento": "antes",
+    "lider": "Empresas y propietarios de plantaciones",
+    "apoyo": "Autoridad ambiental",
+    "evidencia": "Calles cortafuego mantenidas en plantaciones"
+   }
+  },
+  {
+   "id": "INC-SIL-04",
+   "clave": "manejo-de-combustible-para-evitar-riesgo-en-infraestructura",
+   "fila_excel": 22,
+   "linea": "Silvicultura y manejo del paisaje",
+   "estrategia": "Manejo de combustible para evitar riesgo en infraestructura vital, medios de vida y zonas de interfaz",
+   "descripcion": "",
+   "plazo": [
+    "corto"
+   ],
+   "escala_txt": "Municipal",
+   "escalas": [
+    "Municipal"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "reduccion_correctiva",
+    "momento": "antes",
+    "lider": "Alcaldía y operadores de infraestructura",
+    "apoyo": "Bomberos, autoridad ambiental",
+    "evidencia": "Franjas de manejo alrededor de infraestructura vital y zonas de interfaz"
+   }
+  },
+  {
+   "id": "INC-SIL-05",
+   "clave": "manejo-de-combustible-para-evitar-riesgo-en-ecosistemas-estr",
+   "fila_excel": 23,
+   "linea": "Silvicultura y manejo del paisaje",
+   "estrategia": "Manejo de combustible para evitar riesgo en ecosistemas estratégicos y zonas de amortiguación",
+   "descripcion": "",
+   "plazo": [
+    "largo"
+   ],
+   "escala_txt": "Regional",
+   "escalas": [
+    "Regional"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "reduccion_correctiva",
+    "momento": "permanente",
+    "lider": "Autoridad ambiental y Parques Nacionales",
+    "apoyo": "Gobernación, comunidades",
+    "evidencia": "Plan de manejo de combustibles en ecosistemas estratégicos"
+   }
+  },
+  {
+   "id": "INC-SIL-06",
+   "clave": "lineas-cortafuego-para-reducir-continuidad-horizontal-del-fu",
+   "fila_excel": 24,
+   "linea": "Silvicultura y manejo del paisaje",
+   "estrategia": "Líneas cortafuego (para reducir continuidad horizontal del fuego)",
+   "descripcion": "Ejecutar la construcción y mantenimiento de barreras cortafuego, podas, raleos y retiro de cobertura vegetal seca en zonas de interfaz urbano-rural y áreas protegidas.",
+   "plazo": [
+    "corto"
+   ],
+   "escala_txt": "Municipal/Local",
+   "escalas": [
+    "Local",
+    "Municipal"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "reduccion_correctiva",
+    "momento": "antes",
+    "lider": "Bomberos y Alcaldía",
+    "apoyo": "Autoridad ambiental, propietarios",
+    "evidencia": "Kilómetros de cortafuego construidos o mantenidos, georreferenciados"
+   }
+  },
+  {
+   "id": "INC-SIL-07",
+   "clave": "retiro-de-biomasa-seca",
+   "fila_excel": 25,
+   "linea": "Silvicultura y manejo del paisaje",
+   "estrategia": "Retiro de biomasa seca",
+   "descripcion": "",
+   "plazo": [
+    "corto"
+   ],
+   "escala_txt": "Local",
+   "escalas": [
+    "Local"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "reduccion_correctiva",
+    "momento": "antes",
+    "lider": "Propietarios y comunidad",
+    "apoyo": "Bomberos, Alcaldía",
+    "evidencia": "Jornadas de retiro de material seco en zonas de interfaz"
+   }
+  },
+  {
+   "id": "INC-SIL-08",
+   "clave": "identificacion-y-monitoreo-de-zonas-con-altas-cargas-de-comb",
+   "fila_excel": 26,
+   "linea": "Silvicultura y manejo del paisaje",
+   "estrategia": "Identificación y monitoreo de zonas con altas cargas de combustible",
+   "descripcion": "",
+   "plazo": [
+    "largo"
+   ],
+   "escala_txt": "Municipal/Local",
+   "escalas": [
+    "Local",
+    "Municipal"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "conocimiento",
+    "momento": "permanente",
+    "lider": "Autoridad ambiental",
+    "apoyo": "Bomberos, UNGRD (este portal)",
+    "evidencia": "Capa de zonas con alta carga de combustible actualizada"
+   }
+  },
+  {
+   "id": "INC-SIL-09",
+   "clave": "implementacion-de-barreras-forestales-para-la-disminucion-de",
+   "fila_excel": 27,
+   "linea": "Silvicultura y manejo del paisaje",
+   "estrategia": "Implementación de barreras forestales para la disminución de velocidad del viento",
+   "descripcion": "",
+   "plazo": [
+    "largo"
+   ],
+   "escala_txt": "Municipal/Local",
+   "escalas": [
+    "Local",
+    "Municipal"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "reduccion_correctiva",
+    "momento": "permanente",
+    "lider": "Autoridad ambiental",
+    "apoyo": "Propietarios, Secretaría de Agricultura",
+    "evidencia": "Barreras rompevientos establecidas"
+   }
+  },
+  {
+   "id": "INC-SIL-10",
+   "clave": "promover-el-control-y-reduccion-del-uso-de-especies-pirofila",
+   "fila_excel": 28,
+   "linea": "Silvicultura y manejo del paisaje",
+   "estrategia": "Promover el control y reducción del uso de especies pirófilas, inflamables e invasoras",
+   "descripcion": "",
+   "plazo": [
+    "largo"
+   ],
+   "escala_txt": "Municipal/Local",
+   "escalas": [
+    "Local",
+    "Municipal"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "reduccion_prospectiva",
+    "momento": "permanente",
+    "lider": "Autoridad ambiental",
+    "apoyo": "Viveros, Secretaría de Agricultura",
+    "evidencia": "Lineamiento de especies y áreas con sustitución"
+   }
+  },
+  {
+   "id": "INC-RON-01",
+   "clave": "identificacion-y-georreferenciacion-de-cuerpos-de-agua-estra",
+   "fila_excel": 29,
+   "linea": "Rondas hídricas",
+   "estrategia": "Identificación y georreferenciación de cuerpos de agua estratégicos",
+   "descripcion": "",
+   "plazo": [
+    "corto"
+   ],
+   "escala_txt": "Municipal",
+   "escalas": [
+    "Municipal"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "conocimiento",
+    "momento": "antes",
+    "lider": "Coordinación de gestión del riesgo",
+    "apoyo": "Autoridad ambiental, bomberos",
+    "evidencia": "Capa de cuerpos de agua estratégicos compartida con bomberos"
+   }
+  },
+  {
+   "id": "INC-RON-02",
+   "clave": "mantenimiento-de-zonas-estrategicas-nacimientos-pozos-quebra",
+   "fila_excel": 30,
+   "linea": "Rondas hídricas",
+   "estrategia": "Mantenimiento de zonas estratégicas (nacimientos, pozos, quebradas, humedales, lagos, reservorios, jagüeyes)",
+   "descripcion": "",
+   "plazo": [
+    "largo"
+   ],
+   "escala_txt": "Multiescala",
+   "escalas": [
+    "Multiescala"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "reduccion_correctiva",
+    "momento": "permanente",
+    "lider": "Autoridad ambiental",
+    "apoyo": "Alcaldía, acueductos comunitarios",
+    "evidencia": "Zonas estratégicas con mantenimiento registrado"
+   }
+  },
+  {
+   "id": "INC-RON-03",
+   "clave": "promover-el-establecimiento-de-reservorios-de-agua",
+   "fila_excel": 31,
+   "linea": "Rondas hídricas",
+   "estrategia": "Promover el establecimiento de reservorios de agua",
+   "descripcion": "",
+   "plazo": [
+    "mediano"
+   ],
+   "escala_txt": "Municipal/Local",
+   "escalas": [
+    "Local",
+    "Municipal"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "reduccion_prospectiva",
+    "momento": "despues",
+    "lider": "Secretaría de Agricultura",
+    "apoyo": "Autoridad ambiental, productores",
+    "evidencia": "Reservorios establecidos y georreferenciados"
+   }
+  },
+  {
+   "id": "INC-RON-04",
+   "clave": "mantenimiento-de-bordes-de-bosque-ripario-y-demas-ecosistema",
+   "fila_excel": 32,
+   "linea": "Rondas hídricas",
+   "estrategia": "Mantenimiento de bordes de bosque ripario y demás ecosistemas asociados",
+   "descripcion": "",
+   "plazo": [
+    "largo"
+   ],
+   "escala_txt": "Municipal/Local",
+   "escalas": [
+    "Local",
+    "Municipal"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "reduccion_correctiva",
+    "momento": "permanente",
+    "lider": "Autoridad ambiental",
+    "apoyo": "Propietarios ribereños",
+    "evidencia": "Tramos de ronda hídrica con mantenimiento"
+   }
+  },
+  {
+   "id": "INC-RON-05",
+   "clave": "aislamiento-de-zonas-estrategicas-nacimientos-quebradas-y-hu",
+   "fila_excel": 33,
+   "linea": "Rondas hídricas",
+   "estrategia": "Aislamiento de zonas estratégicas (nacimientos, quebradas y humedales)",
+   "descripcion": "",
+   "plazo": [
+    "largo"
+   ],
+   "escala_txt": "Municipal/Local",
+   "escalas": [
+    "Local",
+    "Municipal"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "reduccion_correctiva",
+    "momento": "permanente",
+    "lider": "Autoridad ambiental",
+    "apoyo": "Alcaldía, propietarios",
+    "evidencia": "Metros de aislamiento instalados en nacimientos y humedales"
+   }
+  },
+  {
+   "id": "INC-RON-06",
+   "clave": "articulacion-de-actores-en-cuencas-hidrograficas",
+   "fila_excel": 34,
+   "linea": "Rondas hídricas",
+   "estrategia": "Articulación de actores en cuencas hidrográficas",
+   "descripcion": "",
+   "plazo": [
+    "mediano"
+   ],
+   "escala_txt": "Multiescala",
+   "escalas": [
+    "Multiescala"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "reduccion_prospectiva",
+    "momento": "permanente",
+    "lider": "Autoridad ambiental (consejos de cuenca)",
+    "apoyo": "Gobernación, alcaldías de la cuenca",
+    "evidencia": "Acuerdos de cuenca que incluyen incendios"
+   }
+  },
+  {
+   "id": "INC-COM-01",
+   "clave": "promover-practicas-de-uso-y-aprovechamiento-de-residuos-fore",
+   "fila_excel": 35,
+   "linea": "Acciones complementarias",
+   "estrategia": "Promover prácticas de uso y aprovechamiento de residuos forestales y biomasa (pacas, compostaje, etc.)",
+   "descripcion": "",
+   "plazo": [
+    "corto"
+   ],
+   "escala_txt": "Municipal/Local",
+   "escalas": [
+    "Local",
+    "Municipal"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "reduccion_prospectiva",
+    "momento": "antes",
+    "lider": "Secretaría de Agricultura",
+    "apoyo": "Autoridad ambiental, productores",
+    "evidencia": "Productores que aprovechan residuos (pacas, compostaje) en lugar de quemar"
+   }
+  },
+  {
+   "id": "INC-COM-02",
+   "clave": "pirojardineria",
+   "fila_excel": 36,
+   "linea": "Acciones complementarias",
+   "estrategia": "Pirojardinería",
+   "descripcion": "",
+   "plazo": [
+    "mediano"
+   ],
+   "escala_txt": "Local",
+   "escalas": [
+    "Local"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "reduccion_prospectiva",
+    "momento": "permanente",
+    "lider": "Planeación y propietarios en zonas de interfaz",
+    "apoyo": "Autoridad ambiental",
+    "evidencia": "Predios de interfaz con jardinería de baja inflamabilidad"
+   }
+  },
+  {
+   "id": "INC-COM-03",
+   "clave": "bancos-de-forraje-y-suplementacion-bovina",
+   "fila_excel": 37,
+   "linea": "Acciones complementarias",
+   "estrategia": "Bancos de forraje y suplementación bovina",
+   "descripcion": "",
+   "plazo": [
+    "corto"
+   ],
+   "escala_txt": "Departamental/Municipal",
+   "escalas": [
+    "Departamental",
+    "Municipal"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "reduccion_prospectiva",
+    "momento": "antes",
+    "lider": "Secretaría de Agricultura",
+    "apoyo": "Gremios ganaderos",
+    "evidencia": "Bancos de forraje establecidos antes de la temporada seca"
+   }
+  },
+  {
+   "id": "INC-PAR-01",
+   "clave": "fortalecer-y-activar-redes-de-prevencion-y-vigilancia-comuni",
+   "fila_excel": 38,
+   "linea": "Participación comunitaria",
+   "estrategia": "Fortalecer y activar redes de prevención y vigilancia comunitaria",
+   "descripcion": "",
+   "plazo": [
+    "corto"
+   ],
+   "escala_txt": "Municipal/Local",
+   "escalas": [
+    "Local",
+    "Municipal"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "preparacion",
+    "momento": "durante",
+    "lider": "Juntas de acción comunal y comunidad",
+    "apoyo": "Bomberos, coordinación de gestión del riesgo",
+    "evidencia": "Vigías comunitarios activos con canal directo a bomberos"
+   }
+  },
+  {
+   "id": "INC-PAR-02",
+   "clave": "promover-jornadas-de-manejo-preventivo-de-la-vegetacion",
+   "fila_excel": 39,
+   "linea": "Participación comunitaria",
+   "estrategia": "Promover jornadas de manejo preventivo de la vegetación",
+   "descripcion": "",
+   "plazo": [
+    "corto"
+   ],
+   "escala_txt": "Municipal/Local",
+   "escalas": [
+    "Local",
+    "Municipal"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "reduccion_correctiva",
+    "momento": "antes",
+    "lider": "Comunidad organizada",
+    "apoyo": "Bomberos, Alcaldía",
+    "evidencia": "Jornadas comunitarias realizadas"
+   }
+  },
+  {
+   "id": "INC-PAR-03",
+   "clave": "fortalecer-canales-de-comunicacion-con-entidades-de-respuest",
+   "fila_excel": 40,
+   "linea": "Participación comunitaria",
+   "estrategia": "Fortalecer canales de comunicación con entidades de respuesta",
+   "descripcion": "",
+   "plazo": [
+    "corto"
+   ],
+   "escala_txt": "Municipal/Local",
+   "escalas": [
+    "Local",
+    "Municipal"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "preparacion",
+    "momento": "antes",
+    "lider": "Comunidad organizada",
+    "apoyo": "Bomberos, Policía, Defensa Civil",
+    "evidencia": "Números y canales de reporte conocidos en cada vereda"
+   }
+  },
+  {
+   "id": "INC-PAR-04",
+   "clave": "promover-la-identificacion-comunitaria-de-riesgos",
+   "fila_excel": 41,
+   "linea": "Participación comunitaria",
+   "estrategia": "Promover la identificación comunitaria de riesgos",
+   "descripcion": "",
+   "plazo": [
+    "corto"
+   ],
+   "escala_txt": "Municipal/Local",
+   "escalas": [
+    "Local",
+    "Municipal"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "conocimiento",
+    "momento": "antes",
+    "lider": "Comunidad organizada",
+    "apoyo": "Coordinación de gestión del riesgo",
+    "evidencia": "Mapas comunitarios de riesgo por vereda"
+   }
+  },
+  {
+   "id": "INC-PAR-05",
+   "clave": "participar-activamente-en-los-simulacros-de-incendios-forest",
+   "fila_excel": 42,
+   "linea": "Participación comunitaria",
+   "estrategia": "Participar activamente en los simulacros de incendios forestales locales",
+   "descripcion": "",
+   "plazo": [
+    "mediano"
+   ],
+   "escala_txt": "Municipal/Local",
+   "escalas": [
+    "Local",
+    "Municipal"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "preparacion",
+    "momento": "antes",
+    "lider": "Comunidad organizada",
+    "apoyo": "CMGRD, bomberos",
+    "evidencia": "Participación comunitaria registrada en el simulacro"
+   }
+  },
+  {
+   "id": "INC-PAR-06",
+   "clave": "establecimiento-de-acuerdos-para-la-reduccion-del-riesgo-por",
+   "fila_excel": 43,
+   "linea": "Participación comunitaria",
+   "estrategia": "Establecimiento de acuerdos para la reducción del riesgo por incendios",
+   "descripcion": "Por ejemplo: acuerdos de conservación, para manejo de cargas combustibles, promoción de PSA, entre otros",
+   "plazo": [
+    "mediano"
+   ],
+   "escala_txt": "Municipal/Local",
+   "escalas": [
+    "Local",
+    "Municipal"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "reduccion_prospectiva",
+    "momento": "permanente",
+    "lider": "Autoridad ambiental y Alcaldía",
+    "apoyo": "Comunidades, propietarios",
+    "evidencia": "Acuerdos firmados (conservación, manejo de combustibles, PSA)"
+   }
+  },
+  {
+   "id": "INC-PAR-07",
+   "clave": "alternativas-de-reconversion-agropecuaria",
+   "fila_excel": 44,
+   "linea": "Participación comunitaria",
+   "estrategia": "Alternativas de reconversión agropecuaria",
+   "descripcion": "",
+   "plazo": [
+    "largo"
+   ],
+   "escala_txt": "Municipal/Local",
+   "escalas": [
+    "Local",
+    "Municipal"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "reduccion_prospectiva",
+    "momento": "permanente",
+    "lider": "Secretaría de Agricultura",
+    "apoyo": "Gremios, entidades de fomento",
+    "evidencia": "Productores en procesos de reconversión sin uso de fuego"
+   }
+  },
+  {
+   "id": "INC-FIN-01",
+   "clave": "revisar-el-estado-de-aseguramiento-de-bienes-publicos-y-fisc",
+   "fila_excel": 45,
+   "linea": "Protección Financiera",
+   "estrategia": "Revisar el estado de aseguramiento de bienes públicos y fiscales e incentivar coberturas contra incendios a nivel sectorial",
+   "descripcion": "",
+   "plazo": [
+    "mediano"
+   ],
+   "escala_txt": "Municipal/Local",
+   "escalas": [
+    "Local",
+    "Municipal"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "proteccion_financiera",
+    "momento": "permanente",
+    "lider": "Secretaría de Hacienda",
+    "apoyo": "Coordinación de gestión del riesgo",
+    "evidencia": "Inventario de bienes asegurados y pólizas con cobertura de incendio"
+   }
+  },
+  {
+   "id": "INC-SIL-11",
+   "clave": "restauracion-ecologica-de-areas-afectadas-por-incendios",
+   "fila_excel": 46,
+   "linea": "Silvicultura y manejo del paisaje",
+   "estrategia": "Restauración ecológica de áreas afectadas por incendios",
+   "descripcion": "",
+   "plazo": [
+    "mediano",
+    "largo"
+   ],
+   "escala_txt": "Municipal/Local",
+   "escalas": [
+    "Local",
+    "Municipal"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "recuperacion",
+    "momento": "despues",
+    "lider": "Autoridad ambiental",
+    "apoyo": "Alcaldía, comunidades, Parques Nacionales",
+    "evidencia": "Hectáreas en restauración en áreas quemadas"
+   }
+  },
+  {
+   "id": "INC-INS-12",
+   "clave": "fortalecer-el-fondo-territorial-de-gestion-del-riesgo-ftgrd",
+   "fila_excel": 47,
+   "linea": "Institucional",
+   "estrategia": "Fortalecer el Fondo Territorial de Gestión del Riesgo (FTGRD)",
+   "descripcion": "",
+   "plazo": [
+    "corto",
+    "largo"
+   ],
+   "escala_txt": "Departamental/Municipal",
+   "escalas": [
+    "Departamental",
+    "Municipal"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "proteccion_financiera",
+    "momento": "permanente",
+    "lider": "Alcaldía / Gobernación (Hacienda)",
+    "apoyo": "Coordinación de gestión del riesgo",
+    "evidencia": "Recursos del FTGRD apropiados para reducción del riesgo por incendio"
+   }
+  },
+  {
+   "id": "INC-INS-13",
+   "clave": "mesas-tecnicas-territoriales-de-seguimiento-al-fenomeno-el-n",
+   "fila_excel": 48,
+   "linea": "Institucional",
+   "estrategia": "Mesas técnicas territoriales de seguimiento al Fenómeno El Niño",
+   "descripcion": "",
+   "plazo": [
+    "corto"
+   ],
+   "escala_txt": "Departamental/Municipal",
+   "escalas": [
+    "Departamental",
+    "Municipal"
+   ],
+   "regiones": [],
+   "cobertura": "",
+   "complemento": {
+    "proceso": "conocimiento",
+    "momento": "durante",
+    "lider": "CDGRD / CMGRD",
+    "apoyo": "IDEAM, UNGRD, autoridad ambiental",
+    "evidencia": "Actas de mesa técnica con seguimiento al pronóstico y a las acciones"
+   }
+  }
+ ],
+ "calidad": {
+  "sin_descripcion": [
+   {
+    "fila": 2,
+    "estrategia": "Activación y Articulación CMGRD y CDGRD"
+   },
+   {
+    "fila": 3,
+    "estrategia": "Fortalecer interoperabilidad entre los actores del SNGRD"
+   },
+   {
+    "fila": 4,
+    "estrategia": "Fortalecer canales de comunicación antes, durante y después de la emergencia"
+   },
+   {
+    "fila": 6,
+    "estrategia": "Mapear y proteger cuencas abastecedoras, nacimientos y reservorios utilizables como puntos de aprovisionamiento para el control de incendios por cuerpos de socorro"
+   },
+   {
+    "fila": 7,
+    "estrategia": "Socializar los PGRDEPP"
+   },
+   {
+    "fila": 8,
+    "estrategia": "Activar los PGRDEPP"
+   },
+   {
+    "fila": 9,
+    "estrategia": "Diseñar y promover estrategias de educomunicación"
+   },
+   {
+    "fila": 11,
+    "estrategia": "Realizar simulacros de incendios forestales a escala local"
+   },
+   {
+    "fila": 12,
+    "estrategia": "Priorizar comunidades con mayor exposición y vulnerabilidad"
+   },
+   {
+    "fila": 14,
+    "estrategia": "Promover buenas prácticas agropecuarias"
+   },
+   {
+    "fila": 15,
+    "estrategia": "Divulgación de la Resolución 1070 de 2026 (prohibición de quemas durante el Fenómeno El Niño)"
+   },
+   {
+    "fila": 16,
+    "estrategia": "Fortalecer capacidades de los comunicadores locales y sus redes"
+   },
+   {
+    "fila": 17,
+    "estrategia": "Fortalecer y activar las redes de vigilancia comunitaria"
+   },
+   {
+    "fila": 18,
+    "estrategia": "Identificar los canales de comunicación locales"
+   },
+   {
+    "fila": 19,
+    "estrategia": "Podas y raleos (para reducir continuidad vertical del fuego)"
+   },
+   {
+    "fila": 20,
+    "estrategia": "Aprovechamiento de árboles muertos"
+   },
+   {
+    "fila": 21,
+    "estrategia": "Mantenimiento de calles en plantaciones forestales"
+   },
+   {
+    "fila": 22,
+    "estrategia": "Manejo de combustible para evitar riesgo en infraestructura vital, medios de vida y zonas de interfaz"
+   },
+   {
+    "fila": 23,
+    "estrategia": "Manejo de combustible para evitar riesgo en ecosistemas estratégicos y zonas de amortiguación"
+   },
+   {
+    "fila": 25,
+    "estrategia": "Retiro de biomasa seca"
+   },
+   {
+    "fila": 26,
+    "estrategia": "Identificación y monitoreo de zonas con altas cargas de combustible"
+   },
+   {
+    "fila": 27,
+    "estrategia": "Implementación de barreras forestales para la disminución de velocidad del viento"
+   },
+   {
+    "fila": 28,
+    "estrategia": "Promover el control y reducción del uso de especies pirófilas, inflamables e invasoras"
+   },
+   {
+    "fila": 29,
+    "estrategia": "Identificación y georreferenciación de cuerpos de agua estratégicos"
+   },
+   {
+    "fila": 30,
+    "estrategia": "Mantenimiento de zonas estratégicas (nacimientos, pozos, quebradas, humedales, lagos, reservorios, jagüeyes)"
+   },
+   {
+    "fila": 31,
+    "estrategia": "Promover el establecimiento de reservorios de agua"
+   },
+   {
+    "fila": 32,
+    "estrategia": "Mantenimiento de bordes de bosque ripario y demás ecosistemas asociados"
+   },
+   {
+    "fila": 33,
+    "estrategia": "Aislamiento de zonas estratégicas (nacimientos, quebradas y humedales)"
+   },
+   {
+    "fila": 34,
+    "estrategia": "Articulación de actores en cuencas hidrográficas"
+   },
+   {
+    "fila": 35,
+    "estrategia": "Promover prácticas de uso y aprovechamiento de residuos forestales y biomasa (pacas, compostaje, etc.)"
+   },
+   {
+    "fila": 36,
+    "estrategia": "Pirojardinería"
+   },
+   {
+    "fila": 37,
+    "estrategia": "Bancos de forraje y suplementación bovina"
+   },
+   {
+    "fila": 38,
+    "estrategia": "Fortalecer y activar redes de prevención y vigilancia comunitaria"
+   },
+   {
+    "fila": 39,
+    "estrategia": "Promover jornadas de manejo preventivo de la vegetación"
+   },
+   {
+    "fila": 40,
+    "estrategia": "Fortalecer canales de comunicación con entidades de respuesta"
+   },
+   {
+    "fila": 41,
+    "estrategia": "Promover la identificación comunitaria de riesgos"
+   },
+   {
+    "fila": 42,
+    "estrategia": "Participar activamente en los simulacros de incendios forestales locales"
+   },
+   {
+    "fila": 44,
+    "estrategia": "Alternativas de reconversión agropecuaria"
+   },
+   {
+    "fila": 45,
+    "estrategia": "Revisar el estado de aseguramiento de bienes públicos y fiscales e incentivar coberturas contra incendios a nivel sectorial"
+   },
+   {
+    "fila": 46,
+    "estrategia": "Restauración ecológica de áreas afectadas por incendios"
+   },
+   {
+    "fila": 47,
+    "estrategia": "Fortalecer el Fondo Territorial de Gestión del Riesgo (FTGRD)"
+   },
+   {
+    "fila": 48,
+    "estrategia": "Mesas técnicas territoriales de seguimiento al Fenómeno El Niño"
+   }
+  ],
+  "filas_corridas": [
+   {
+    "fila": 46,
+    "estrategia": "Restauración ecológica de áreas afectadas por incendios",
+    "descripcion": "Mediano plazo",
+    "temporalidad": "Largo plazo"
+   },
+   {
+    "fila": 47,
+    "estrategia": "Fortalecer el Fondo Territorial de Gestión del Riesgo (FTGRD)",
+    "descripcion": "Corto plazo",
+    "temporalidad": "Largo plazo"
+   },
+   {
+    "fila": 48,
+    "estrategia": "Mesas técnicas territoriales de seguimiento al Fenómeno El Niño",
+    "descripcion": "Corto plazo",
+    "temporalidad": "Corto plazo"
+   }
+  ],
+  "posibles_duplicados": [
+   [
+    "INC-EDU-05 · Fortalecer y activar las redes de vigilancia comunitaria",
+    "INC-PAR-01 · Fortalecer y activar redes de prevención y vigilancia comunitaria"
+   ],
+   [
+    "INC-SIL-04 · Manejo de combustible para evitar riesgo en infraestructura vital, medios de vida y zonas de interfaz",
+    "INC-SIL-05 · Manejo de combustible para evitar riesgo en ecosistemas estratégicos y zonas de amortiguación"
+   ]
+  ],
+  "sin_complemento": [],
+  "regiones_marcadas": 1,
+  "titulo_y_descripcion_en_misma_celda": [
+   {
+    "fila": 5,
+    "estrategia": "Articulación y actualización de PMGRD / PDGRD"
+   },
+   {
+    "fila": 10,
+    "estrategia": "Fortalecer las capacidades de comunicación institucionales"
+   },
+   {
+    "fila": 13,
+    "estrategia": "Campañas de sensibilización"
+   },
+   {
+    "fila": 24,
+    "estrategia": "Líneas cortafuego (para reducir continuidad horizontal del fuego)"
+   }
+  ]
+ }
+}
