@@ -27,10 +27,13 @@ HTML el navegador bloquea la lectura de datos (`fetch`), por eso se sirve por HT
 | **Frecuencia de incendios VIIRS** | Puntos de calor VIIRS (2014–2026). Mapa Leaflet con 4 vistas: coropleta · calor · clúster · puntos. Paneles por mes, consolidada, rankings. | D3 + Leaflet (`index.html`) |
 | **Frecuencia de incendios WFS** | Detecciones diarias OroraTech (oct–may). Lee `incendios.parquet` en el navegador. | iframe → `wfs.html` |
 | **Área quemada** | Cicatriz de fuego (MapBiomas Fuego, 30 m). | D3 (`index.html`) |
-| **Lluvia antecedente** | Lluvia CHIRPS de los 90 días previos a cada evento. Overlay opcional de puntos de calor. | D3 (`index.html`) |
+| **Lluvia antecedente** | Lluvia CHIRPS de los 90 días previos a cada evento. **San Andrés y Providencia**: lluvia de estaciones del IDEAM (CHIRPS no cubre las islas). Overlay opcional de puntos de calor. | D3 (`index.html`) |
+| **Estrategias GRD** | Estrategias SRR–UNGRD **sincronizadas al territorio**: a la izquierda, mapa + **matriz de medidas** (línea de acción × plazo); a la derecha, diagnóstico, prioridades, catálogo y **fichas PDF**. Incluye **nota aclaratoria** (medidas orientativas). | D3 + `estrategias.js` |
 | **Capacidades de respuesta** | Matriz Nacional de Capacidades Incendios SNGRD. | iframe → `capacidades_sngrd.html` |
 
-Cada pestaña tiene un **asistente de IA** flotante y un botón **⤓ Reporte PDF**.
+En los mapas D3 (Lluvia, Estrategias GRD, Área) **San Andrés** aparece en un **recuadro (inset)** arriba-izquierda, ya que las islas están lejos del continente.
+
+Cada pestaña tiene un **asistente de IA** flotante (ahora **analiza y compara cifras** de todas las pestañas, ver §4) y un botón **⤓ Reporte PDF**.
 
 ## 3. Archivos y datos
 
@@ -39,11 +42,15 @@ Cada pestaña tiene un **asistente de IA** flotante y un botón **⤓ Reporte PD
 | `index.html` | **Portal principal** (punto de entrada). |
 | `wfs.html` | Módulo WFS (OroraTech), embebido por iframe (`?embed=1`). |
 | `capacidades_sngrd.html` | Tablero de Capacidades (datos embebidos). |
+| `estrategias.js` | Módulo nativo de la pestaña **Estrategias GRD**. |
+| `asistente_datos.js` | Motor de datos del asistente: calcula cifras de todas las pestañas. |
 | `config.js` | Configuración (URL del asistente de IA). |
 | `assets/logo/ungrd-horizontal.png` | Logo institucional. |
 | `data/viirs/` | `datos_app.json`, `deptos.geojson`, `municipios.geojson`. |
 | `data/puntos/`, `data/puntos_mes/` | Puntos de calor VIIRS (municipio / mes). |
 | `data/lluvia/` | `lluvia_app.json`, `indice.json`, `eventos.bin`. |
+| `data/estrategias/` | `estrategias_incendios.json` (catálogo SRR de Estrategias GRD). |
+| `data/area/` | `mb_mes.json` (área quemada por año y mes; la usa el asistente). |
 | `data/wfs/` | `incendios.parquet` + 2 geojson simplificados. |
 | `data/index.json` | **Manifiesto**: inventario de los datasets. |
 
@@ -58,6 +65,12 @@ El botón del asistente **siempre está visible** (abajo-derecha). Para que **re
 GitHub Pages hace falta un **proxy serverless** que guarde las llaves (nunca van en el repo):
 vea la **sección L del [README.md](README.md#l-cómo-manejar-las-apis-del-asistente-de-ia)** y la
 plantilla `serverless/asistente_worker_ejemplo.js`. La URL del proxy se pone en `config.js`.
+
+El asistente no solo lee el texto de la pestaña abierta: **`asistente_datos.js`** detecta lugares,
+período y tema en la pregunta y **calcula las cifras exactas** con los datos del tablero (puntos de
+calor, área quemada, lluvia, capacidades, Estrategias GRD); la IA las usa para **responder y comparar**
+(p. ej. «compara el área quemada de Meta y Tolima en noviembre de 2021»). Si cambia los límites del
+Worker (contexto, tokens), hay que **volver a desplegarlo** (`wrangler deploy` o el panel de Cloudflare).
 
 Sin proxy configurado, el asistente queda **sin conexión** pero el botón sigue ofreciendo las
 guías «Cómo leer esta pestaña» de cada sección; el resto del portal funciona igual.

@@ -14,17 +14,18 @@ servidores: todo corre en el navegador leyendo archivos por `fetch()`.
 
 ## A. Qué es el proyecto
 
-Tablero que unifica cinco módulos de análisis de incendios para Colombia:
+Tablero que unifica seis módulos de análisis de incendios para Colombia:
 
 | Pestaña | Qué muestra | Dónde vive |
 |---|---|---|
-| **Frecuencia de incendios VIIRS** | Puntos de calor VIIRS (mapa Leaflet: coropleta, calor, clúster, puntos) + gráficas | `index.html` (nativo) |
+| **Frecuencia de incendios VIIRS** | Puntos de calor VIIRS (mapa Leaflet: coropleta, calor, clúster, puntos) + gráficas (ejes «Día»/«Incendios») | `index.html` (nativo) |
 | **Frecuencia de incendios WFS** | Detecciones diarias OroraTech (lee `incendios.parquet` en el navegador) | `wfs.html` (iframe) |
 | **Área quemada** | Cicatriz de fuego (MapBiomas) | `index.html` (nativo) |
-| **Lluvia antecedente** | Lluvia CHIRPS de los 90 días previos a cada evento | `index.html` (nativo) |
+| **Lluvia antecedente** | Lluvia CHIRPS de los 90 días previos a cada evento (San Andrés/Providencia: estaciones IDEAM) | `index.html` (nativo) |
+| **Estrategias GRD** | Estrategias SRR–UNGRD por territorio: mapa + matriz de medidas + diagnóstico, catálogo y fichas PDF | `index.html` + `estrategias.js` (nativo) |
 | **Capacidades de respuesta** | Matriz Nacional de Capacidades SNGRD | `capacidades_sngrd.html` (iframe, datos embebidos) |
 
-Incluye además: **asistente de IA** flotante y **Reporte PDF** (captura la vista actual).
+Los mapas D3 muestran **San Andrés** en un recuadro (inset). Incluye además un **asistente de IA** flotante que **calcula y compara cifras** de todas las pestañas (`asistente_datos.js`) y **Reporte PDF** (captura la vista actual).
 
 ## B. Cómo funciona
 
@@ -192,6 +193,11 @@ El asistente llama a `window.ASISTENTE_URL` (definida en [`config.js`](config.js
 - **Para que responda en producción** sin exponer llaves, se despliega el proxy serverless
   incluido en [`serverless/asistente_worker_ejemplo.js`](serverless/asistente_worker_ejemplo.js)
   (**Cloudflare Workers**, gratuito). La llave de IA vive en Cloudflare, **nunca** en el repo.
+- **Motor analítico (`asistente_datos.js`):** el asistente no solo lee el texto de la pestaña abierta;
+  detecta lugares/período/tema en la pregunta y **calcula las cifras** con los datos del tablero
+  (incluye `data/area/mb_mes.json`, área quemada por año y mes), que envía a la IA como bloque
+  «RESULTADOS CALCULADOS» para **responder y comparar**. Por eso el Worker usa un contexto más amplio;
+  tras cambiar límites del Worker, **vuelve a desplegarlo** (paso 3).
 
 **Despliegue por el panel web (sin instalar nada — método usado):**
 1. Llave gratuita de **Groq** en https://console.groq.com → *API Keys* → *Create* (empieza con `gsk_…`).
@@ -211,7 +217,8 @@ El asistente llama a `window.ASISTENTE_URL` (definida en [`config.js`](config.js
   rota/descontinúa. Si una cuenta no tiene acceso a `llama-3.1-8b-instant`/`70b`, el Worker cae
   automáticamente en `openai/gpt-oss-20b` (que fue el que respondió aquí). Pon **primero** el que
   tu cuenta sí tenga, para que no pierda tiempo en un intento fallido.
-- **Longitud de respuesta:** `max_tokens: 500` (respuestas más ágiles). Súbelo si las quieres más largas.
+- **Longitud de respuesta y contexto:** `max_tokens: 700` y **contexto hasta 10.000** caracteres
+  (para que quepan los «RESULTADOS CALCULADOS» del motor analítico). Ajústalos en el Worker y redespliega.
 
 ### Solución de problemas
 - El Worker **reporta el motivo real** cuando un modelo falla (campo `detalle`/`errores` en la
