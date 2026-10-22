@@ -243,7 +243,7 @@ opcional que pide una contraseña al entrar. Se controla con **una sola línea**
 [`config.js`](config.js):
 
 ```js
-window.PORTAL_PASSWORD = "ungrdscr";   // pide contraseña
+window.PORTAL_PASSWORD = "****";   // pide contraseña
 // window.PORTAL_PASSWORD = "";        // portal LIBRE y público (sin candado)
 ```
 
