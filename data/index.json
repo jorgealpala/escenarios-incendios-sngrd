@@ -1,7 +1,7 @@
 {
   "portal": "Escenarios Incendios Forestales y Capacidades del SNGRD",
   "descripcion": "Inventario (manifiesto) de los conjuntos de datos que alimentan el portal. Este archivo documenta QUÉ datos existen y DÓNDE van. Es la referencia para agregar nuevos datos; vea README.md, sección '¿Dónde debo colocar nuevos datos?'.",
-  "version_datos": "2026-10-02",
+  "version_datos": "2026-10-22",
   "datasets": {
     "viirs": {
       "descripcion": "Frecuencia de incendios VIIRS (agregados por país, departamento y municipio) + límites geográficos.",
@@ -30,7 +30,7 @@
       "como_actualizar": "Agregar/reemplazar el archivo del municipio correspondiente. No requiere cambios de código."
     },
     "lluvia": {
-      "descripcion": "Lluvia antecedente (CHIRPS, 90 días previos a cada evento de incendio). Metadatos + índice + binario compacto de eventos.",
+      "descripcion": "Lluvia antecedente (CHIRPS, 90 días previos a cada evento de incendio). Metadatos + índice + binario compacto de eventos. San Andrés (88001) y Providencia (88564): la lluvia sale de estaciones diarias del IDEAM de cada isla, porque CHIRPS no cubre las islas.",
       "ruta": "data/lluvia/",
       "archivos": ["lluvia_app.json", "indice.json", "eventos.bin"],
       "formato": "JSON + binario uint16 (eventos.bin)",

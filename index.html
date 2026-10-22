@@ -137,6 +137,11 @@ tr.clic{cursor:pointer} tr.clic:hover td{background:var(--surface-2)} tr.clic.se
 .panel .ph span{font:12px var(--f-mono);color:var(--ink-3)}
 .panel svg{width:100%;height:auto;display:block;overflow:visible}
 .ax text{font:10px var(--f-mono);fill:var(--ink-3)}
+.axlbl{font:600 10px var(--f-mono);fill:var(--ink-2)}
+.inset-lbl{font:600 9px var(--f-mono);fill:var(--ink-2)}
+.inset-sa{cursor:pointer}
+.inset-sa:hover rect,.inset-sa:focus rect{stroke:var(--ink);stroke-width:1.5}
+.inset-sa:focus{outline:none}
 .gridl{stroke:var(--grid);stroke-width:1}
 .base{stroke:var(--line);stroke-width:1}
 .yr{fill:none;stroke-width:1.2;stroke-linejoin:round;stroke-linecap:round;transition:opacity .12s}
@@ -735,7 +740,7 @@ const st = { tab: "frec", met: ORDEN_METS[0], dpto: NAL, mpio: null, terr: "dep"
   lluPre: "12m", lluDesde: null, lluHasta: null, lluEv: null,
   modoL: "coro", ptDias: null, ptTodo: false,     // mapa Leaflet VIIRS: modo y período de puntos
   puntos: false, ptDesde: null, ptHasta: null, ptNivel: null, ptAjuste: false };   // overlay de puntos D3 (lluvia)
-const TABS = [["frec", "Frecuencia de incendios VIIRS"], ["wfs", "Frecuencia de incendios WFS"], ["area", "Área quemada", "MapBiomas"], ["lluvia", "Lluvia antecedente"], ["estr", "Estrategias de reducción"], ["cap", "Capacidades de respuesta"], ["ayuda", "Ayuda"]]
+const TABS = [["frec", "Frecuencia de incendios VIIRS"], ["wfs", "Frecuencia de incendios WFS"], ["area", "Área quemada", "MapBiomas"], ["lluvia", "Lluvia antecedente"], ["estr", "Estrategias GRD"], ["cap", "Capacidades de respuesta"], ["ayuda", "Ayuda"]]
   .filter(t => t[0] !== "lluvia" || LLUVIA);   // la pestaña Lluvia solo aparece si hay datos
 try { const s = JSON.parse(localStorage.getItem("incendios_v1_estado") || "{}");
   if (s.met && METS.includes(s.met)) st.met = s.met; if (s.mapa) st.mapa = s.mapa;
@@ -1002,7 +1007,8 @@ function mapa() {
   const W = 400, H = 480;
   const modoPuntos = puntosActivo();   // overlay de puntos de calor sobre el mapa D3 (lluvia)
   const foco = (modoPuntos && st.mpio) ? { type:"FeatureCollection", features: GEO_MUN.features.filter(f => f.properties.MPIO_CCNCT === st.mpio) }
-    : st.dpto === NAL ? GEO_DEP : { type:"FeatureCollection",
+    : st.dpto === NAL ? { type:"FeatureCollection", features: GEO_DEP.features.filter(f => f.properties.DPTO_CCDGO !== "88") }   // continente (San Andrés va en su recuadro)
+    : { type:"FeatureCollection",
     features: GEO_DEP.features.filter(f => f.properties.DPTO_CCDGO === st.dpto) };
   proj = d3.geoMercator().fitExtent([[8,8],[W-8,H-8]], foco);
   pathGen = d3.geoPath(proj);
@@ -1028,7 +1034,7 @@ function mapa() {
   const fill = modoPuntos ? (() => css("--map-0")) : (capa.fill || (v => v > 0 ? escala(v) : css("--map-0")));   // capa.fill: paleta propia (lluvia)
 
   if (st.dpto === NAL) {
-    g.selectAll("path").data(GEO_DEP.features).join("path")
+    g.selectAll("path").data(GEO_DEP.features.filter(f => f.properties.DPTO_CCDGO !== "88")).join("path")
       .attr("class","dep").attr("d", pathGen).attr("fill", d => simbolos ? css("--surface-2") : fill(valores[d.properties.DPTO_CCDGO]))
       .attr("tabindex", 0).attr("role","button")
       .attr("aria-label", d => `${titulo(d.properties.DPTO_CNMBR)}: ${fv(valores[d.properties.DPTO_CCDGO]||0)} ${unidadMapa}`)
@@ -1054,7 +1060,7 @@ function mapa() {
   }
   if (st.tab === "cap") puntosCapacidad(svg);
   if (simbolos) {
-    const feats = st.dpto === NAL ? GEO_DEP.features : GEO_MUN.features.filter(f => f.properties.DPTO_CCDGO === st.dpto);
+    const feats = st.dpto === NAL ? GEO_DEP.features.filter(f => f.properties.DPTO_CCDGO !== "88") : GEO_MUN.features.filter(f => f.properties.DPTO_CCDGO === st.dpto);
     const codOf = f => st.dpto === NAL ? f.properties.DPTO_CCDGO : f.properties.MPIO_CCNCT;
     const nomOf = f => titulo(st.dpto === NAL ? f.properties.DPTO_CNMBR : f.properties.MPIO_CNMBR);
     const vmax = d3.max(pos) || 1, rmax = st.dpto === NAL ? 24 : 18;
@@ -1069,6 +1075,24 @@ function mapa() {
         .on("click", () => st.dpto === NAL ? elegir(codOf(f)) : elegirMpio(codOf(f)))
         .append("title").text(`${nomOf(f)}\n${fv(v)} ${unidadMapa}`);
     });
+  }
+  // Recuadro (inset) de San Andrés y Providencia: islas lejanas del continente; en el encuadre normal quedaban como un punto en la esquina.
+  if (st.dpto === NAL) {
+    const saF = GEO_DEP.features.find(f => f.properties.DPTO_CCDGO === "88");
+    if (saF) {
+      const bw = 68, bh = 82, bx = 12, by = 12, pad = 7, lblH = 15;
+      const gi = svg.append("g").attr("class","inset-sa").attr("tabindex",0).attr("role","button")
+        .attr("aria-label", `Archipiélago de San Andrés: ${fv(valores["88"]||0)} ${unidadMapa}`).style("cursor","pointer")
+        .on("click", () => elegir("88"))
+        .on("keydown", e => { if (e.key==="Enter"||e.key===" ") { e.preventDefault(); elegir("88"); } });
+      gi.append("rect").attr("x",bx).attr("y",by).attr("width",bw).attr("height",bh).attr("rx",6)
+        .attr("fill", css("--surface")).attr("stroke", css("--line")).attr("stroke-width",1);
+      gi.append("text").attr("x", bx+bw/2).attr("y", by+11).attr("text-anchor","middle").attr("class","inset-lbl").text("San Andrés");
+      const ip = d3.geoMercator().fitExtent([[bx+pad, by+lblH],[bx+bw-pad, by+bh-pad]], saF);
+      gi.append("path").datum(saF).attr("d", d3.geoPath(ip)).attr("fill", fill(valores["88"]))
+        .attr("stroke", css("--ink")).attr("stroke-width",.5);
+      gi.append("title").text(`Archipiélago de San Andrés, Providencia y Santa Catalina\n${fv(valores["88"]||0)} ${unidadMapa}`);
+    }
   }
   svg.on("mousemove.pt", null).on("mouseleave.pt", null);
   if (modoPuntos) dibujarPuntos(svg); else puntosCtl();
@@ -1294,7 +1318,7 @@ function paneles() {
   aniosDisp = aniosDisponibles(C);
   if (st.anios == null) st.anios = new Set(aniosDisp);     // por defecto, todos visibles
   const aniosSel = aniosDisp.filter(y => st.anios.has(y)); // años elegidos por el usuario
-  const W = 320, H = 190, mg = { l: 46, r: 8, t: 8, b: 22 };
+  const W = 320, H = 196, mg = { l: 62, r: 10, t: 8, b: 32 };
   const proms = {}; let ymaxGlobal = 0;
   for (const m of MESES_ENSO) {
     proms[m] = promedioMes(C, m, !acumulado);
@@ -1324,7 +1348,9 @@ function paneles() {
       ax.append("line").attr("class", t===0?"base":"gridl").attr("x1", mg.l).attr("x2", W-mg.r).attr("y1", y(t)).attr("y2", y(t));
       ax.append("text").attr("x", mg.l - 6).attr("y", y(t) + 3.5).attr("text-anchor","end").text(d3.format("~s")(t).replace("k"," mil"));
     }
-    for (const t of [1, 10, 20, nd]) ax.append("text").attr("x", x(t)).attr("y", H - 6).attr("text-anchor","middle").text(t);
+    for (const t of [1, 10, 20, nd]) ax.append("text").attr("x", x(t)).attr("y", H - mg.b + 12).attr("text-anchor","middle").text(t);
+    ax.append("text").attr("class","axlbl").attr("x", (mg.l + (W - mg.r)) / 2).attr("y", H - 3).attr("text-anchor","middle").text("Día");
+    ax.append("text").attr("class","axlbl").attr("transform", `translate(11,${(mg.t + (H - mg.b)) / 2}) rotate(-90)`).attr("text-anchor","middle").text("Incendios");
     const line = d3.line().x(d => x(d[0])).y(d => y(d[1]));
     const gl = svg.append("g");
     for (const yy of aniosSel) {
@@ -2260,10 +2286,11 @@ function llNotas() {
   document.getElementById("lluNotas").innerHTML = `<h3>Fuentes y reglas de cálculo</h3><ul>
     <li><b>Qué es la «lluvia antecedente»:</b> para cada evento, la lluvia acumulada en los 90 días anteriores a su fecha. No es una cifra del primer ni del último evento: el período elegido arriba define qué eventos entran, y los indicadores resumen a todos (mediana). El bloque «Un evento en detalle» muestra uno solo.</li>
     <li><b>Lluvia: CHIRPS diario</b> (0,05°, unos 5 km), ${fechaTxt(L.fecha0)} a ${fechaTxt(L.chirps_hasta)}. Para cada municipio se promedia la lluvia de los píxeles con dato, ponderada por la fracción del píxel que cae dentro del municipio. En municipios grandes el promedio no describe un sitio puntual.</li>
+    <li><b>San Andrés, Providencia y Santa Catalina (88):</b> CHIRPS cubre solo tierra firme y no tiene píxeles con dato en las islas. Para San Andrés (88001) y Providencia (88564) la lluvia sale de las estaciones de precipitación diaria del IDEAM de cada isla (promedio de las estaciones con dato). Como esas series tienen vacíos, cada bloque de 10 días se escala por los días con dato (mínimo 5) y el normal exige al menos 6 años válidos de ${L.base[0]}–${L.base[1]}. Son pocos eventos (${fmt(((L.islas||{}).eventos)||0)}) y cada isla se representa con sus estaciones, no con una malla.</li>
     <li><b>Evento:</b> municipio y día con al menos un punto de calor VIIRS S-NPP sobre vegetación, con el mismo filtro de cobertura de la pestaña Frecuencia. Un incendio de varios días cuenta una vez por día.</li>
     <li><b>Ventana:</b> 90 días antes del evento, de t−90 a t−1 (el día del evento no entra), en 9 bloques de 10 días.</li>
     <li><b>Normal:</b> promedio del mismo acumulado en la misma fecha calendario de ${L.base[0]}–${L.base[1]}; el 29 de febrero usa el promedio del 28 de febrero y el 1 de marzo. Así se compara cada evento con lo esperado en su época del año. Si el normal es menor de ${L.normal_min_mm} mm no se calcula el porcentaje (queda solo en mm).</li>
-    <li><b>Alcance:</b> hay ${fmt(L.eventos_analizados)} de ${fmt(L.eventos_total)} eventos-día analizables. Quedan fuera los de antes del 1 de abril de 2014 y los posteriores al último día CHIRPS (${fechaTxt(L.chirps_hasta)}), porque no tienen los 90 días completos, y los de municipios sin píxel CHIRPS con dato (San Andrés y Providencia).</li>
+    <li><b>Alcance:</b> hay ${fmt(L.eventos_analizados)} de ${fmt(L.eventos_total)} eventos-día analizables. Quedan fuera los de antes del 1 de abril de 2014 y los posteriores al último día CHIRPS (${fechaTxt(L.chirps_hasta)}), porque no tienen los 90 días completos.</li>
     <li><b>Déficit:</b> evento con menos del ${L.deficit_pct} % de la lluvia normal. Los mapas pintan en gris los municipios con menos de ${L.min_eventos_mapa} eventos-día en el período.</li>
     <li>Esta pestaña describe la lluvia que precedió a los incendios; no demuestra causalidad. Los puntos de calor no equivalen a incendios (ver Frecuencia).</li></ul>
     <p style="margin:8px 0 0">Generado ${L.generado}.</p>`;
