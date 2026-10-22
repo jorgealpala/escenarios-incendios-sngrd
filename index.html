@@ -2759,8 +2759,11 @@ new MutationObserver(() => todo()).observe(document.documentElement, { attribute
 
 // Exponer el estado al asistente de IA flotante (script clásico, fuera del módulo)
 window.st = st; window.DATOS = DATOS; window.M = M; window.TABS = TABS; window.descargarPDF = descargarPDF;
+// Estado y datos del módulo para el motor de consultas del asistente (asistente_datos.js)
+window.AS_CTX = { st, DATOS, M, TABS, NAL, GEO_DEP, GEO_MUN, MUN_NOM, nomDepto, LLUVIA, LL, llCargar, llMed, diaDe, titulo, fechaTxt };
 </script>
 
+<script src="asistente_datos.js"></script>
 <!-- ============ Asistente de IA flotante (de moises/app_incendios/plantillas/asistente_widget.html) ============ -->
 <style>
 #asi-btn{position:fixed;right:18px;bottom:18px;z-index:50;width:60px;height:60px;border-radius:50%;border:2px solid var(--surface);background:var(--accent);color:#fff;cursor:pointer;padding:0;box-shadow:0 4px 18px rgba(0,0,0,.28);display:grid;place-items:center;transition:transform .15s}
@@ -2910,8 +2913,8 @@ window.st = st; window.DATOS = DATOS; window.M = M; window.TABS = TABS; window.d
     if (window.PUNTOS_RESUMEN) out.push(window.PUNTOS_RESUMEN);
     return out.join("\n");
   }
-  function contexto() {
-    const tabs = { frec: "Frecuencia de incendios VIIRS", wfs: "Frecuencia de incendios WFS (OroraTech)", lluvia: "Lluvia antecedente", area: "Área quemada", cap: "Capacidades de respuesta" };
+  async function contexto(pregunta) {
+    const tabs = { frec: "Frecuencia de incendios VIIRS", wfs: "Frecuencia de incendios WFS (OroraTech)", lluvia: "Lluvia antecedente", area: "Área quemada", estr: "Estrategias GRD", cap: "Capacidades de respuesta" };
     const embebida = st.tab === "wfs" || st.tab === "cap";
     const cab = [];
     try {
@@ -2923,15 +2926,23 @@ window.st = st; window.DATOS = DATOS; window.M = M; window.TABS = TABS; window.d
         cab.push(`Subtítulo: ${document.getElementById("dsub").textContent}`);
       }
     } catch (e) {}
-    return `${cab.join("\n")}\n\n--- Texto visible de la pestaña ---\n${textoPanel()}\n\n--- Datos de los gráficos ---\n${datosGraficos()}`.slice(0, 5800);
+    // Cifras calculadas con los datos de TODAS las pestañas para lo que pregunta la persona (lugares, período, tema).
+    // Van primero: si el servidor recorta el contexto, lo último en perderse son los resultados.
+    let calc = "", fuentes = "";
+    try { const r = await window.ASISTENTE_DATOS?.consulta(pregunta); if (r) { calc = r.resultados; fuentes = r.fuentes; } } catch (e) {}
+    const A = (calc ? `--- RESULTADOS CALCULADOS con los datos del tablero (cifras exactas; úselas para responder y comparar, no las recalcule) ---\n${calc}\n\n` : "") + cab.join("\n") + (fuentes ? `\n${fuentes}` : "");
+    const B = `\n\n--- Datos de los gráficos ---\n${datosGraficos()}`;
+    const resto = 9500 - A.length - B.length - 60;
+    return A + B + (resto > 300 ? `\n\n--- Texto visible de la pestaña ---\n${textoPanel().slice(0, resto)}` : "");
   }
 
   // ---- Interacción ----
   const SUG = {
-    lluvia: ["Resume lo que veo", "¿Qué significa «% de lo normal»?", "¿La lluvia previa explica los incendios?"],
-    frec: ["Resume lo que veo", "¿Qué es un punto de calor?", "¿Qué significa el mes pico?"],
+    lluvia: ["Resume lo que veo", "Compara la lluvia previa de Meta y Tolima", "¿La lluvia previa explica los incendios?"],
+    frec: ["Resume lo que veo", "Compara los puntos de calor de Meta y Tolima en 2021", "¿Qué significa el mes pico?"],
     wfs: ["Resume lo que veo", "¿Qué es una detección WFS?", "¿Qué temporada tuvo más incendios?"],
-    area: ["Resume lo que veo", "¿En qué se diferencia del punto de calor?"],
+    area: ["Resume lo que veo", "Compara el área quemada de Meta y Tolima", "¿En qué se diferencia del punto de calor?"],
+    estr: ["Resume lo que veo", "¿Qué estrategias son prioritarias aquí?", "¿Qué territorios tienen más recurrencia?"],
     cap: ["Resume lo que veo", "¿Qué entidades reportan capacidades?", "¿Qué dice la señal de brecha?"],
   };
   function sugerencias() {
@@ -2946,7 +2957,7 @@ window.st = st; window.DATOS = DATOS; window.M = M; window.TABS = TABS; window.d
     try { sessionStorage.setItem("asi_visto", "1"); } catch (e) {}
     if (v) {
       if (!saludado) {
-        agregar("bot", md("Hola, soy el asistente de datos. Puedo explicarle lo que está viendo, resumirlo o aclarar términos de lluvia, incendios y gestión del riesgo. **¿Qué le gustaría saber?**"));
+        agregar("bot", md("Hola, soy el asistente de datos. Puedo explicarle lo que está viendo, resumirlo, aclarar términos y hacer análisis y comparaciones entre lugares y períodos con los datos de todas las pestañas (puntos de calor, área quemada, lluvia, capacidades y estrategias). **¿Qué le gustaría saber?**"));
         if (!disponible) agregar("err", md("⚠️ Estoy **sin conexión**. El asistente necesita el servidor local: inicie `servidor_app.py` con una llave configurada (vea el LEEME del portal). Mientras tanto, puede usar la guía «Cómo leer esta pestaña» de cada sección."));
         saludado = true;
       }
@@ -2966,7 +2977,7 @@ window.st = st; window.DATOS = DATOS; window.M = M; window.TABS = TABS; window.d
     const espera = agregar("bot", `<span class="asi-puntos" aria-label="Escribiendo"><span></span><span></span><span></span></span>`);
     try {
       const r = await fetch(URL_API, { method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pregunta: texto, contexto: contexto(), historial: historial.slice(-6) }) });
+        body: JSON.stringify({ pregunta: texto, contexto: await contexto(texto), historial: historial.slice(-6) }) });
       const j = await r.json().catch(() => ({}));
       espera.remove();
       if (!r.ok) { agregar("err", `<p>${esc(j.error || "No pude responder ahora. Intente de nuevo.")}</p>`); ofrecerGuia(); }

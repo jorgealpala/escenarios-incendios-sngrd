@@ -662,5 +662,5 @@
       } });
   }
 
-  window.ESTR = { render, diagnostico: c => diagnostico(c), catalogo };
+  window.ESTR = { render, diagnostico: c => diagnostico(c), catalogo, iniciar: c => { ctx ||= c; } };
 })();

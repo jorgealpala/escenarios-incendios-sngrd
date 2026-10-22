@@ -38,6 +38,15 @@
       "cobertura": "2014-04-01 … 2026-09-21",
       "como_actualizar": "Regenerar con p09_lluvia_antecedente.py (entorno de desarrollo) y reemplazar los 3 archivos."
     },
+    "area": {
+      "descripcion": "Área quemada (MapBiomas Fuego, 30 m) en hectáreas por año y mes, por departamento y municipio. La usa el motor del asistente de IA para análisis y comparaciones.",
+      "ruta": "data/area/",
+      "archivos": ["mb_mes.json"],
+      "formato": "JSON (anios[], deptos{cod:[[12 meses]×años]}, mpios{...})",
+      "lo_usa": "asistente_datos.js (consultas de área quemada del asistente de IA)",
+      "cobertura": "2014 – 2025",
+      "como_actualizar": "Regenerar mb_mes.json desde MapBiomas (entorno de desarrollo) y reemplazar el archivo."
+    },
     "wfs": {
       "descripcion": "Detecciones diarias OroraTech WildFire Solution (WFS) + límites simplificados. El visor WFS (wfs.html) lee el parquet en el navegador con hyparquet.",
       "ruta": "data/wfs/",
